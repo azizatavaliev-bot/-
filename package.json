@@ -1,0 +1,17 @@
+{
+  "name": "whatsapp-sales-bot",
+  "version": "1.0.0",
+  "description": "WhatsApp-бот для продажи услуги с ИИ-диалогом на базе Claude",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "@whiskeysockets/baileys": "^6.7.9",
+    "dotenv": "^16.4.5",
+    "pino": "^9.4.0",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
