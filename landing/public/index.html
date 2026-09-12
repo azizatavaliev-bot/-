@@ -4,43 +4,99 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Анкета — доступ 24 часа</title>
+<title>NEW G — таргетолог нового поколения</title>
+<meta name="description" content="Курс, где ты осваиваешь профессию таргетолога и учишься работать с искусственным интеллектом как со своим личным ассистентом.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-<div class="timer-bar" id="timerBar" hidden>
-  <span class="timer-bar__label">До закрытия анкеты</span>
-  <span class="timer-bar__value" id="timerValue">--:--:--</span>
+
+<div class="timer" id="timer" hidden>
+  <span class="timer__label">Запись закрывается через</span>
+  <span class="timer__value" id="timerValue">--:--:--</span>
 </div>
 
-<main class="page">
-  <section class="hero">
-    <p class="eyebrow" id="brandName"></p>
-    <h1 id="heroTitle"></h1>
-    <p class="lead" id="heroSubtitle"></p>
-    <ul class="bullets" id="bullets"></ul>
+<main>
+  <!-- Экран 1: хук -->
+  <section class="section hero">
+    <p class="eyebrow">NEW G</p>
+    <h1 class="display">ИИ заменит всех специалистов,</h1>
+    <p class="hero__sub">которые не умеют им пользоваться</p>
+    <p class="lead">
+      Первая программа, которая готовит <mark>таргетологов нового поколения</mark>.
+      Ты осваиваешь профессию таргетолога и учишься работать с искусственным
+      интеллектом как со своим личным ассистентом.
+    </p>
+    <a class="btn btn--ghost" href="#form">Занять место на консультации</a>
   </section>
 
-  <section class="card" id="formCard" hidden>
-    <h2>Анкета</h2>
-    <form id="form" novalidate>
-      <div id="fields"></div>
-      <p class="form-error" id="formError" hidden></p>
-      <button type="submit" class="btn" id="submitBtn"></button>
-      <p class="note">Отправить анкету можно один раз и только пока идёт таймер.</p>
-    </form>
+  <!-- Экран 2: программа -->
+  <section class="section">
+    <span class="badge">12 уроков</span>
+    <h2 class="display display--sm">Полный путь <span class="accent">с нуля до результата</span></h2>
+
+    <div class="module">
+      <p class="module__title"><span class="module__num">8</span> уроков — база</p>
+      <p class="module__text">Таргет, креативы по AIDA, запуск, аналитика, работа с клиентами и продажи.</p>
+    </div>
+
+    <div class="module module--accent">
+      <p class="module__title"><span class="module__num">4</span> урока — интеграция ИИ</p>
+      <p class="module__text">
+        ИИ собирает аудиторию, разбирает конкурентов, готовит креативы и отчёты
+        клиентам за минуты вместо часов.
+      </p>
+    </div>
   </section>
 
-  <section class="card card--state" id="stateCard" hidden>
-    <h2 id="stateTitle"></h2>
-    <p id="stateText"></p>
+  <!-- Экран 3: результаты учеников -->
+  <section class="section">
+    <h2 class="h2">За 5 лет я обучил</h2>
+    <p class="bignum">500+</p>
+    <p class="lead lead--tight">
+      учеников таргету, которые вышли на доход <b>30 000 – 585 000 сом</b>.
+      Во время обучения <b>70 из 100</b> вышли на результат.
+    </p>
+
+    <div class="cases">
+      <div class="case"><span class="case__from">Точка А: 0 сом</span><b class="case__to">185 000 сом</b></div>
+      <div class="case"><span class="case__from">Точка А: 0 сом</span><b class="case__to">424 000 сом</b></div>
+      <div class="case"><span class="case__from">Точка А: 0 сом</span><b class="case__to">145 000 сом</b></div>
+      <div class="case"><span class="case__from">Точка А: 30 000 сом</span><b class="case__to">550 000 сом</b></div>
+      <div class="case"><span class="case__from">Точка А: 50 000 сом</span><b class="case__to">585 000 сом</b></div>
+      <div class="case"><span class="case__from">Точка А: 0 сом</span><b class="case__to">158 000 сом</b></div>
+    </div>
+    <p class="note note--left">Точка Б — доход за время обучения.</p>
   </section>
 
-  <section class="card card--state" id="loadingCard">
-    <p>Загружаем форму…</p>
+  <!-- Экран 4: оффер и анкета -->
+  <section class="section" id="form">
+    <h2 class="display display--sm">Не уверен, подходит ли тебе эта профессия?</h2>
+    <p class="lead">
+      Бесплатная консультация — <b>15 минут</b>, чтобы понять твой потенциал
+      в таргете и ИИ. Заполни анкету, и я свяжусь с тобой лично.
+    </p>
+
+    <div class="card" id="formCard" hidden>
+      <form id="anketa" novalidate>
+        <div id="fields"></div>
+        <p class="form-error" id="formError" hidden></p>
+        <button type="submit" class="btn" id="submitBtn">Отправить</button>
+        <p class="note">Анкету можно отправить один раз и только пока идёт таймер.</p>
+      </form>
+    </div>
+
+    <div class="card card--state" id="stateCard" hidden>
+      <h3 id="stateTitle"></h3>
+      <p id="stateText"></p>
+    </div>
+
+    <div class="card card--state" id="loadingCard"><p>Загружаем анкету…</p></div>
   </section>
 
-  <footer class="footer" id="footer"></footer>
+  <footer class="footer">© <span id="year"></span> NEW G</footer>
 </main>
 
 <script src="/app.js"></script>

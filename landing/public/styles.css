@@ -1,14 +1,14 @@
 :root {
-  --bg: #0b0d12;
-  --surface: #141821;
-  --surface-2: #1b2029;
-  --border: #262d3a;
-  --text: #eef1f6;
-  --muted: #98a2b3;
-  --accent: #f5a524;
-  --accent-text: #17181c;
-  --danger: #f97066;
-  --radius: 14px;
+  --bg: #0a0a0b;
+  --surface: #141416;
+  --surface-2: #1c1c1f;
+  --border: #2a2a2e;
+  --text: #ffffff;
+  --muted: #9b9ba3;
+  --blue: #2b7fff;
+  --blue-dark: #1f66d8;
+  --danger: #ff6b5e;
+  --radius: 12px;
 }
 
 * { box-sizing: border-box; }
@@ -17,90 +17,135 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+  font: 16px/1.55 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-.page {
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 88px 20px 64px;
-}
+main { max-width: 720px; margin: 0 auto; padding: 84px 20px 64px; }
+.section { padding: 40px 0; border-bottom: 1px solid var(--border); }
+.section:last-of-type { border-bottom: 0; }
+.hero { padding-top: 16px; }
 
-/* Полоса таймера — липкая, видна всё время */
-.timer-bar {
+/* --- Таймер: прибит сверху, виден на всех экранах --- */
+.timer {
   position: fixed;
   top: 0; left: 0; right: 0;
-  z-index: 10;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
   padding: 12px 16px;
-  background: rgba(11, 13, 18, .88);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border);
+  background: var(--blue);
+  color: #fff;
 }
-.timer-bar__label { color: var(--muted); font-size: 14px; }
-.timer-bar__value {
+.timer__label { font-size: 14px; font-weight: 600; opacity: .85; }
+.timer__value {
+  font-family: Anton, Impact, sans-serif;
+  font-size: 24px;
+  letter-spacing: 1px;
   font-variant-numeric: tabular-nums;
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: .5px;
-  color: var(--accent);
 }
-.timer-bar--urgent .timer-bar__value { color: var(--danger); }
-.timer-bar--urgent { border-bottom-color: var(--danger); }
+.timer--urgent { background: var(--danger); }
 
-.eyebrow {
-  margin: 0 0 12px;
+/* --- Типографика --- */
+.display {
+  font-family: Anton, Impact, "Arial Narrow", sans-serif;
+  font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 1.4px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--accent);
+  line-height: .95;
+  letter-spacing: .5px;
+  margin: 0 0 12px;
+  font-size: clamp(38px, 11vw, 68px);
 }
-h1 {
+.display--sm { font-size: clamp(30px, 8.5vw, 52px); margin-bottom: 16px; }
+.accent { color: var(--blue); }
+
+.h2 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
+.eyebrow {
+  display: inline-block;
   margin: 0 0 16px;
-  font-size: clamp(28px, 6vw, 40px);
-  line-height: 1.15;
-  letter-spacing: -0.5px;
+  padding: 5px 12px;
+  background: var(--blue);
+  font-family: Anton, Impact, sans-serif;
+  font-size: 15px;
+  letter-spacing: 2px;
 }
-h2 { margin: 0 0 20px; font-size: 20px; }
-.lead { margin: 0 0 24px; color: var(--muted); font-size: 17px; }
+.hero__sub { margin: 0 0 24px; font-size: clamp(18px, 5vw, 26px); font-weight: 700; color: var(--muted); }
+.lead { margin: 0 0 28px; color: #d5d5db; font-size: 17px; }
+.lead--tight { margin-bottom: 20px; }
+.lead b { color: #fff; }
+mark { background: var(--blue); color: #fff; padding: 1px 6px; font-style: italic; font-weight: 700; }
 
-.bullets { list-style: none; margin: 0 0 40px; padding: 0; }
-.bullets li {
-  position: relative;
-  padding: 0 0 0 28px;
-  margin-bottom: 10px;
-  color: var(--text);
+.badge {
+  display: inline-block;
+  margin-bottom: 14px;
+  padding: 5px 14px;
+  border: 1px solid var(--blue);
+  background: rgba(43, 127, 255, .16);
+  font-weight: 700;
+  font-style: italic;
+  font-size: 14px;
 }
-.bullets li::before {
-  content: "";
-  position: absolute;
-  left: 6px; top: 9px;
-  width: 7px; height: 7px;
+
+/* --- Блоки программы --- */
+.module {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 14px;
+}
+.module--accent { border-left-color: var(--blue); }
+.module__title { margin: 0 0 8px; font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.module__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px; height: 34px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--blue);
+  font-family: Anton, Impact, sans-serif;
+  font-size: 18px;
 }
+.module__text { margin: 0; color: var(--muted); }
 
+/* --- Результаты --- */
+.bignum {
+  font-family: Anton, Impact, sans-serif;
+  font-size: clamp(64px, 20vw, 120px);
+  line-height: 1;
+  color: var(--blue);
+  margin: 0 0 12px;
+}
+.cases { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.case {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+.case__from { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.case__to { font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 22px; letter-spacing: .5px; }
+
+/* --- Анкета --- */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 28px 24px;
+  padding: 26px 22px;
 }
 .card--state { text-align: center; color: var(--muted); }
-.card--state h2 { color: var(--text); }
+.card--state h3 { margin: 0 0 10px; color: #fff; font-size: 20px; }
 
 .field { margin-bottom: 18px; }
 .field label { display: block; margin-bottom: 7px; font-size: 14px; font-weight: 600; }
-.field .req { color: var(--accent); }
+.field .req { color: var(--blue); }
 
 input, select, textarea {
   width: 100%;
-  padding: 12px 14px;
+  padding: 13px 14px;
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -108,48 +153,50 @@ input, select, textarea {
   font: inherit;
   transition: border-color .15s;
 }
-input:focus, select:focus, textarea:focus {
-  outline: none;
-  border-color: var(--accent);
-}
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--blue); }
 textarea { min-height: 110px; resize: vertical; }
 select { appearance: none; cursor: pointer; }
-
-.field--invalid input,
-.field--invalid select,
-.field--invalid textarea { border-color: var(--danger); }
+.field--invalid input, .field--invalid select, .field--invalid textarea { border-color: var(--danger); }
 .field-error { margin: 6px 0 0; font-size: 13px; color: var(--danger); }
 .form-error {
   margin: 0 0 16px;
   padding: 12px 14px;
   border-radius: 10px;
-  background: rgba(249, 112, 102, .12);
-  border: 1px solid rgba(249, 112, 102, .35);
+  background: rgba(255, 107, 94, .12);
+  border: 1px solid rgba(255, 107, 94, .35);
   color: var(--danger);
   font-size: 14px;
 }
 
 .btn {
+  display: block;
   width: 100%;
-  padding: 15px 20px;
+  padding: 16px 20px;
   border: 0;
   border-radius: 10px;
-  background: var(--accent);
-  color: var(--accent-text);
+  background: var(--blue);
+  color: #fff;
   font: inherit;
   font-weight: 700;
+  font-size: 17px;
+  text-align: center;
+  text-decoration: none;
   cursor: pointer;
-  transition: opacity .15s, transform .05s;
+  transition: background .15s, transform .05s;
 }
-.btn:hover { opacity: .9; }
+.btn:hover { background: var(--blue-dark); }
 .btn:active { transform: translateY(1px); }
-.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.btn[disabled] { opacity: .55; cursor: not-allowed; }
+.btn--ghost { background: transparent; border: 2px solid var(--blue); color: var(--blue); }
+.btn--ghost:hover { background: var(--blue); color: #fff; }
 
 .note { margin: 14px 0 0; font-size: 13px; color: var(--muted); text-align: center; }
-.footer { margin-top: 48px; text-align: center; font-size: 13px; color: var(--muted); }
+.note--left { text-align: left; }
+.footer { padding-top: 32px; text-align: center; font-size: 13px; color: var(--muted); }
 
 @media (max-width: 480px) {
-  .page { padding: 76px 16px 48px; }
+  main { padding: 78px 16px 48px; }
   .card { padding: 22px 18px; }
-  .timer-bar { flex-direction: column; gap: 2px; padding: 10px 16px; }
+  .timer { flex-direction: column; gap: 0; padding: 8px 16px; }
+  .timer__label { font-size: 12px; }
 }

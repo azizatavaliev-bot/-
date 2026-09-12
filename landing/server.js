@@ -1,26 +1,30 @@
 // HTTP-сервер лендинга. Без внешних зависимостей.
 //
 // Механика таймера:
-//   1. Первый заход  -> сервер выдаёт cookie `sid` и записывает deadline = now + windowHours.
-//   2. Любой следующий заход с тем же cookie -> возвращается ТОТ ЖЕ deadline.
+//   1. Первый заход  -> сервер кладёт в cookie подписанный дедлайн (сейчас + windowHours).
+//   2. Любой следующий заход с тем же устройством -> возвращается ТОТ ЖЕ дедлайн.
 //      Время не перезапускается и продолжает идти, пока сайт закрыт.
-//   3. Приём анкеты проверяется на сервере: после deadline POST /api/submit отклоняется,
-//      даже если клиент подменил таймер в браузере.
+//   3. Приём анкеты проверяется на сервере по подписи: подменить дедлайн
+//      в браузере нельзя — без секретного ключа подпись не сойдётся.
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
 const config = require('./config');
-const store = require('./lib/store');
+const token = require('./lib/token');
+const leads = require('./lib/leads');
 
 const PUBLIC_DIR = path.join(__dirname, 'public');
-const COOKIE_NAME = 'sid';
+const COOKIE_NAME = 'ng';
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.js': 'application/javascript; charset=utf-8',
   '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.webp': 'image/webp',
   '.ico': 'image/x-icon',
 };
 
@@ -37,13 +41,12 @@ function parseCookies(req) {
 }
 
 function sendJson(res, status, body, headers = {}) {
-  const payload = JSON.stringify(body);
   res.writeHead(status, {
     'content-type': 'application/json; charset=utf-8',
     'cache-control': 'no-store',
     ...headers,
   });
-  res.end(payload);
+  res.end(JSON.stringify(body));
 }
 
 function readBody(req, limitBytes = 64 * 1024) {
@@ -66,45 +69,45 @@ function readBody(req, limitBytes = 64 * 1024) {
 
 function clientIp(req) {
   const forwarded = req.headers['x-forwarded-for'];
-  if (typeof forwarded === 'string' && forwarded.length > 0) return forwarded.split(',')[0].trim();
+  if (typeof forwarded === 'string' && forwarded) return forwarded.split(',')[0].trim();
   return req.socket.remoteAddress || '';
 }
 
-// Возвращает существующую сессию по cookie либо создаёт новую.
-function resolveSession(req, res) {
-  const cookies = parseCookies(req);
-  const existing = store.getSession(cookies[COOKIE_NAME]);
-  if (existing) return { session: existing, isNew: false };
+function isHttps(req) {
+  return req.headers['x-forwarded-proto'] === 'https';
+}
 
-  const id = crypto.randomUUID();
-  const session = store.createSession({
-    id,
-    deadline: Date.now() + config.windowHours * 3600 * 1000,
-    meta: { ip: clientIp(req), ua: String(req.headers['user-agent'] || '').slice(0, 300) },
-  });
-
+function setSessionCookie(res, req, payload) {
   const parts = [
-    `${COOKIE_NAME}=${id}`,
+    `${COOKIE_NAME}=${token.sign(payload, config.secret)}`,
     'Path=/',
     `Max-Age=${config.cookieDays * 24 * 3600}`,
     'SameSite=Lax',
     'HttpOnly',
   ];
-  // Secure ставим только если сайт реально открыт по https, иначе cookie не сохранится локально.
-  if (req.headers['x-forwarded-proto'] === 'https') parts.push('Secure');
+  // Secure выставляем только под https, иначе cookie не сохранится при локальной проверке.
+  if (isHttps(req)) parts.push('Secure');
   res.setHeader('set-cookie', parts.join('; '));
-
-  return { session, isNew: true };
 }
 
-function sessionState(session) {
+// Возвращает дедлайн устройства: из cookie либо новый, если её нет или подпись неверна.
+function resolveSession(req, res) {
+  const existing = token.verify(parseCookies(req)[COOKIE_NAME], config.secret);
+  if (existing) return existing;
+
+  const fresh = { d: Date.now() + config.windowHours * 3600 * 1000, s: 0, v: 1 };
+  setSessionCookie(res, req, fresh);
+  return fresh;
+}
+
+function sessionState(payload) {
   const now = Date.now();
   return {
     now,
-    deadline: session.deadline,
-    msLeft: Math.max(0, session.deadline - now),
-    expired: now >= session.deadline,
-    submitted: Boolean(session.submittedAt),
+    deadline: payload.d,
+    msLeft: Math.max(0, payload.d - now),
+    expired: now >= payload.d,
+    submitted: payload.s === 1,
   };
 }
 
@@ -118,7 +121,7 @@ function validate(payload) {
     const value = typeof raw === 'string' ? raw.trim() : raw == null ? '' : String(raw).trim();
 
     if (!value) {
-      if (field.required) errors[field.name] = 'Заполните это поле';
+      if (field.required) errors[field.name] = 'Заполни это поле';
       continue;
     }
     if (field.maxLength && value.length > field.maxLength) {
@@ -126,16 +129,23 @@ function validate(payload) {
       continue;
     }
     if (field.type === 'select' && Array.isArray(field.options) && !field.options.includes(value)) {
-      errors[field.name] = 'Выберите вариант из списка';
+      errors[field.name] = 'Выбери вариант из списка';
       continue;
     }
     if (field.type === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) {
-      errors[field.name] = 'Проверьте адрес почты';
+      errors[field.name] = 'Проверь адрес почты';
       continue;
     }
-    if (field.type === 'tel' && (value.replace(/\D/g, '').length < 9)) {
-      errors[field.name] = 'Проверьте номер телефона';
+    if (field.type === 'tel' && value.replace(/\D/g, '').length < 9) {
+      errors[field.name] = 'Проверь номер телефона';
       continue;
+    }
+    if (field.type === 'number') {
+      const num = Number(value);
+      if (!Number.isFinite(num) || num <= 0) {
+        errors[field.name] = 'Нужно число';
+        continue;
+      }
     }
     answers[field.name] = value;
   }
@@ -148,11 +158,25 @@ function csvCell(value) {
   return /[",;\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
+function sendCsv(res) {
+  const header = ['Дата', ...config.fields.map((f) => f.label)];
+  const rows = leads.readAll().map((lead) => [
+    new Date(lead.createdAt).toISOString(),
+    ...config.fields.map((f) => lead.answers[f.name] || ''),
+  ]);
+  const csv = [header, ...rows].map((row) => row.map(csvCell).join(';')).join('\n');
+  res.writeHead(200, {
+    'content-type': 'text/csv; charset=utf-8',
+    'content-disposition': 'attachment; filename="leads.csv"',
+  });
+  res.end('﻿' + csv); // BOM, чтобы Excel открыл кириллицу
+}
+
 function serveStatic(res, urlPath) {
   const relative = urlPath === '/' ? 'index.html' : urlPath.replace(/^\/+/, '');
   const target = path.join(PUBLIC_DIR, relative);
   // Защита от выхода за пределы public/
-  if (!target.startsWith(PUBLIC_DIR + path.sep) && target !== path.join(PUBLIC_DIR, 'index.html')) {
+  if (path.relative(PUBLIC_DIR, target).startsWith('..')) {
     res.writeHead(403).end('Forbidden');
     return;
   }
@@ -168,95 +192,97 @@ function serveStatic(res, urlPath) {
 }
 
 function isAdmin(url) {
-  const key = url.searchParams.get('key') || '';
-  const expected = config.adminKey;
-  const a = Buffer.from(key);
-  const b = Buffer.from(expected);
-  return a.length === b.length && crypto.timingSafeEqual(a, b);
+  const provided = Buffer.from(url.searchParams.get('key') || '');
+  const expected = Buffer.from(config.adminKey);
+  return provided.length === expected.length && crypto.timingSafeEqual(provided, expected);
 }
 
-const server = http.createServer(async (req, res) => {
+async function handle(req, res) {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
 
-  try {
-    // Настройки формы + состояние таймера для текущего устройства.
-    if (url.pathname === '/api/session' && req.method === 'GET') {
-      const { session } = resolveSession(req, res);
-      return sendJson(res, 200, {
-        ...sessionState(session),
-        windowHours: config.windowHours,
-        brand: config.brand,
-        fields: config.fields,
-      });
+  // Состояние таймера для текущего устройства + описание полей анкеты.
+  if (url.pathname === '/api/session' && req.method === 'GET') {
+    const session = resolveSession(req, res);
+    return sendJson(res, 200, {
+      ...sessionState(session),
+      windowHours: config.windowHours,
+      submitLabel: config.submitLabel,
+      successTitle: config.successTitle,
+      successText: config.successText,
+      expiredTitle: config.expiredTitle,
+      expiredText: config.expiredText,
+      fields: config.fields,
+    });
+  }
+
+  if (url.pathname === '/api/submit' && req.method === 'POST') {
+    const session = resolveSession(req, res);
+    const state = sessionState(session);
+
+    // Главная проверка: дедлайн валидируется по подписи на сервере.
+    if (state.expired) return sendJson(res, 403, { error: 'expired', ...state });
+    if (state.submitted) return sendJson(res, 409, { error: 'already_submitted', ...state });
+
+    let payload;
+    try {
+      payload = JSON.parse(await readBody(req));
+    } catch {
+      return sendJson(res, 400, { error: 'bad_request' });
     }
+    if (!payload || typeof payload !== 'object') return sendJson(res, 400, { error: 'bad_request' });
 
-    if (url.pathname === '/api/submit' && req.method === 'POST') {
-      const { session } = resolveSession(req, res);
-      const state = sessionState(session);
+    const { ok, errors, answers } = validate(payload);
+    if (!ok) return sendJson(res, 422, { error: 'validation', errors });
 
-      // Главная проверка: дедлайн валидируется на сервере, а не в браузере.
-      if (state.expired) return sendJson(res, 403, { error: 'expired', ...state });
-      if (state.submitted) return sendJson(res, 409, { error: 'already_submitted', ...state });
-
-      let payload;
-      try {
-        payload = JSON.parse(await readBody(req));
-      } catch {
-        return sendJson(res, 400, { error: 'bad_request' });
-      }
-      if (!payload || typeof payload !== 'object') return sendJson(res, 400, { error: 'bad_request' });
-
-      const { ok, errors, answers } = validate(payload);
-      if (!ok) return sendJson(res, 422, { error: 'validation', errors });
-
-      store.addLead({
+    await leads.save(
+      {
         id: crypto.randomUUID(),
-        sessionId: session.id,
         createdAt: Date.now(),
         answers,
         meta: { ip: clientIp(req), ua: String(req.headers['user-agent'] || '').slice(0, 300) },
-      });
-      store.markSubmitted(session.id);
+      },
+      config.fields
+    );
 
-      return sendJson(res, 200, { ok: true, ...sessionState(store.getSession(session.id)) });
-    }
+    // Помечаем устройство как отправившее анкету — повторно форма не откроется.
+    const submitted = { ...session, s: 1 };
+    setSessionCookie(res, req, submitted);
+    return sendJson(res, 200, { ok: true, ...sessionState(submitted) });
+  }
 
-    if (url.pathname === '/api/leads' && req.method === 'GET') {
-      if (!isAdmin(url)) return sendJson(res, 401, { error: 'unauthorized' });
-      return sendJson(res, 200, {
-        stats: store.stats(),
-        fields: config.fields.map(({ name, label }) => ({ name, label })),
-        leads: store.allLeads().slice().reverse(),
-      });
-    }
+  if (url.pathname === '/api/leads' && req.method === 'GET') {
+    if (!isAdmin(url)) return sendJson(res, 401, { error: 'unauthorized' });
+    if (url.searchParams.get('format') === 'csv') return sendCsv(res);
+    const all = leads.readAll();
+    return sendJson(res, 200, {
+      stats: { leads: all.length },
+      storage: leads.fileSink,
+      fields: config.fields.map(({ name, label }) => ({ name, label })),
+      leads: all.slice().reverse(),
+    });
+  }
 
-    if (url.pathname === '/api/leads.csv' && req.method === 'GET') {
-      if (!isAdmin(url)) return sendJson(res, 401, { error: 'unauthorized' });
-      const header = ['Дата', ...config.fields.map((f) => f.label)];
-      const rows = store.allLeads().map((lead) => [
-        new Date(lead.createdAt).toISOString(),
-        ...config.fields.map((f) => lead.answers[f.name] || ''),
-      ]);
-      const csv = [header, ...rows].map((row) => row.map(csvCell).join(';')).join('\n');
-      res.writeHead(200, {
-        'content-type': 'text/csv; charset=utf-8',
-        'content-disposition': 'attachment; filename="leads.csv"',
-      });
-      return res.end('﻿' + csv); // BOM, чтобы Excel корректно открыл кириллицу
-    }
+  if (req.method === 'GET' || req.method === 'HEAD') return serveStatic(res, url.pathname);
 
-    if (req.method === 'GET' || req.method === 'HEAD') return serveStatic(res, url.pathname);
+  res.writeHead(405).end('Method Not Allowed');
+}
 
-    res.writeHead(405).end('Method Not Allowed');
-  } catch (error) {
+const server = http.createServer((req, res) => {
+  handle(req, res).catch((error) => {
     console.error('Ошибка запроса:', error);
     if (!res.headersSent) sendJson(res, 500, { error: 'server_error' });
     else res.end();
-  }
+  });
 });
 
-server.listen(config.port, () => {
-  console.log(`Лендинг запущен: http://localhost:${config.port}`);
-  console.log(`Админка: http://localhost:${config.port}/admin.html?key=${config.adminKey}`);
-  if (config.adminKey === 'change-me') console.warn('Внимание: смените ADMIN_KEY в .env');
-});
+// На serverless-хостинге модуль импортируется, а слушать порт не нужно.
+if (require.main === module) {
+  server.listen(config.port, () => {
+    console.log(`Лендинг запущен: http://localhost:${config.port}`);
+    console.log(`Заявки: http://localhost:${config.port}/admin.html?key=${config.adminKey}`);
+    if (!config.hasCustomSecret) console.warn('Внимание: задайте SESSION_SECRET в .env, иначе таймеры сбросятся при смене ключа');
+    if (config.adminKey === 'change-me') console.warn('Внимание: смените ADMIN_KEY в .env');
+  });
+}
+
+module.exports = server;

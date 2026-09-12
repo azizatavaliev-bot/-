@@ -45,11 +45,12 @@
     })
     .then(function (data) {
       var html = '<div class="stats">' +
-        '<div class="stat"><b>' + data.stats.visitors + '</b><span>всего зашло</span></div>' +
-        '<div class="stat"><b>' + data.stats.active + '</b><span>таймер ещё идёт</span></div>' +
         '<div class="stat"><b>' + data.stats.leads + '</b><span>анкет заполнено</span></div>' +
         '</div>' +
-        '<div class="actions"><a class="btn btn--inline" href="/api/leads.csv?key=' + encodeURIComponent(key) + '">Скачать CSV</a></div>';
+        (data.storage.available ? '' :
+          '<p class="form-error">Файловое хранилище недоступно (' + escapeHtml(data.storage.reason) +
+          '). На serverless-хостинге заявки приходят только в Telegram и в логи.</p>') +
+        '<div class="actions"><a class="btn btn--inline" href="/api/leads?format=csv&key=' + encodeURIComponent(key) + '">Скачать CSV</a></div>';
 
       if (data.leads.length === 0) {
         html += '<p class="lead">Пока ни одной анкеты.</p>';
