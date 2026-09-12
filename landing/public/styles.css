@@ -122,16 +122,11 @@ mark { background: var(--blue); color: #fff; padding: 1px 6px; font-style: itali
 .lesson__frame {
   display: block;
   width: 100%;
-  /* На телефоне кадр выше: плеер Диска занимает часть высоты своей панелью,
-     и при 16:9 она вылезает за край. */
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 9;
   border: 0;
   background: #000;
 }
 
-@media (min-width: 620px) {
-  .lesson__frame { aspect-ratio: 16 / 9; }
-}
 /* --- Результаты --- */
 .bignum {
   font-family: Anton, Impact, sans-serif;
