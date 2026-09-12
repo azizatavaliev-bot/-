@@ -278,6 +278,30 @@ async function handle(req, res) {
     return sendJson(res, 200, { ok: true, ...sessionState(submitted) });
   }
 
+  // Диагностика. Показывает, что именно сервер получил от устройства и каким
+  // ключом подписывает токены. Секрет не раскрывается — только его отпечаток:
+  // если отпечаток меняется между деплоями, значит SESSION_SECRET непостоянен,
+  // и тогда таймеры обнуляются у всех при каждом обновлении сайта.
+  if (url.pathname === '/api/debug' && req.method === 'GET') {
+    const cookieToken = parseCookies(req)[COOKIE_NAME];
+    const headerToken = req.headers[HEADER_NAME];
+    const session = resolveSession(req, res);
+    const state = sessionState(session);
+
+    return sendJson(res, 200, {
+      отпечатокКлюча: crypto.createHash('sha256').update(config.secret).digest('hex').slice(0, 12),
+      ключЗадан: config.hasCustomSecret,
+      пришлаCookie: Boolean(cookieToken),
+      cookieВалидна: Boolean(token.verify(cookieToken, config.secret)),
+      пришёлТокенИзБраузера: Boolean(headerToken),
+      токенВалиден: Boolean(token.verify(headerToken, config.secret)),
+      осталосьЧасов: Math.round((state.msLeft / 3600000) * 100) / 100,
+      анкетаОтправлена: state.submitted,
+      защищённоеСоединение: isHttps(req),
+      хранилищеЗаявок: leads.fileSink,
+    });
+  }
+
   if (url.pathname === '/api/leads' && req.method === 'GET') {
     if (!isAdmin(url)) return sendJson(res, 401, { error: 'unauthorized' });
     if (url.searchParams.get('format') === 'csv') return sendCsv(res);
