@@ -20,6 +20,9 @@
   .actions { display: flex; gap: 10px; margin-bottom: 20px; }
   .actions a { text-decoration: none; }
   .btn--inline { width: auto; padding: 10px 18px; display: inline-block; }
+  .ok { color: #57d38c; }
+  .fail { color: var(--danger); }
+  .muted { color: var(--muted); }
 </style>
 </head>
 <body>
@@ -31,6 +34,20 @@
 (function () {
   var key = new URLSearchParams(location.search).get('key') || '';
   var content = document.getElementById('content');
+
+  // Показывает, ушла ли заявка в Telegram, и если нет — почему.
+  // Заявки, принятые до появления этой отметки, показываются прочерком.
+  function deliveryLabel(lead) {
+    var telegram = lead.доставка && lead.доставка.telegram;
+    if (!telegram) return '<span class="muted">—</span>';
+    if (telegram.sent) return '<span class="ok">отправлено</span>';
+
+    var reason = telegram.reason === 'not_configured'
+      ? 'не настроен токен или chat id'
+      : telegram.reason;
+    if (telegram.описание) reason += ': ' + telegram.описание;
+    return '<span class="fail">' + escapeHtml(reason) + '</span>';
+  }
 
   function escapeHtml(value) {
     return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
@@ -57,13 +74,13 @@
       } else {
         html += '<div class="table-wrap"><table><thead><tr><th>Дата</th>';
         data.fields.forEach(function (field) { html += '<th>' + escapeHtml(field.label) + '</th>'; });
-        html += '</tr></thead><tbody>';
+        html += '<th>Telegram</th></tr></thead><tbody>';
         data.leads.forEach(function (lead) {
           html += '<tr><td>' + new Date(lead.createdAt).toLocaleString('ru-RU') + '</td>';
           data.fields.forEach(function (field) {
             html += '<td>' + escapeHtml(lead.answers[field.name] || '') + '</td>';
           });
-          html += '</tr>';
+          html += '<td>' + deliveryLabel(lead) + '</td></tr>';
         });
         html += '</tbody></table></div>';
       }

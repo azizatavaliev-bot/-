@@ -67,8 +67,21 @@ async function sendToTelegram(lead, fields) {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ chat_id: chatId, text: lines.join('\n'), parse_mode: 'HTML' }),
+      signal: AbortSignal.timeout(8000),
     });
-    if (!response.ok) return { sent: false, reason: 'http_' + response.status };
+    if (!response.ok) {
+      // Telegram объясняет отказ словами: неверный chat id, чужой токен,
+      // бот заблокирован получателем. Эта строка и есть ответ на вопрос
+      // «почему сообщение не пришло».
+      const body = await response.text().catch(() => '');
+      let описание = '';
+      try {
+        описание = JSON.parse(body).description || '';
+      } catch {
+        описание = body.slice(0, 120);
+      }
+      return { sent: false, reason: 'http_' + response.status, описание };
+    }
     return { sent: true };
   } catch (error) {
     return { sent: false, reason: String(error.message) };
@@ -91,6 +104,7 @@ async function sendToSheet(lead, fields) {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(row),
       redirect: 'follow', // Apps Script отвечает редиректом на скрипт исполнения
+      signal: AbortSignal.timeout(8000),
     });
     if (!response.ok) return { sent: false, reason: 'http_' + response.status };
     return { sent: true };
@@ -104,12 +118,15 @@ async function sendToSheet(lead, fields) {
 // потерять лид: на serverless-хостинге Telegram — единственный рабочий канал.
 // Лог пишется всегда, это последняя линия обороны.
 async function save(lead, fields) {
-  const savedToFile = saveToFile(lead);
   // Приёмники независимы: падение одного не должно мешать остальным.
   const [telegram, sheet] = await Promise.all([
     sendToTelegram(lead, fields),
     sendToSheet(lead, fields),
   ]);
+
+  // Результат доставки сохраняется вместе с заявкой, чтобы причина отказа была
+  // видна в списке заявок, а не только в логах хостинга.
+  const savedToFile = saveToFile({ ...lead, доставка: { telegram, sheet } });
   const delivered = savedToFile || telegram.sent || sheet.sent;
 
   console.log('[lead]', JSON.stringify({ ...lead, file: savedToFile, telegram, sheet, delivered }));
