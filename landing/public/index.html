@@ -60,62 +60,17 @@
       Во время обучения <b>70 из 100</b> вышли на результат.
     </p>
 
-    <div class="cases">
-      <figure class="case" style="--tilt: -2.5deg">
-        <img class="case__photo" src="/cases/1.jpg" alt="Ученик курса" loading="lazy" onerror="this.remove()">
-        <figcaption class="case__caption">
-          <span class="case__from">Точка А: 0 сом</span>
-          <span class="case__label">Точка Б:</span>
-          <b class="case__to">185 000 сом</b>
-        </figcaption>
-      </figure>
-
-      <figure class="case" style="--tilt: 1.5deg">
-        <img class="case__photo" src="/cases/2.jpg" alt="Ученик курса" loading="lazy" onerror="this.remove()">
-        <figcaption class="case__caption">
-          <span class="case__from">Точка А: 0 сом</span>
-          <span class="case__label">Точка Б:</span>
-          <b class="case__to">424 000 сом</b>
-        </figcaption>
-      </figure>
-
-      <figure class="case" style="--tilt: -1.5deg">
-        <img class="case__photo" src="/cases/3.jpg" alt="Ученик курса" loading="lazy" onerror="this.remove()">
-        <figcaption class="case__caption">
-          <span class="case__from">Точка А: 0 сом</span>
-          <span class="case__label">Точка Б:</span>
-          <b class="case__to">145 000 сом</b>
-        </figcaption>
-      </figure>
-
-      <figure class="case" style="--tilt: 2deg">
-        <img class="case__photo" src="/cases/4.jpg" alt="Ученица курса" loading="lazy" onerror="this.remove()">
-        <figcaption class="case__caption">
-          <span class="case__from">Точка А: 30 000 сом</span>
-          <span class="case__label">Точка Б:</span>
-          <b class="case__to">550 000 сом</b>
-        </figcaption>
-      </figure>
-
-      <figure class="case" style="--tilt: -2deg">
-        <img class="case__photo" src="/cases/5.jpg" alt="Ученик курса" loading="lazy" onerror="this.remove()">
-        <figcaption class="case__caption">
-          <span class="case__from">Точка А: 50 000 сом</span>
-          <span class="case__label">Точка Б:</span>
-          <b class="case__to">585 000 сом</b>
-        </figcaption>
-      </figure>
-
-      <figure class="case" style="--tilt: 1deg">
-        <img class="case__photo" src="/cases/6.jpg" alt="Ученик курса" loading="lazy" onerror="this.remove()">
-        <figcaption class="case__caption">
-          <span class="case__from">Точка А: 0 сом</span>
-          <span class="case__label">Точка Б:</span>
-          <b class="case__to">158 000 сом</b>
-        </figcaption>
-      </figure>
-    </div>
-    <p class="note note--left">Точка Б — доход ученика за время обучения.</p>
+    <!-- Коллаж кейсов одной картинкой: тот же скриншот, что в карусели.
+         Фон у него чёрный и сливается с фоном страницы, поэтому рамка не нужна. -->
+    <figure class="cases">
+      <img
+        class="cases__img"
+        src="/cases/results.jpg"
+        alt="Результаты учеников: точка А и точка Б по доходу"
+        loading="lazy"
+        onerror="this.closest('.cases').remove()">
+      <figcaption class="note note--left">Точка Б — доход ученика за время обучения.</figcaption>
+    </figure>
   </section>
 
   <!-- Экран 4: оффер и анкета -->
