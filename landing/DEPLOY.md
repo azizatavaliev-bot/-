@@ -9,8 +9,7 @@ Node-процесс, переменные окружения в интерфей
 
 1. **railway.app** → войти через GitHub → **New Project** → **Deploy from GitHub repo**
 2. Выбрать этот репозиторий, ветку `claude/gallant-tesla-nwmits`
-3. **Settings → Root Directory** → указать `landing`
-4. **Variables** → добавить:
+3. **Variables** → добавить:
 
    | Переменная | Значение |
    |---|---|
@@ -23,11 +22,16 @@ Node-процесс, переменные окружения в интерфей
    `SESSION_SECRET` удобно сгенерировать так:
    `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
 
-5. **Settings → Volumes** → создать том, точка монтирования `/data`.
+4. **Settings → Volumes** → создать том, точка монтирования `/data`.
    Без тома заявки будут теряться при каждом передеплое.
-6. **Settings → Networking → Generate Domain** — получите рабочую ссылку.
+5. **Settings → Networking → Generate Domain** — получите рабочую ссылку.
 
-Порт Railway передаёт сам через `PORT`, трогать его не нужно.
+Root Directory указывать не нужно: в корне репозитория лежат `railway.json`
+и `nixpacks.toml`, которые запускают сайт из папки `landing`. Порт Railway
+передаёт сам через `PORT`.
+
+Если сменить ветку уже после создания проекта, Railway не пересобирает проект
+сам — нужен новый пуш в эту ветку либо **Redeploy** в разделе Deployments.
 
 ## Проверка после деплоя
 
