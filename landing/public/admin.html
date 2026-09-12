@@ -112,41 +112,64 @@
       .catch(function () {});
   }
 
-  document.getElementById('saveBtn').addEventListener('click', function () {
-    settingsResult.textContent = 'Сохраняем…';
-    fetch('/api/settings?key=' + encodeURIComponent(key), {
+  function filledValues() {
+    return {
+      TELEGRAM_BOT_TOKEN: document.getElementById('botToken').value,
+      TELEGRAM_CHAT_ID: document.getElementById('chatId').value,
+      SHEETS_WEBHOOK_URL: document.getElementById('sheetUrl').value
+    };
+  }
+
+  function hasInput(values) {
+    return Object.keys(values).some(function (k) { return values[k].trim(); });
+  }
+
+  // Возвращает обещание: сохранить то, что набрано в полях.
+  function saveSettings() {
+    var values = filledValues();
+    return fetch('/api/settings?key=' + encodeURIComponent(key), {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        TELEGRAM_BOT_TOKEN: document.getElementById('botToken').value,
-        TELEGRAM_CHAT_ID: document.getElementById('chatId').value,
-        SHEETS_WEBHOOK_URL: document.getElementById('sheetUrl').value
-      })
+      body: JSON.stringify(values)
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
-        if (data.error) { settingsResult.innerHTML = '<span class="fail">Не сохранилось: ' + escapeHtml(data.reason || data.error) + '</span>'; return; }
+        if (data.error) throw new Error(data.reason || data.error);
         settingsState.textContent = describe(data.settings);
-        settingsResult.innerHTML = '<span class="ok">Сохранено</span>';
         document.getElementById('botToken').value = '';
         document.getElementById('chatId').value = '';
         document.getElementById('sheetUrl').value = '';
-      })
-      .catch(function () { settingsResult.innerHTML = '<span class="fail">Нет связи с сервером</span>'; });
+        return data;
+      });
+  }
+
+  document.getElementById('saveBtn').addEventListener('click', function () {
+    settingsResult.textContent = 'Сохраняем…';
+    saveSettings()
+      .then(function () { settingsResult.innerHTML = '<span class="ok">Сохранено</span>'; })
+      .catch(function (e) { settingsResult.innerHTML = '<span class="fail">Не сохранилось: ' + escapeHtml(e.message) + '</span>'; });
   });
 
   document.getElementById('testBtn').addEventListener('click', function () {
     settingsResult.textContent = 'Отправляем…';
-    fetch('/api/settings/test?key=' + encodeURIComponent(key), { method: 'POST' })
-      .then(function (r) { return r.json(); })
+    // Если поля заполнены, сначала сохраняем: иначе проверка ушла бы со старыми
+    // значениями, и человек читал бы отказ про незаданный токен.
+    var prepare = hasInput(filledValues()) ? saveSettings() : Promise.resolve();
+
+    prepare
+      .catch(function (e) { throw new Error('не сохранилось: ' + e.message); })
+      .then(function () {
+        return fetch('/api/settings/test?key=' + encodeURIComponent(key), { method: 'POST' })
+          .then(function (r) { return r.json(); });
+      })
       .then(function (data) {
-        var t = data.telegram || {};
+        var t = (data && data.telegram) || {};
         if (t.sent) { settingsResult.innerHTML = '<span class="ok">Сообщение ушло — проверьте Telegram</span>'; return; }
         var reason = t.reason === 'not_configured' ? 'токен или chat id не заданы' : t.reason;
         if (t.описание) reason += ': ' + t.описание;
         settingsResult.innerHTML = '<span class="fail">Telegram отказал — ' + escapeHtml(reason) + '</span>';
       })
-      .catch(function () { settingsResult.innerHTML = '<span class="fail">Нет связи с сервером</span>'; });
+      .catch(function (e) { settingsResult.innerHTML = '<span class="fail">' + escapeHtml(e.message || 'Нет связи с сервером') + '</span>'; });
   });
 
   loadSettings();
