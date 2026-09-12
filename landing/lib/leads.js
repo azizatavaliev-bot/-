@@ -9,6 +9,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const settings = require('./settings');
+
 // Каталог для заявок. На хостинге с постоянным диском (Railway, VPS) сюда
 // монтируется том, поэтому путь берётся из переменной окружения.
 const DATA_DIR = process.env.LEADS_DIR || path.join(__dirname, '..', 'data');
@@ -52,8 +54,8 @@ function escapeHtml(value) {
 }
 
 async function sendToTelegram(lead, fields) {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+  const token = settings.get('TELEGRAM_BOT_TOKEN');
+  const chatId = settings.get('TELEGRAM_CHAT_ID');
   if (!token || !chatId) return { sent: false, reason: 'not_configured' };
 
   const lines = ['<b>Новая анкета NEW G</b>', ''];
@@ -92,7 +94,7 @@ async function sendToTelegram(lead, fields) {
 // заявку обычным POST — так не нужно держать в проекте ключи Google.
 // Инструкция и код скрипта: SHEETS.md
 async function sendToSheet(lead, fields) {
-  const url = process.env.SHEETS_WEBHOOK_URL;
+  const url = settings.get('SHEETS_WEBHOOK_URL');
   if (!url) return { sent: false, reason: 'not_configured' };
 
   const row = { createdAt: new Date(lead.createdAt).toISOString() };
@@ -136,4 +138,14 @@ async function save(lead, fields) {
   return { savedToFile, telegram, sheet, delivered };
 }
 
-module.exports = { save, readAll, fileSink };
+// Пробная отправка из админки: тот же путь, что у настоящей заявки.
+async function sendTest(fields) {
+  const lead = {
+    answers: { name: 'Проверка связи', phone: '+000 000 000', age: '00', city: 'тест' },
+  };
+  const telegram = await sendToTelegram(lead, fields);
+  console.log('[test]', JSON.stringify({ telegram }));
+  return { telegram };
+}
+
+module.exports = { save, readAll, fileSink, sendTest };

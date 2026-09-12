@@ -23,11 +23,41 @@
   .ok { color: #57d38c; }
   .fail { color: var(--danger); }
   .muted { color: var(--muted); }
+  .settings { margin-bottom: 28px; }
+  .settings h2 { margin: 0 0 12px; font-size: 18px; }
+  .hint { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+  .settings .actions { margin: 0; }
 </style>
 </head>
 <body>
 <main class="page">
   <h1>Заявки</h1>
+
+  <section class="card settings" id="settings" hidden>
+    <h2>Куда отправлять заявки</h2>
+    <p class="hint" id="settingsState">Загружаем…</p>
+
+    <div class="field">
+      <label for="botToken">Токен бота Telegram</label>
+      <input id="botToken" type="text" autocomplete="off" placeholder="оставьте пустым, чтобы не менять">
+    </div>
+
+    <div class="field">
+      <label for="chatId">Chat id получателя</label>
+      <input id="chatId" type="text" autocomplete="off" placeholder="число, у группы — с минусом">
+    </div>
+
+    <div class="field">
+      <label for="sheetUrl">Адрес Google-таблицы (необязательно)</label>
+      <input id="sheetUrl" type="text" autocomplete="off" placeholder="https://script.google.com/macros/s/.../exec">
+    </div>
+
+    <div class="actions">
+      <button class="btn btn--inline" id="saveBtn" type="button">Сохранить</button>
+      <button class="btn btn--inline btn--ghost" id="testBtn" type="button">Отправить пробное сообщение</button>
+    </div>
+    <p class="hint" id="settingsResult"></p>
+  </section>
   <div id="content"><p class="lead">Загружаем…</p></div>
 </main>
 <script>
@@ -54,6 +84,72 @@
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
     });
   }
+
+  var settingsBox = document.getElementById('settings');
+  var settingsState = document.getElementById('settingsState');
+  var settingsResult = document.getElementById('settingsResult');
+
+  function describe(status) {
+    var parts = [];
+    parts.push('Токен: ' + (status.TELEGRAM_BOT_TOKEN.задано
+      ? 'задан, ' + status.TELEGRAM_BOT_TOKEN.длина + ' символов (' + status.TELEGRAM_BOT_TOKEN.источник + ')'
+      : 'не задан'));
+    parts.push('Chat id: ' + (status.TELEGRAM_CHAT_ID.задано
+      ? 'задан (' + status.TELEGRAM_CHAT_ID.источник + ')'
+      : 'не задан'));
+    parts.push('Таблица: ' + (status.SHEETS_WEBHOOK_URL.задано ? 'подключена' : 'не подключена'));
+    return parts.join(' · ');
+  }
+
+  function loadSettings() {
+    fetch('/api/settings?key=' + encodeURIComponent(key))
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data) return;
+        settingsBox.hidden = false;
+        settingsState.textContent = describe(data.settings);
+      })
+      .catch(function () {});
+  }
+
+  document.getElementById('saveBtn').addEventListener('click', function () {
+    settingsResult.textContent = 'Сохраняем…';
+    fetch('/api/settings?key=' + encodeURIComponent(key), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        TELEGRAM_BOT_TOKEN: document.getElementById('botToken').value,
+        TELEGRAM_CHAT_ID: document.getElementById('chatId').value,
+        SHEETS_WEBHOOK_URL: document.getElementById('sheetUrl').value
+      })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.error) { settingsResult.innerHTML = '<span class="fail">Не сохранилось: ' + escapeHtml(data.reason || data.error) + '</span>'; return; }
+        settingsState.textContent = describe(data.settings);
+        settingsResult.innerHTML = '<span class="ok">Сохранено</span>';
+        document.getElementById('botToken').value = '';
+        document.getElementById('chatId').value = '';
+        document.getElementById('sheetUrl').value = '';
+      })
+      .catch(function () { settingsResult.innerHTML = '<span class="fail">Нет связи с сервером</span>'; });
+  });
+
+  document.getElementById('testBtn').addEventListener('click', function () {
+    settingsResult.textContent = 'Отправляем…';
+    fetch('/api/settings/test?key=' + encodeURIComponent(key), { method: 'POST' })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var t = data.telegram || {};
+        if (t.sent) { settingsResult.innerHTML = '<span class="ok">Сообщение ушло — проверьте Telegram</span>'; return; }
+        var reason = t.reason === 'not_configured' ? 'токен или chat id не заданы' : t.reason;
+        if (t.описание) reason += ': ' + t.описание;
+        settingsResult.innerHTML = '<span class="fail">Telegram отказал — ' + escapeHtml(reason) + '</span>';
+      })
+      .catch(function () { settingsResult.innerHTML = '<span class="fail">Нет связи с сервером</span>'; });
+  });
+
+  loadSettings();
 
   fetch('/api/leads?key=' + encodeURIComponent(key))
     .then(function (response) {

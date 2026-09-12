@@ -14,6 +14,7 @@ const crypto = require('crypto');
 const config = require('./config');
 const token = require('./lib/token');
 const leads = require('./lib/leads');
+const settings = require('./lib/settings');
 
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const COOKIE_NAME = 'ng';
@@ -307,6 +308,36 @@ async function handle(req, res) {
       длинаЧата: (process.env.TELEGRAM_CHAT_ID || '').length,
       таблицаЗадана: Boolean(process.env.SHEETS_WEBHOOK_URL),
     });
+  }
+
+  // Настройки доставки задаются в админке и живут на постоянном диске.
+  if (url.pathname === '/api/settings' && req.method === 'GET') {
+    if (!isAdmin(url)) return sendJson(res, 401, { error: 'unauthorized' });
+    return sendJson(res, 200, { settings: settings.status() });
+  }
+
+  if (url.pathname === '/api/settings' && req.method === 'POST') {
+    if (!isAdmin(url)) return sendJson(res, 401, { error: 'unauthorized' });
+    let payload;
+    try {
+      payload = JSON.parse(await readBody(req));
+    } catch {
+      return sendJson(res, 400, { error: 'bad_request' });
+    }
+    try {
+      return sendJson(res, 200, { ok: true, settings: settings.save(payload || {}) });
+    } catch (error) {
+      // Чаще всего это отсутствующий том: писать некуда.
+      return sendJson(res, 500, { error: 'save_failed', reason: error.code || String(error.message) });
+    }
+  }
+
+  // Пробное сообщение: возвращает дословный ответ Telegram, чтобы причина
+  // отказа была видна сразу, без отправки настоящей анкеты.
+  if (url.pathname === '/api/settings/test' && req.method === 'POST') {
+    if (!isAdmin(url)) return sendJson(res, 401, { error: 'unauthorized' });
+    const result = await leads.sendTest(config.fields);
+    return sendJson(res, 200, result);
   }
 
   if (url.pathname === '/api/leads' && req.method === 'GET') {
