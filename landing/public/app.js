@@ -4,6 +4,36 @@
 (function () {
   'use strict';
 
+  // Копия подписанного токена с дедлайном. Cookie — основной канал, но мобильные
+  // браузеры и встроенные webview соцсетей теряют её между заходами, и тогда
+  // таймер начинался бы заново. localStorage переживает такие перезаходы.
+  var STORAGE_KEY = 'ng_token';
+
+  function readToken() {
+    try {
+      return localStorage.getItem(STORAGE_KEY) || '';
+    } catch (error) {
+      return ''; // приватный режим или запрет хранилища
+    }
+  }
+
+  function saveToken(value) {
+    if (!value) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, value);
+    } catch (error) {
+      /* пишем только если браузер разрешает — cookie остаётся основным каналом */
+    }
+  }
+
+  // Заголовок добавляется, только если копия есть: пустой токен сервер игнорирует.
+  function authHeaders(extra) {
+    var headers = extra || {};
+    var saved = readToken();
+    if (saved) headers['x-ng-token'] = saved;
+    return headers;
+  }
+
   var els = {
     timer: document.getElementById('timer'),
     timerValue: document.getElementById('timerValue'),
@@ -151,9 +181,14 @@
   }
 
   function sync() {
-    return fetch('/api/session', { credentials: 'same-origin', cache: 'no-store' })
+    return fetch('/api/session', {
+      credentials: 'same-origin',
+      cache: 'no-store',
+      headers: authHeaders(),
+    })
       .then(function (response) { return response.json(); })
       .then(function (data) {
+        saveToken(data.token);
         renderStatic(data);
         applyState(data);
       })
@@ -178,13 +213,14 @@
     fetch('/api/submit', {
       method: 'POST',
       credentials: 'same-origin',
-      headers: { 'content-type': 'application/json' },
+      headers: authHeaders({ 'content-type': 'application/json' }),
       body: JSON.stringify(payload),
     })
       .then(function (response) {
         return response.json().then(function (data) { return { status: response.status, data: data }; });
       })
       .then(function (result) {
+        saveToken(result.data.token);
         if (result.status === 200 || result.status === 409) {
           return showState(state.texts.successTitle, state.texts.successText);
         }

@@ -17,6 +17,8 @@ const leads = require('./lib/leads');
 
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const COOKIE_NAME = 'ng';
+// Запасной канал для того же подписанного токена, когда cookie не переживает перезаход.
+const HEADER_NAME = 'x-ng-token';
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -90,20 +92,42 @@ function setSessionCookie(res, req, payload) {
   res.setHeader('set-cookie', parts.join('; '));
 }
 
-// Возвращает дедлайн устройства: из cookie либо новый, если её нет или подпись неверна.
-function resolveSession(req, res) {
-  const existing = token.verify(parseCookies(req)[COOKIE_NAME], config.secret);
-  if (existing) return existing;
+// Устройство присылает свой дедлайн двумя независимыми путями: cookie и заголовок
+// (браузер держит копию токена в localStorage). Мобильные браузеры и встроенные
+// webview соцсетей регулярно теряют cookie между сессиями, поэтому одного канала мало.
+function collectSessions(req) {
+  const candidates = [parseCookies(req)[COOKIE_NAME], req.headers[HEADER_NAME]];
+  return candidates.map((value) => token.verify(value, config.secret)).filter(Boolean);
+}
 
-  const fresh = { d: Date.now() + config.windowHours * 3600 * 1000, s: 0, v: 1 };
-  setSessionCookie(res, req, fresh);
-  return fresh;
+// Возвращает дедлайн устройства: из любого сохранившегося токена либо новый.
+function resolveSession(req, res) {
+  const found = collectSessions(req);
+
+  if (found.length === 0) {
+    const fresh = { d: Date.now() + config.windowHours * 3600 * 1000, s: 0, v: 1 };
+    setSessionCookie(res, req, fresh);
+    return fresh;
+  }
+
+  // Берём самый ранний дедлайн и «липкий» признак отправки: очистка одного
+  // хранилища не должна давать новые 24 часа или второй заход анкеты.
+  const earliest = found.reduce((a, b) => (b.d < a.d ? b : a));
+  const session = { ...earliest, s: found.some((item) => item.s === 1) ? 1 : 0 };
+
+  // Восстанавливаем cookie, если её потеряли, — иначе устройство останется
+  // только на одном канале и следующая потеря обнулит таймер.
+  setSessionCookie(res, req, session);
+  return session;
 }
 
 function sessionState(payload) {
   const now = Date.now();
   return {
     now,
+    // Подписанная копия для localStorage. Секретов внутри нет, а подделать
+    // её без ключа нельзя — поэтому отдавать в браузер безопасно.
+    token: token.sign(payload, config.secret),
     deadline: payload.d,
     msLeft: Math.max(0, payload.d - now),
     expired: now >= payload.d,
