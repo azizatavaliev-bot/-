@@ -32,25 +32,23 @@
     <a class="btn btn--ghost" href="#form">Занять место на консультации</a>
   </section>
 
-  <!-- Экран 1.5: бесплатный видеоурок.
-       Файл кладётся в public/lesson/lesson.mp4. Если вместо файла ссылка на
-       YouTube — замените <video> на <iframe> с тем же классом lesson__frame.
-       Пока файла нет, блок показывает заглушку вместо битого плеера. -->
+  <!-- Экран 1.5: бесплатный видеоурок -->
   <section class="section lesson" id="lesson">
     <span class="badge">Бесплатный видеоурок</span>
-    <h2 class="display display--sm">Посмотри перед консультацией</h2>
+    <h2 class="display display--sm">Как заработать первые тысячи на таргете</h2>
 
     <div class="lesson__box">
-      <video
+      <!-- Урок проигрывается прямо с Google Диска: файл на 130 МБ не имеет
+           смысла тащить в репозиторий и раздавать с хостинга.
+           Чтобы заменить на YouTube, подставьте сюда
+           https://www.youtube.com/embed/ID_РОЛИКА — больше ничего менять не надо. -->
+      <iframe
         class="lesson__frame"
-        id="lessonVideo"
-        controls
-        preload="metadata"
-        playsinline
-        poster="/lesson/poster.jpg">
-        <source src="/lesson/lesson.mp4" type="video/mp4">
-      </video>
-      <p class="lesson__stub" id="lessonStub" hidden>Видеоурок скоро появится здесь.</p>
+        src="https://drive.google.com/file/d/1Ei9dOKd4fXEHtBN-UzQGVOF_39k4URkO/preview"
+        title="Бесплатный видеоурок: как заработать первые тысячи на таргете"
+        allow="autoplay; fullscreen"
+        allowfullscreen
+        loading="lazy"></iframe>
     </div>
   </section>
 
@@ -82,53 +80,17 @@
       Во время обучения <b>70 из 100</b> вышли на результат.
     </p>
 
-    <!-- Коллаж кейсов одной картинкой: тот же скриншот, что в карусели.
-         Фон у него чёрный и сливается с фоном страницы, поэтому рамка не нужна.
-         Пока файла нет, вместо него показывается вёрстанная заглушка той же
-         композиции — чтобы блок не пустовал и было видно, как он сядет. -->
-    <figure class="cases">
-      <img
-        class="cases__img"
-        src="/cases/results.jpg"
-        alt="Результаты учеников: точка А и точка Б по доходу"
-        loading="lazy"
-        onerror="this.closest('.cases').classList.add('cases--nophoto'); this.remove()">
-
-      <div class="cases__stub" aria-hidden="true">
-        <div class="tile" style="--tilt: -3deg">
-          <span class="tile__from">Точка А: 0 сом</span>
-          <span class="tile__label">Точка Б:</span>
-          <b class="tile__to">185 000 сом</b>
-        </div>
-        <div class="tile" style="--tilt: 2deg">
-          <span class="tile__from">Точка А: 0 сом</span>
-          <span class="tile__label">Точка Б:</span>
-          <b class="tile__to">424 000 сом</b>
-        </div>
-        <div class="tile" style="--tilt: -1.5deg">
-          <span class="tile__from">Точка А: 0 сом</span>
-          <span class="tile__label">Точка Б:</span>
-          <b class="tile__to">145 000 сом</b>
-        </div>
-        <div class="tile" style="--tilt: 2.5deg">
-          <span class="tile__from">Точка А: 30 000 сом</span>
-          <span class="tile__label">Точка Б:</span>
-          <b class="tile__to">550 000 сом</b>
-        </div>
-        <div class="tile" style="--tilt: -2deg">
-          <span class="tile__from">Точка А: 50 000 сом</span>
-          <span class="tile__label">Точка Б:</span>
-          <b class="tile__to">585 000 сом</b>
-        </div>
-        <div class="tile" style="--tilt: 1.5deg">
-          <span class="tile__from">Точка А: 0 сом</span>
-          <span class="tile__label">Точка Б:</span>
-          <b class="tile__to">158 000 сом</b>
-        </div>
-      </div>
-
-      <figcaption class="note note--left">Точка Б — доход ученика за время обучения.</figcaption>
-    </figure>
+    <!-- Карточки кейсов из карусели. Суммы «Точка А / Точка Б» впечатаны
+         в сами изображения, поэтому поверх ничего не рисуем — иначе цифры
+         задвоятся. Файл, который не загрузился, просто исчезает из сетки. -->
+    <div class="cases">
+      <img class="case" src="/cases/1.jpg" alt="Кейс ученика: с 0 до 185 000 сом" loading="lazy" onerror="this.remove()">
+      <img class="case" src="/cases/2.jpg" alt="Кейс ученика: с 0 до 424 000 сом" loading="lazy" onerror="this.remove()">
+      <img class="case" src="/cases/3.jpg" alt="Кейс ученика: с 0 до 145 000 сом" loading="lazy" onerror="this.remove()">
+      <img class="case" src="/cases/4.jpg" alt="Кейс ученика: с 30 000 до 550 000 сом" loading="lazy" onerror="this.remove()">
+      <img class="case" src="/cases/5.jpg" alt="Кейс ученика: с 50 000 до 585 000 сом" loading="lazy" onerror="this.remove()">
+      <img class="case" src="/cases/6.jpg" alt="Кейс ученика: с 0 до 158 000 сом" loading="lazy" onerror="this.remove()">
+    </div>
   </section>
 
   <!-- Экран 4: оффер и анкета -->

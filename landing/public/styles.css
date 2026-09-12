@@ -126,14 +126,6 @@ mark { background: var(--blue); color: #fff; padding: 1px 6px; font-style: itali
   border: 0;
   background: #000;
 }
-/* Заглушка, пока файл урока не залит: вместо битого плеера — спокойный блок */
-.lesson__stub {
-  margin: 0;
-  padding: 48px 20px;
-  text-align: center;
-  color: var(--muted);
-}
-
 /* --- Результаты --- */
 .bignum {
   font-family: Anton, Impact, sans-serif;
@@ -142,48 +134,22 @@ mark { background: var(--blue); color: #fff; padding: 1px 6px; font-style: itali
   color: var(--blue);
   margin: 0 0 12px;
 }
-/* Коллаж кейсов: одна картинка во всю ширину блока.
-   Без рамки и подложки — у скриншота свой чёрный фон, он сливается со страницей. */
-.cases { margin: 0 0 8px; }
-.cases__img { display: block; width: 100%; height: auto; }
-
-/* Заглушка на время, пока не залит скриншот: та же композиция карточек. */
-.cases__stub { display: none; }
-.cases--nophoto .cases__stub {
+/* Стена кейсов: карточки из карусели как есть, без рамок и подписей —
+   весь текст уже внутри картинок. */
+.cases {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 10px;
 }
-.tile {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  aspect-ratio: 4 / 5;
-  padding: 14px;
-  border-radius: 14px;
-  background: linear-gradient(155deg, #23232a, #101012);
-  border: 1px solid var(--border);
-  transform: rotate(var(--tilt, 0deg));
-  transition: transform .25s ease;
-}
-.tile:hover { transform: rotate(0deg) scale(1.03); }
-.tile__from { font-size: 11px; color: #a9a9b3; margin-bottom: 2px; }
-.tile__label {
-  font-family: Anton, Impact, sans-serif;
-  font-size: 12px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  opacity: .7;
-}
-.tile__to {
-  font-family: Anton, Impact, sans-serif;
-  font-weight: 400;
-  font-size: clamp(17px, 4.6vw, 22px);
-  letter-spacing: .5px;
+.case {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
 }
 
 @media (min-width: 620px) {
-  .cases--nophoto .cases__stub { grid-template-columns: repeat(3, 1fr); }
+  .cases { grid-template-columns: repeat(3, 1fr); gap: 12px; }
 }
 
 /* --- Анкета --- */
