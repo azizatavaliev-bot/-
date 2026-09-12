@@ -299,6 +299,13 @@ async function handle(req, res) {
       анкетаОтправлена: state.submitted,
       защищённоеСоединение: isHttps(req),
       хранилищеЗаявок: leads.fileSink,
+      // Значения не раскрываются: только факт, что они дошли до процесса,
+      // и длина — по ней видно, подставилось ли значение целиком.
+      телеграмТокенЗадан: Boolean(process.env.TELEGRAM_BOT_TOKEN),
+      длинаТокена: (process.env.TELEGRAM_BOT_TOKEN || '').length,
+      телеграмЧатЗадан: Boolean(process.env.TELEGRAM_CHAT_ID),
+      длинаЧата: (process.env.TELEGRAM_CHAT_ID || '').length,
+      таблицаЗадана: Boolean(process.env.SHEETS_WEBHOOK_URL),
     });
   }
 
