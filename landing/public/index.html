@@ -61,14 +61,50 @@
     </p>
 
     <!-- Коллаж кейсов одной картинкой: тот же скриншот, что в карусели.
-         Фон у него чёрный и сливается с фоном страницы, поэтому рамка не нужна. -->
+         Фон у него чёрный и сливается с фоном страницы, поэтому рамка не нужна.
+         Пока файла нет, вместо него показывается вёрстанная заглушка той же
+         композиции — чтобы блок не пустовал и было видно, как он сядет. -->
     <figure class="cases">
       <img
         class="cases__img"
         src="/cases/results.jpg"
         alt="Результаты учеников: точка А и точка Б по доходу"
         loading="lazy"
-        onerror="this.closest('.cases').remove()">
+        onerror="this.closest('.cases').classList.add('cases--nophoto'); this.remove()">
+
+      <div class="cases__stub" aria-hidden="true">
+        <div class="tile" style="--tilt: -3deg">
+          <span class="tile__from">Точка А: 0 сом</span>
+          <span class="tile__label">Точка Б:</span>
+          <b class="tile__to">185 000 сом</b>
+        </div>
+        <div class="tile" style="--tilt: 2deg">
+          <span class="tile__from">Точка А: 0 сом</span>
+          <span class="tile__label">Точка Б:</span>
+          <b class="tile__to">424 000 сом</b>
+        </div>
+        <div class="tile" style="--tilt: -1.5deg">
+          <span class="tile__from">Точка А: 0 сом</span>
+          <span class="tile__label">Точка Б:</span>
+          <b class="tile__to">145 000 сом</b>
+        </div>
+        <div class="tile" style="--tilt: 2.5deg">
+          <span class="tile__from">Точка А: 30 000 сом</span>
+          <span class="tile__label">Точка Б:</span>
+          <b class="tile__to">550 000 сом</b>
+        </div>
+        <div class="tile" style="--tilt: -2deg">
+          <span class="tile__from">Точка А: 50 000 сом</span>
+          <span class="tile__label">Точка Б:</span>
+          <b class="tile__to">585 000 сом</b>
+        </div>
+        <div class="tile" style="--tilt: 1.5deg">
+          <span class="tile__from">Точка А: 0 сом</span>
+          <span class="tile__label">Точка Б:</span>
+          <b class="tile__to">158 000 сом</b>
+        </div>
+      </div>
+
       <figcaption class="note note--left">Точка Б — доход ученика за время обучения.</figcaption>
     </figure>
   </section>
