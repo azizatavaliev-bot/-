@@ -1,0 +1,14 @@
+{
+  "name": "landing-24h",
+  "version": "1.0.0",
+  "description": "Одностраничный сайт с анкетой и серверным таймером на 24 часа для каждого устройства",
+  "main": "server.js",
+  "type": "commonjs",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

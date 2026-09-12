@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Заявки</title>
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .page { max-width: 1100px; padding-top: 32px; }
+  .stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+  .stat { flex: 1 1 160px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
+  .stat b { display: block; font-size: 26px; }
+  .stat span { color: var(--muted); font-size: 13px; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--surface-2); white-space: nowrap; font-size: 13px; }
+  tr:last-child td { border-bottom: 0; }
+  .actions { display: flex; gap: 10px; margin-bottom: 20px; }
+  .actions a { text-decoration: none; }
+  .btn--inline { width: auto; padding: 10px 18px; display: inline-block; }
+</style>
+</head>
+<body>
+<main class="page">
+  <h1>Заявки</h1>
+  <div id="content"><p class="lead">Загружаем…</p></div>
+</main>
+<script>
+(function () {
+  var key = new URLSearchParams(location.search).get('key') || '';
+  var content = document.getElementById('content');
+
+  function escapeHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+    });
+  }
+
+  fetch('/api/leads?key=' + encodeURIComponent(key))
+    .then(function (response) {
+      if (response.status === 401) throw new Error('Неверный ключ доступа. Добавьте ?key=... в адрес.');
+      return response.json();
+    })
+    .then(function (data) {
+      var html = '<div class="stats">' +
+        '<div class="stat"><b>' + data.stats.visitors + '</b><span>всего зашло</span></div>' +
+        '<div class="stat"><b>' + data.stats.active + '</b><span>таймер ещё идёт</span></div>' +
+        '<div class="stat"><b>' + data.stats.leads + '</b><span>анкет заполнено</span></div>' +
+        '</div>' +
+        '<div class="actions"><a class="btn btn--inline" href="/api/leads.csv?key=' + encodeURIComponent(key) + '">Скачать CSV</a></div>';
+
+      if (data.leads.length === 0) {
+        html += '<p class="lead">Пока ни одной анкеты.</p>';
+      } else {
+        html += '<div class="table-wrap"><table><thead><tr><th>Дата</th>';
+        data.fields.forEach(function (field) { html += '<th>' + escapeHtml(field.label) + '</th>'; });
+        html += '</tr></thead><tbody>';
+        data.leads.forEach(function (lead) {
+          html += '<tr><td>' + new Date(lead.createdAt).toLocaleString('ru-RU') + '</td>';
+          data.fields.forEach(function (field) {
+            html += '<td>' + escapeHtml(lead.answers[field.name] || '') + '</td>';
+          });
+          html += '</tr>';
+        });
+        html += '</tbody></table></div>';
+      }
+      content.innerHTML = html;
+    })
+    .catch(function (error) {
+      content.innerHTML = '<p class="form-error">' + escapeHtml(error.message) + '</p>';
+    });
+})();
+</script>
+</body>
+</html>

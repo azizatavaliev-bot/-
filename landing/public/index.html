@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Анкета — доступ 24 часа</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="timer-bar" id="timerBar" hidden>
+  <span class="timer-bar__label">До закрытия анкеты</span>
+  <span class="timer-bar__value" id="timerValue">--:--:--</span>
+</div>
+
+<main class="page">
+  <section class="hero">
+    <p class="eyebrow" id="brandName"></p>
+    <h1 id="heroTitle"></h1>
+    <p class="lead" id="heroSubtitle"></p>
+    <ul class="bullets" id="bullets"></ul>
+  </section>
+
+  <section class="card" id="formCard" hidden>
+    <h2>Анкета</h2>
+    <form id="form" novalidate>
+      <div id="fields"></div>
+      <p class="form-error" id="formError" hidden></p>
+      <button type="submit" class="btn" id="submitBtn"></button>
+      <p class="note">Отправить анкету можно один раз и только пока идёт таймер.</p>
+    </form>
+  </section>
+
+  <section class="card card--state" id="stateCard" hidden>
+    <h2 id="stateTitle"></h2>
+    <p id="stateText"></p>
+  </section>
+
+  <section class="card card--state" id="loadingCard">
+    <p>Загружаем форму…</p>
+  </section>
+
+  <footer class="footer" id="footer"></footer>
+</main>
+
+<script src="/app.js"></script>
+</body>
+</html>
