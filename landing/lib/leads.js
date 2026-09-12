@@ -75,20 +75,48 @@ async function sendToTelegram(lead, fields) {
   }
 }
 
+// Google-таблица. Скрипт таблицы публикуется как веб-приложение и принимает
+// заявку обычным POST — так не нужно держать в проекте ключи Google.
+// Инструкция и код скрипта: SHEETS.md
+async function sendToSheet(lead, fields) {
+  const url = process.env.SHEETS_WEBHOOK_URL;
+  if (!url) return { sent: false, reason: 'not_configured' };
+
+  const row = { createdAt: new Date(lead.createdAt).toISOString() };
+  for (const field of fields) row[field.label] = lead.answers[field.name] || '';
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(row),
+      redirect: 'follow', // Apps Script отвечает редиректом на скрипт исполнения
+    });
+    if (!response.ok) return { sent: false, reason: 'http_' + response.status };
+    return { sent: true };
+  } catch (error) {
+    return { sent: false, reason: String(error.message) };
+  }
+}
+
 // Заявка считается принятой, только если сработал хотя бы один приёмник.
 // Иначе лучше показать человеку ошибку и дать отправить заново, чем молча
 // потерять лид: на serverless-хостинге Telegram — единственный рабочий канал.
 // Лог пишется всегда, это последняя линия обороны.
 async function save(lead, fields) {
   const savedToFile = saveToFile(lead);
-  const telegram = await sendToTelegram(lead, fields);
-  const delivered = savedToFile || telegram.sent;
+  // Приёмники независимы: падение одного не должно мешать остальным.
+  const [telegram, sheet] = await Promise.all([
+    sendToTelegram(lead, fields),
+    sendToSheet(lead, fields),
+  ]);
+  const delivered = savedToFile || telegram.sent || sheet.sent;
 
-  console.log('[lead]', JSON.stringify({ ...lead, file: savedToFile, telegram, delivered }));
+  console.log('[lead]', JSON.stringify({ ...lead, file: savedToFile, telegram, sheet, delivered }));
   if (!delivered) {
-    console.error('[lead] заявка никуда не доставлена — проверьте TELEGRAM_BOT_TOKEN и TELEGRAM_CHAT_ID');
+    console.error('[lead] заявка никуда не доставлена — проверьте переменные окружения');
   }
-  return { savedToFile, telegram, delivered };
+  return { savedToFile, telegram, sheet, delivered };
 }
 
 module.exports = { save, readAll, fileSink };

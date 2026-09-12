@@ -249,6 +249,27 @@
       });
   });
 
+  // Разворачивание урока. На iOS полноэкранный режим для произвольного
+  // элемента недоступен, поэтому там открываем ролик отдельной вкладкой.
+  var lessonBox = document.getElementById('lessonBox');
+  var lessonExpand = document.getElementById('lessonExpand');
+  if (lessonBox && lessonExpand) {
+    lessonExpand.addEventListener('click', function () {
+      var request = lessonBox.requestFullscreen || lessonBox.webkitRequestFullscreen;
+      if (request) {
+        var result = request.call(lessonBox);
+        if (result && result.catch) result.catch(openLessonInTab);
+      } else {
+        openLessonInTab();
+      }
+    });
+  }
+
+  function openLessonInTab() {
+    var link = document.getElementById('lessonOpen');
+    if (link) window.open(link.href, '_blank', 'noopener');
+  }
+
   document.getElementById('year').textContent = new Date().getFullYear();
 
   setInterval(tick, 1000);
