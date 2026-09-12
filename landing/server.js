@@ -258,7 +258,7 @@ async function handle(req, res) {
     const { ok, errors, answers } = validate(payload);
     if (!ok) return sendJson(res, 422, { error: 'validation', errors });
 
-    await leads.save(
+    const delivery = await leads.save(
       {
         id: crypto.randomUUID(),
         createdAt: Date.now(),
@@ -267,6 +267,10 @@ async function handle(req, res) {
       },
       config.fields
     );
+
+    // Если ни один приёмник не принял заявку — не закрываем форму и просим
+    // отправить заново. Молча «принять» и потерять лид хуже, чем показать ошибку.
+    if (!delivery.delivered) return sendJson(res, 503, { error: 'not_delivered', ...state });
 
     // Помечаем устройство как отправившее анкету — повторно форма не откроется.
     const submitted = { ...session, s: 1 };

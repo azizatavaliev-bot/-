@@ -73,13 +73,20 @@ async function sendToTelegram(lead, fields) {
   }
 }
 
-// Заявка считается принятой, если сработал хотя бы один приёмник.
-// Лог пишется всегда — это последняя линия обороны, если отвалились оба.
+// Заявка считается принятой, только если сработал хотя бы один приёмник.
+// Иначе лучше показать человеку ошибку и дать отправить заново, чем молча
+// потерять лид: на serverless-хостинге Telegram — единственный рабочий канал.
+// Лог пишется всегда, это последняя линия обороны.
 async function save(lead, fields) {
   const savedToFile = saveToFile(lead);
   const telegram = await sendToTelegram(lead, fields);
-  console.log('[lead]', JSON.stringify({ ...lead, file: savedToFile, telegram }));
-  return { savedToFile, telegram };
+  const delivered = savedToFile || telegram.sent;
+
+  console.log('[lead]', JSON.stringify({ ...lead, file: savedToFile, telegram, delivered }));
+  if (!delivered) {
+    console.error('[lead] заявка никуда не доставлена — проверьте TELEGRAM_BOT_TOKEN и TELEGRAM_CHAT_ID');
+  }
+  return { savedToFile, telegram, delivered };
 }
 
 module.exports = { save, readAll, fileSink };
