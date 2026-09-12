@@ -164,8 +164,10 @@
     state.finished = false;
     hide(els.stateCard);
     show(els.formCard);
-    show(els.timer);
+    // Сначала пишем время, потом показываем полосу: иначе в момент между
+    // показом и первым тиком пользователь видит заглушку «--:--:--».
     tick();
+    show(els.timer);
   }
 
   function tick() {
