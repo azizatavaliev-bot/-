@@ -29,6 +29,7 @@ module.exports = {
   expiredText: 'Отведённые 24 часа закончились, запись по этой ссылке закрыта. Если тебе всё ещё актуально — напиши в директ.',
 
   // Поля анкеты. type: text | tel | email | number | textarea | select
+  // Короткая анкета: чем меньше полей, тем выше доходимость до отправки.
   fields: [
     { name: 'name', label: 'Как тебя зовут', type: 'text', required: true, maxLength: 80 },
     {
@@ -41,46 +42,5 @@ module.exports = {
     },
     { name: 'age', label: 'Сколько тебе лет', type: 'number', required: true, maxLength: 3 },
     { name: 'city', label: 'Город', type: 'text', required: false, maxLength: 80 },
-    {
-      name: 'experience',
-      label: 'Опыт в таргете',
-      type: 'select',
-      required: true,
-      options: [
-        'С нуля, опыта нет',
-        'Пробовал сам, без результата',
-        'Запускал рекламу, есть первые деньги',
-        'Работаю с клиентами постоянно',
-      ],
-    },
-    {
-      name: 'ai',
-      label: 'Работал с ИИ в работе',
-      type: 'select',
-      required: true,
-      options: ['Нет, не пробовал', 'Иногда, для текстов', 'Использую регулярно'],
-    },
-    {
-      name: 'income',
-      label: 'Сколько зарабатываешь сейчас в месяц',
-      type: 'select',
-      required: true,
-      options: ['0 сом', 'До 30 000 сом', '30 000 – 100 000 сом', '100 000 – 300 000 сом', 'Больше 300 000 сом'],
-    },
-    {
-      name: 'goal',
-      label: 'Какой доход хочешь через 6 месяцев и зачем он тебе',
-      type: 'textarea',
-      required: true,
-      maxLength: 1500,
-      placeholder: 'Своими словами: цифра и что она изменит',
-    },
-    {
-      name: 'time',
-      label: 'Сколько часов в неделю готов вкладывать в обучение',
-      type: 'select',
-      required: true,
-      options: ['До 5 часов', '5 – 10 часов', '10 – 20 часов', 'Больше 20 часов'],
-    },
   ],
 };

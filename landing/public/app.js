@@ -249,6 +249,24 @@
       });
   });
 
+  // Если файла урока ещё нет, показываем заглушку вместо пустого плеера.
+  // Медиасобытия на <video> срабатывают не во всех браузерах одинаково,
+  // поэтому наличие файла проверяем запросом — это предсказуемо везде.
+  var lessonVideo = document.getElementById('lessonVideo');
+  if (lessonVideo) {
+    lessonVideo.addEventListener('error', showLessonStub, true);
+    fetch('/lesson/lesson.mp4', { method: 'HEAD' })
+      .then(function (response) { if (!response.ok) showLessonStub(); })
+      .catch(showLessonStub);
+  }
+
+  function showLessonStub() {
+    var stub = document.getElementById('lessonStub');
+    if (!stub || !lessonVideo) return;
+    lessonVideo.hidden = true;
+    stub.hidden = false;
+  }
+
   document.getElementById('year').textContent = new Date().getFullYear();
 
   setInterval(tick, 1000);

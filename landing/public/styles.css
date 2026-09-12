@@ -111,6 +111,29 @@ mark { background: var(--blue); color: #fff; padding: 1px 6px; font-style: itali
 }
 .module__text { margin: 0; color: var(--muted); }
 
+/* --- Видеоурок --- */
+.lesson__box {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #000;
+}
+.lesson__frame {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  background: #000;
+}
+/* Заглушка, пока файл урока не залит: вместо битого плеера — спокойный блок */
+.lesson__stub {
+  margin: 0;
+  padding: 48px 20px;
+  text-align: center;
+  color: var(--muted);
+}
+
 /* --- Результаты --- */
 .bignum {
   font-family: Anton, Impact, sans-serif;

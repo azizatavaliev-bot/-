@@ -14,7 +14,7 @@
 <body>
 
 <div class="timer" id="timer" hidden>
-  <span class="timer__label">Запись закрывается через</span>
+  <span class="timer__label">Доступ: урок открыт на 24 часа</span>
   <span class="timer__value" id="timerValue">--:--:--</span>
 </div>
 
@@ -30,6 +30,28 @@
       интеллектом как со своим личным ассистентом.
     </p>
     <a class="btn btn--ghost" href="#form">Занять место на консультации</a>
+  </section>
+
+  <!-- Экран 1.5: бесплатный видеоурок.
+       Файл кладётся в public/lesson/lesson.mp4. Если вместо файла ссылка на
+       YouTube — замените <video> на <iframe> с тем же классом lesson__frame.
+       Пока файла нет, блок показывает заглушку вместо битого плеера. -->
+  <section class="section lesson" id="lesson">
+    <span class="badge">Бесплатный видеоурок</span>
+    <h2 class="display display--sm">Посмотри перед консультацией</h2>
+
+    <div class="lesson__box">
+      <video
+        class="lesson__frame"
+        id="lessonVideo"
+        controls
+        preload="metadata"
+        playsinline
+        poster="/lesson/poster.jpg">
+        <source src="/lesson/lesson.mp4" type="video/mp4">
+      </video>
+      <p class="lesson__stub" id="lessonStub" hidden>Видеоурок скоро появится здесь.</p>
+    </div>
   </section>
 
   <!-- Экран 2: программа -->
