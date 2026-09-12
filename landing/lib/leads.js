@@ -9,7 +9,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const DATA_DIR = path.join(__dirname, '..', 'data');
+// Каталог для заявок. На хостинге с постоянным диском (Railway, VPS) сюда
+// монтируется том, поэтому путь берётся из переменной окружения.
+const DATA_DIR = process.env.LEADS_DIR || path.join(__dirname, '..', 'data');
 const LEADS_FILE = path.join(DATA_DIR, 'leads.ndjson');
 
 const fileSink = { available: true, reason: '' };

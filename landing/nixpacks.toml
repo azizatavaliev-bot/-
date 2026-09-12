@@ -1,0 +1,9 @@
+# Зависимостей у проекта нет, поэтому шаг установки пропускается.
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = ["echo 'зависимостей нет'"]
+
+[start]
+cmd = "node server.js"
