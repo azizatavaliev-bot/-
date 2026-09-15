@@ -1,0 +1,47 @@
+{
+  "id": "01-white-teeth",
+  "caption_idea": "Белые зубы не важны. Или всё-таки да? 👀 Листай до конца — там ответ и способ за 30 минут.",
+  "slides": [
+    {
+      "type": "hook",
+      "kicker": "ЧЕСТНО",
+      "title": "Белые зубы\nне важны.",
+      "sub": "Листай — и попробуй сказать это снова.",
+      "footer": "листай"
+    },
+    {
+      "type": "compare",
+      "top": "star-1-white.jpg",
+      "bottom": "star-1-yellow.jpg",
+      "caption": "одна улыбка — два впечатления"
+    },
+    {
+      "type": "compare",
+      "top": "star-2-white.jpg",
+      "bottom": "star-2-yellow.jpg"
+    },
+    {
+      "type": "compare",
+      "top": "star-3-white.jpg",
+      "bottom": "star-3-yellow.jpg"
+    },
+    {
+      "type": "compare",
+      "top": "star-4-white.jpg",
+      "bottom": "star-4-yellow.jpg",
+      "caption": "всё ещё «не важны»?"
+    },
+    {
+      "type": "cta",
+      "title": "30 минут —\nи результат виден сразу",
+      "sub": "Полоски SmileKit: наклеил, подождал, снял.",
+      "bullets": [
+        "30 минут — одна процедура",
+        "результат виден после первого раза",
+        "дома, без стоматолога и боли"
+      ],
+      "button": "Написать в директ",
+      "note": "smilekit · teeth whitening"
+    }
+  ]
+}
