@@ -100,10 +100,22 @@ h1,h2,h3{ font-family:"Space Grotesk","Inter",sans-serif; margin:0; }
 .textbox .ch.wrong{ color:var(--error); background:rgba(251,113,133,.14); border-radius:3px; }
 .textbox .ch.current{ border-bottom-color:var(--accent); color:var(--text); }
 .textbox .ch.space.current{ background:rgba(79,209,197,.18); border-radius:3px; }
+.textbox.shake{ animation:shake .28s ease; }
+@keyframes shake{ 10%,90%{transform:translateX(-2px)} 20%,80%{transform:translateX(3px)} 30%,50%,70%{transform:translateX(-5px)} 40%,60%{transform:translateX(5px)} }
 
-.hint{ display:flex; align-items:center; gap:10px; font-size:13px; color:var(--muted); }
-.hint b{ color:var(--text); }
 .dot{ width:12px;height:12px;border-radius:50%; display:inline-block; }
+
+/* ---------- hands overlay ---------- */
+.hands{ display:flex; justify-content:center; align-items:flex-end; gap:36px; padding-top:4px; }
+.hand{ position:relative; width:158px; height:140px; }
+.palm{ position:absolute; left:16px; bottom:0; width:126px; height:56px; border-radius:38px 38px 22px 22px; background:var(--surface2); border:1px solid var(--key-border); opacity:.6; }
+.finger{ position:absolute; width:23px; border-radius:14px 14px 8px 8px; background:var(--muted); opacity:.24; transform-origin:bottom center; transition:opacity .15s ease, transform .15s ease, background .15s ease, box-shadow .15s ease; }
+.finger.active{ opacity:1; background:var(--fc,var(--accent)); box-shadow:0 0 16px -1px var(--fc,var(--accent)); transform:translateY(-5px) rotate(var(--rot,0deg)) !important; }
+.handsCaption{ text-align:center; font-size:12px; color:var(--muted); margin-top:2px; }
+.handsCaption b{ color:var(--text); }
+@media (max-width:600px){
+  .hands{ gap:14px; transform:scale(.82); transform-origin:top center; margin-bottom:-18px; }
+}
 
 /* ---------- keyboard ---------- */
 .kbd{ display:flex; flex-direction:column; gap:6px; align-items:center; }
@@ -188,10 +200,8 @@ h1,h2,h3{ font-family:"Space Grotesk","Inter",sans-serif; margin:0; }
 
     <div class="textbox mono" id="textbox"></div>
 
-    <div class="hint">
-      <span class="dot" id="fingerDot"></span>
-      <span>Пальчик: <b id="fingerName">—</b></span>
-    </div>
+    <div class="hands" id="hands"></div>
+    <div class="handsCaption">Нажимай пальцем: <b id="fingerName">—</b></div>
 
     <div class="kbd" id="kbd"></div>
     <div class="legend" id="legend"></div>
@@ -254,6 +264,7 @@ var ROWS = [
   ]},
 ];
 var SPACE = {en:' ',ru:' ',f:'thumb'};
+var ALL_KEYS = ROWS.reduce(function(acc,row){ return acc.concat(row.keys); }, []).concat([SPACE]);
 
 function findKeyDef(ch, lang){
   ch = ch.toLowerCase();
@@ -265,6 +276,16 @@ function findKeyDef(ch, lang){
     }
   }
   return null;
+}
+// look up a key definition by its canonical (English) id, e.g. 'a', ';', '1'
+function findKeyDefById(id){
+  for(var i=0;i<ALL_KEYS.length;i++){ if(ALL_KEYS[i].en === id) return ALL_KEYS[i]; }
+  return null;
+}
+// resolve a canonical key id to the character typed in the given language
+function langChar(id, lang){
+  var kd = findKeyDefById(id);
+  return kd ? kd[lang] : id;
 }
 
 /* ================= word banks ================= */
@@ -294,10 +315,12 @@ var PARAGRAPHS = {
 };
 
 /* ================= level definitions ================= */
-function makeDrill(chars, count){
+// keyIds are canonical (English) key ids; resolved to the active language's character here
+function makeDrill(keyIds, count, lang){
   var out = [];
   for(var i=0;i<count;i++){
-    out.push(chars[Math.floor(Math.random()*chars.length)]);
+    var id = keyIds[Math.floor(Math.random()*keyIds.length)];
+    out.push(langChar(id, lang));
     if((i+1) % 4 === 0 && i !== count-1) out.push(' ');
   }
   return out.join('').trim();
@@ -309,12 +332,12 @@ function pickWords(bank, n){
 }
 
 var LEVEL_DEFS = [
-  { id:0, title:'Домашний ряд · левая', desc:'Левая рука на A S D F', chars:['a','s','d','f'], mode:'drill', len:30 },
-  { id:1, title:'Домашний ряд · правая', desc:'Правая рука на J K L ;', chars:['j','k','l',';'], mode:'drill', len:30 },
+  { id:0, title:'Домашний ряд · левая', descPrefix:'Левая рука на', chars:['a','s','d','f'], mode:'drill', len:30 },
+  { id:1, title:'Домашний ряд · правая', descPrefix:'Правая рука на', chars:['j','k','l',';'], mode:'drill', len:30 },
   { id:2, title:'Домашний ряд · вместе', desc:'Обе руки на домашнем ряду', chars:['a','s','d','f','j','k','l',';'], mode:'drill', len:36 },
-  { id:3, title:'Верхний ряд · левая', desc:'Q W E R T', chars:['q','w','e','r','t'], mode:'drill', len:32 },
-  { id:4, title:'Верхний ряд · правая', desc:'Y U I O P', chars:['y','u','i','o','p'], mode:'drill', len:32 },
-  { id:5, title:'Нижний ряд', desc:'Z X C V B N M , .', chars:['z','x','c','v','b','n','m',',','.'], mode:'drill', len:36 },
+  { id:3, title:'Верхний ряд · левая', descPrefix:'Клавиши', chars:['q','w','e','r','t'], mode:'drill', len:32 },
+  { id:4, title:'Верхний ряд · правая', descPrefix:'Клавиши', chars:['y','u','i','o','p'], mode:'drill', len:32 },
+  { id:5, title:'Нижний ряд', descPrefix:'Клавиши', chars:['z','x','c','v','b','n','m',',','.'], mode:'drill', len:36 },
   { id:6, title:'Цифровой ряд', desc:'Учимся печатать цифры 0–9', chars:['1','2','3','4','5','6','7','8','9','0'], mode:'drill', len:30 },
   { id:7, title:'Все буквы вперемешку', desc:'Смешанная тренировка по всей клавиатуре', chars:['a','s','d','f','g','h','j','k','l','q','w','e','r','t','y','u','i','o','p','z','x','c','v','b','n','m'], mode:'drill', len:42 },
   { id:8, title:'Короткие слова', desc:'Печатаем целые слова', mode:'words', n:10 },
@@ -324,7 +347,7 @@ var LEVEL_DEFS = [
 ];
 
 function buildLevelText(def, lang){
-  if(def.mode === 'drill') return makeDrill(def.chars, def.len);
+  if(def.mode === 'drill') return makeDrill(def.chars, def.len, lang);
   if(def.mode === 'words') return pickWords(WORDS[lang], def.n);
   if(def.mode === 'sentence'){
     var arr = SENTENCES[lang];
@@ -370,7 +393,7 @@ var session = {
 var $ = function(id){ return document.getElementById(id); };
 var elLangSeg = $('langSeg'), elRail = $('rail'), elTextbox = $('textbox'),
     elKbd = $('kbd'), elLegend = $('legend'), elLvlTitle = $('lvlTitle'), elLvlDesc = $('lvlDesc'),
-    elFingerDot = $('fingerDot'), elFingerName = $('fingerName'),
+    elHands = $('hands'), elFingerName = $('fingerName'),
     elBadgeCombo = $('badgeCombo'), elBadgeAcc = $('badgeAcc'), elBadgeWpm = $('badgeWpm'),
     elStatLevel = $('statLevel'), elStatXp = $('statXp'), elStatStreak = $('statStreak'), elStatStars = $('statStars'),
     elXpFill = $('xpFill'), elOverlay = $('overlay'), elRestart = $('restartBtn'), elNext = $('nextBtn'),
@@ -478,19 +501,62 @@ function renderKeyboard(){
 function highlightKey(ch){
   var keys = elKbd.querySelectorAll('.key');
   keys.forEach(function(k){ k.classList.remove('next'); });
-  if(!ch) return;
+  if(!ch){ setActiveFinger(null); return; }
   var target = ch.toLowerCase();
+  var def = findKeyDef(target, state.lang);
   keys.forEach(function(k){
-    var kd = findKeyDef(target, state.lang);
-    if(kd && (k.dataset.en === kd.en || (target===' ' && k.dataset.en===' '))){
+    if(def && (k.dataset.en === def.en || (target===' ' && k.dataset.en===' '))){
       k.classList.add('next');
     }
   });
-  var def = findKeyDef(target, state.lang);
-  if(def){
-    elFingerDot.style.background = FINGER_COLOR[def.f];
-    elFingerName.textContent = FINGER_NAME[def.f];
-  }
+  setActiveFinger(def ? def.f : null);
+}
+
+/* ---------- hands overlay ---------- */
+// geometry for each finger: {finger, left, h, rot, bottom?}
+var HAND_GEOMETRY = {
+  left: [
+    {finger:'lp', left:0,   h:44, rot:-20},
+    {finger:'lr', left:27,  h:58, rot:-10},
+    {finger:'lm', left:55,  h:66, rot:-2},
+    {finger:'li', left:83,  h:58, rot:8},
+    {finger:'thumb', left:116, h:34, rot:36, bottom:12}
+  ],
+  right: [
+    {finger:'thumb', left:8, h:34, rot:-36, bottom:12},
+    {finger:'ri', left:42,  h:58, rot:-8},
+    {finger:'rm', left:70,  h:66, rot:2},
+    {finger:'rr', left:98,  h:58, rot:10},
+    {finger:'rp', left:126, h:44, rot:20}
+  ]
+};
+function renderHands(){
+  elHands.innerHTML = '';
+  ['left','right'].forEach(function(side){
+    var hand = document.createElement('div');
+    hand.className = 'hand';
+    var palm = document.createElement('div');
+    palm.className = 'palm';
+    hand.appendChild(palm);
+    HAND_GEOMETRY[side].forEach(function(g){
+      var f = document.createElement('div');
+      f.className = 'finger';
+      f.dataset.finger = g.finger;
+      f.style.left = g.left + 'px';
+      f.style.height = g.h + 'px';
+      f.style.bottom = (g.bottom || 34) + 'px';
+      f.style.transform = 'rotate(' + g.rot + 'deg)';
+      f.style.setProperty('--rot', g.rot + 'deg');
+      f.style.setProperty('--fc', FINGER_COLOR[g.finger]);
+      hand.appendChild(f);
+    });
+    elHands.appendChild(hand);
+  });
+}
+function setActiveFinger(fingerId){
+  var fingers = elHands.querySelectorAll('.finger');
+  fingers.forEach(function(f){ f.classList.toggle('active', !!fingerId && f.dataset.finger === fingerId); });
+  elFingerName.textContent = fingerId ? FINGER_NAME[fingerId] : '—';
 }
 function flashKeyPress(ch){
   var def = findKeyDef(ch, state.lang);
@@ -510,7 +576,12 @@ function startLevel(idx){
   var def = LEVEL_DEFS[idx];
   session = { text: buildLevelText(def, state.lang), typed:'', errors:0, totalKeystrokes:0, combo:0, bestCombo:0, startTime:0, finished:false };
   elLvlTitle.textContent = 'Уровень ' + (idx+1) + ' · ' + def.title;
-  elLvlDesc.textContent = def.desc;
+  if(def.descPrefix && def.chars){
+    var letters = def.chars.map(function(id){ return langChar(id, state.lang).toUpperCase(); }).join(' ');
+    elLvlDesc.textContent = def.descPrefix + ' ' + letters;
+  } else {
+    elLvlDesc.textContent = def.desc;
+  }
   renderTextbox();
   renderRail();
   updateBadges();
@@ -548,6 +619,8 @@ function updateBadges(){
 
 function handleChar(inputChar){
   if(session.finished) return;
+  // at the cap with a mistake still sitting there: block forward typing, force a backspace fix
+  if(session.typed.length >= session.text.length) return;
   if(!session.startTime) session.startTime = Date.now();
   var idx = session.typed.length;
   var expected = session.text[idx];
@@ -562,13 +635,17 @@ function handleChar(inputChar){
     session.combo = 0;
     session.typed += inputChar;
     beep(160, 0.09, 'square');
+    elTextbox.classList.remove('shake');
+    void elTextbox.offsetWidth;
+    elTextbox.classList.add('shake');
   }
   flashKeyPress(expected);
   renderTextbox();
   updateBadges();
   highlightKey(session.text[session.typed.length]);
   scrollCurrentIntoView();
-  if(session.typed.length >= session.text.length){
+  // only a fully correct run finishes the level — a mistake must be fixed with backspace first
+  if(session.typed.length >= session.text.length && session.typed === session.text){
     finishLevel();
   }
 }
@@ -699,6 +776,7 @@ function boot(data){
   elSoundBtn.textContent = state.sound ? '🔊' : '🔇';
   renderLangSeg();
   renderKeyboard();
+  renderHands();
   renderStats();
   renderRail();
   startLevel(Math.min(state.currentLevel || 0, state.progress[state.lang].unlocked));
