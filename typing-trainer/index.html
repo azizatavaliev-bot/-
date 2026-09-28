@@ -104,21 +104,21 @@ h1,h2,h3{ font-family:"Space Grotesk","Inter",sans-serif; margin:0; }
 @keyframes shake{ 10%,90%{transform:translateX(-2px)} 20%,80%{transform:translateX(3px)} 30%,50%,70%{transform:translateX(-5px)} 40%,60%{transform:translateX(5px)} }
 
 .dot{ width:12px;height:12px;border-radius:50%; display:inline-block; }
-
-/* ---------- hands overlay ---------- */
-.hands{ display:flex; justify-content:center; align-items:flex-end; gap:36px; padding-top:4px; }
-.hand{ position:relative; width:158px; height:140px; }
-.palm{ position:absolute; left:16px; bottom:0; width:126px; height:56px; border-radius:38px 38px 22px 22px; background:var(--surface2); border:1px solid var(--key-border); opacity:.6; }
-.finger{ position:absolute; width:23px; border-radius:14px 14px 8px 8px; background:var(--muted); opacity:.24; transform-origin:bottom center; transition:opacity .15s ease, transform .15s ease, background .15s ease, box-shadow .15s ease; }
-.finger.active{ opacity:1; background:var(--fc,var(--accent)); box-shadow:0 0 16px -1px var(--fc,var(--accent)); transform:translateY(-5px) rotate(var(--rot,0deg)) !important; }
 .handsCaption{ text-align:center; font-size:12px; color:var(--muted); margin-top:2px; }
 .handsCaption b{ color:var(--text); }
-@media (max-width:600px){
-  .hands{ gap:14px; transform:scale(.82); transform-origin:top center; margin-bottom:-18px; }
-}
+
+/* ---------- hands overlay (top-down, live over the keyboard) ---------- */
+.kbdWrap{ position:relative; align-self:center; width:max-content; max-width:100%; }
+.handsSvg{ position:absolute; inset:0; width:100%; height:100%; z-index:3; pointer-events:none; overflow:visible; }
+.palmShape{ fill:var(--muted); opacity:.15; }
+.fingerShape{ stroke:var(--fc,var(--accent)); stroke-width:15; stroke-linecap:round; opacity:.32; transition:opacity .18s ease, stroke-width .18s ease; }
+.fingerShape.active{ opacity:.88; stroke-width:18; filter:drop-shadow(0 0 7px var(--fc,var(--accent))); }
+.fingertip{ fill:var(--fc,var(--accent)); opacity:.4; }
+.fingertip.active{ opacity:1; filter:drop-shadow(0 0 8px var(--fc,var(--accent))); }
+.knuckle{ fill:var(--fc,var(--accent)); opacity:.22; }
 
 /* ---------- keyboard ---------- */
-.kbd{ display:flex; flex-direction:column; gap:6px; align-items:center; }
+.kbd{ display:flex; flex-direction:column; gap:6px; align-items:center; position:relative; z-index:1; }
 .krow{ display:flex; gap:6px; }
 .key{ width:44px;height:44px; border-radius:9px; background:var(--key); border:1px solid var(--key-border); border-bottom-width:3px; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:600; color:var(--muted); position:relative; transition:transform .05s ease; }
 .key.wide{ width:70px; }
@@ -200,10 +200,11 @@ h1,h2,h3{ font-family:"Space Grotesk","Inter",sans-serif; margin:0; }
 
     <div class="textbox mono" id="textbox"></div>
 
-    <div class="hands" id="hands"></div>
+    <div class="kbdWrap" id="kbdWrap">
+      <svg class="handsSvg" id="handsSvg"></svg>
+      <div class="kbd" id="kbd"></div>
+    </div>
     <div class="handsCaption">Нажимай пальцем: <b id="fingerName">—</b></div>
-
-    <div class="kbd" id="kbd"></div>
     <div class="legend" id="legend"></div>
 
     <div class="actions">
@@ -393,7 +394,7 @@ var session = {
 var $ = function(id){ return document.getElementById(id); };
 var elLangSeg = $('langSeg'), elRail = $('rail'), elTextbox = $('textbox'),
     elKbd = $('kbd'), elLegend = $('legend'), elLvlTitle = $('lvlTitle'), elLvlDesc = $('lvlDesc'),
-    elHands = $('hands'), elFingerName = $('fingerName'),
+    elHandsSvg = $('handsSvg'), elFingerName = $('fingerName'),
     elBadgeCombo = $('badgeCombo'), elBadgeAcc = $('badgeAcc'), elBadgeWpm = $('badgeWpm'),
     elStatLevel = $('statLevel'), elStatXp = $('statXp'), elStatStreak = $('statStreak'), elStatStars = $('statStars'),
     elXpFill = $('xpFill'), elOverlay = $('overlay'), elRestart = $('restartBtn'), elNext = $('nextBtn'),
@@ -501,7 +502,7 @@ function renderKeyboard(){
 function highlightKey(ch){
   var keys = elKbd.querySelectorAll('.key');
   keys.forEach(function(k){ k.classList.remove('next'); });
-  if(!ch){ setActiveFinger(null); return; }
+  if(!ch){ lastFinger = null; lastKeyId = null; elFingerName.textContent = '—'; drawHands(); return; }
   var target = ch.toLowerCase();
   var def = findKeyDef(target, state.lang);
   keys.forEach(function(k){
@@ -509,55 +510,70 @@ function highlightKey(ch){
       k.classList.add('next');
     }
   });
-  setActiveFinger(def ? def.f : null);
+  lastFinger = def ? def.f : null;
+  lastKeyId = def ? def.en : null;
+  elFingerName.textContent = lastFinger ? FINGER_NAME[lastFinger] : '—';
+  drawHands();
 }
 
-/* ---------- hands overlay ---------- */
-// geometry for each finger: {finger, left, h, rot, bottom?}
-var HAND_GEOMETRY = {
-  left: [
-    {finger:'lp', left:0,   h:44, rot:-20},
-    {finger:'lr', left:27,  h:58, rot:-10},
-    {finger:'lm', left:55,  h:66, rot:-2},
-    {finger:'li', left:83,  h:58, rot:8},
-    {finger:'thumb', left:116, h:34, rot:36, bottom:12}
-  ],
-  right: [
-    {finger:'thumb', left:8, h:34, rot:-36, bottom:12},
-    {finger:'ri', left:42,  h:58, rot:-8},
-    {finger:'rm', left:70,  h:66, rot:2},
-    {finger:'rr', left:98,  h:58, rot:10},
-    {finger:'rp', left:126, h:44, rot:20}
-  ]
-};
-function renderHands(){
-  elHands.innerHTML = '';
-  ['left','right'].forEach(function(side){
-    var hand = document.createElement('div');
-    hand.className = 'hand';
-    var palm = document.createElement('div');
-    palm.className = 'palm';
-    hand.appendChild(palm);
-    HAND_GEOMETRY[side].forEach(function(g){
-      var f = document.createElement('div');
-      f.className = 'finger';
-      f.dataset.finger = g.finger;
-      f.style.left = g.left + 'px';
-      f.style.height = g.h + 'px';
-      f.style.bottom = (g.bottom || 34) + 'px';
-      f.style.transform = 'rotate(' + g.rot + 'deg)';
-      f.style.setProperty('--rot', g.rot + 'deg');
-      f.style.setProperty('--fc', FINGER_COLOR[g.finger]);
-      hand.appendChild(f);
-    });
-    elHands.appendChild(hand);
+/* ---------- hands overlay: real top-down hand shapes, live over the keys ---------- */
+// each finger rests on its home key until it has to reach for the active one
+var FINGER_HOME = { lp:'a', lr:'s', lm:'d', li:'f', ri:'j', rm:'k', rr:'l', rp:';', thumb:' ' };
+var LEFT_FINGERS = ['lp','lr','lm','li'];
+var RIGHT_FINGERS = ['ri','rm','rr','rp'];
+var SVGNS = 'http://www.w3.org/2000/svg';
+var KEY_CENTERS = {};
+var lastFinger = null, lastKeyId = null;
+
+function computeKeyCenters(){
+  KEY_CENTERS = {};
+  elKbd.querySelectorAll('.key').forEach(function(k){
+    KEY_CENTERS[k.dataset.en] = { x: k.offsetLeft + k.offsetWidth/2, y: k.offsetTop + k.offsetHeight/2 };
   });
 }
-function setActiveFinger(fingerId){
-  var fingers = elHands.querySelectorAll('.finger');
-  fingers.forEach(function(f){ f.classList.toggle('active', !!fingerId && f.dataset.finger === fingerId); });
-  elFingerName.textContent = fingerId ? FINGER_NAME[fingerId] : '—';
+function svgEl(tag, attrs){
+  var el = document.createElementNS(SVGNS, tag);
+  Object.keys(attrs).forEach(function(a){ el.setAttribute(a, attrs[a]); });
+  return el;
 }
+function palmCenter(fingerIds){
+  var pts = fingerIds.map(function(f){ return KEY_CENTERS[FINGER_HOME[f]]; }).filter(Boolean);
+  if(!pts.length) return null;
+  var avgX = pts.reduce(function(s,p){ return s+p.x; }, 0) / pts.length;
+  var maxY = Math.max.apply(null, pts.map(function(p){ return p.y; }));
+  return { x: avgX, y: maxY + 44 };
+}
+function drawHands(){
+  if(!elKbd.offsetWidth) return;
+  elHandsSvg.setAttribute('viewBox', '0 0 ' + elKbd.offsetWidth + ' ' + elKbd.offsetHeight);
+  elHandsSvg.innerHTML = '';
+  [LEFT_FINGERS, RIGHT_FINGERS].forEach(function(group){
+    var palm = palmCenter(group);
+    if(!palm) return;
+    elHandsSvg.appendChild(svgEl('ellipse', { cx:palm.x, cy:palm.y, rx:62, ry:38, class:'palmShape' }));
+  });
+  Object.keys(FINGER_HOME).forEach(function(f){
+    var base = KEY_CENTERS[FINGER_HOME[f]];
+    if(!base) return;
+    var active = f === lastFinger;
+    var tip = (active && lastKeyId && KEY_CENTERS[lastKeyId]) ? KEY_CENTERS[lastKeyId] : base;
+    var knuckle = { x: base.x, y: base.y + 26 };
+    var line = svgEl('line', { x1:knuckle.x, y1:knuckle.y, x2:tip.x, y2:tip.y, class:'fingerShape' + (active?' active':'') });
+    line.style.setProperty('--fc', FINGER_COLOR[f]);
+    elHandsSvg.appendChild(line);
+    var tipDot = svgEl('circle', { cx:tip.x, cy:tip.y, r: active?10:8, class:'fingertip' + (active?' active':'') });
+    tipDot.style.setProperty('--fc', FINGER_COLOR[f]);
+    elHandsSvg.appendChild(tipDot);
+    var knuckleDot = svgEl('circle', { cx:knuckle.x, cy:knuckle.y, r:8, class:'knuckle' });
+    knuckleDot.style.setProperty('--fc', FINGER_COLOR[f]);
+    elHandsSvg.appendChild(knuckleDot);
+  });
+}
+var resizeTimer = null;
+window.addEventListener('resize', function(){
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(function(){ computeKeyCenters(); drawHands(); }, 120);
+});
 function flashKeyPress(ch){
   var def = findKeyDef(ch, state.lang);
   if(!def) return;
@@ -760,6 +776,7 @@ function renderLangSeg(){
       state.lang = pair[0];
       renderLangSeg();
       renderKeyboard();
+      computeKeyCenters();
       renderRail();
       startLevel(Math.min(state.currentLevel, state.progress[state.lang].unlocked));
       saveState();
@@ -776,7 +793,7 @@ function boot(data){
   elSoundBtn.textContent = state.sound ? '🔊' : '🔇';
   renderLangSeg();
   renderKeyboard();
-  renderHands();
+  computeKeyCenters();
   renderStats();
   renderRail();
   startLevel(Math.min(state.currentLevel || 0, state.progress[state.lang].unlocked));
