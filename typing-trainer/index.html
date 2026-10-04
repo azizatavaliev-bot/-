@@ -110,12 +110,20 @@ h1,h2,h3{ font-family:"Space Grotesk","Inter",sans-serif; margin:0; }
 /* ---------- hands overlay (top-down, live over the keyboard) ---------- */
 .kbdWrap{ position:relative; align-self:center; width:max-content; max-width:100%; }
 .handsSvg{ position:absolute; inset:0; width:100%; height:100%; z-index:3; pointer-events:none; overflow:visible; }
-.palmShape{ fill:var(--muted); opacity:.15; }
-.fingerShape{ stroke:var(--fc,var(--accent)); stroke-width:15; stroke-linecap:round; opacity:.32; transition:opacity .18s ease, stroke-width .18s ease; }
+.palmShape{ fill:var(--muted); opacity:.15; transition:cx .25s cubic-bezier(.3,.7,.4,1), cy .25s cubic-bezier(.3,.7,.4,1); }
+.fingerShape{
+  stroke:var(--fc,var(--accent)); stroke-width:15; stroke-linecap:round; opacity:.32;
+  transition:opacity .16s ease, stroke-width .16s ease,
+    x1 .2s cubic-bezier(.3,.7,.4,1), y1 .2s cubic-bezier(.3,.7,.4,1),
+    x2 .2s cubic-bezier(.3,.7,.4,1), y2 .2s cubic-bezier(.3,.7,.4,1);
+}
 .fingerShape.active{ opacity:.88; stroke-width:18; filter:drop-shadow(0 0 7px var(--fc,var(--accent))); }
-.fingertip{ fill:var(--fc,var(--accent)); opacity:.4; }
+.fingertip{
+  fill:var(--fc,var(--accent)); opacity:.4;
+  transition:opacity .16s ease, r .16s ease, cx .2s cubic-bezier(.3,.7,.4,1), cy .2s cubic-bezier(.3,.7,.4,1);
+}
 .fingertip.active{ opacity:1; filter:drop-shadow(0 0 8px var(--fc,var(--accent))); }
-.knuckle{ fill:var(--fc,var(--accent)); opacity:.22; }
+.knuckle{ fill:var(--fc,var(--accent)); opacity:.22; transition:cx .2s cubic-bezier(.3,.7,.4,1), cy .2s cubic-bezier(.3,.7,.4,1); }
 
 /* ---------- keyboard ---------- */
 .kbd{ display:flex; flex-direction:column; gap:6px; align-items:center; position:relative; z-index:1; }
@@ -332,34 +340,89 @@ function pickWords(bank, n){
   return out.join(' ');
 }
 
-var LEVEL_DEFS = [
-  { id:0, title:'Домашний ряд · левая', descPrefix:'Левая рука на', chars:['a','s','d','f'], mode:'drill', len:30 },
-  { id:1, title:'Домашний ряд · правая', descPrefix:'Правая рука на', chars:['j','k','l',';'], mode:'drill', len:30 },
-  { id:2, title:'Домашний ряд · вместе', desc:'Обе руки на домашнем ряду', chars:['a','s','d','f','j','k','l',';'], mode:'drill', len:36 },
-  { id:3, title:'Верхний ряд · левая', descPrefix:'Клавиши', chars:['q','w','e','r','t'], mode:'drill', len:32 },
-  { id:4, title:'Верхний ряд · правая', descPrefix:'Клавиши', chars:['y','u','i','o','p'], mode:'drill', len:32 },
-  { id:5, title:'Нижний ряд', descPrefix:'Клавиши', chars:['z','x','c','v','b','n','m',',','.'], mode:'drill', len:36 },
-  { id:6, title:'Цифровой ряд', desc:'Учимся печатать цифры 0–9', chars:['1','2','3','4','5','6','7','8','9','0'], mode:'drill', len:30 },
-  { id:7, title:'Все буквы вперемешку', desc:'Смешанная тренировка по всей клавиатуре', chars:['a','s','d','f','g','h','j','k','l','q','w','e','r','t','y','u','i','o','p','z','x','c','v','b','n','m'], mode:'drill', len:42 },
-  { id:8, title:'Короткие слова', desc:'Печатаем целые слова', mode:'words', n:10 },
-  { id:9, title:'Слова подлиннее', desc:'Больше слов подряд, без подглядывания', mode:'words', n:16 },
-  { id:10, title:'Предложения', desc:'Знаки препинания и заглавные буквы', mode:'sentence' },
-  { id:11, title:'Связный текст', desc:'Финальный уровень — целый абзац', mode:'paragraph' }
+// one row at a time, left to right — a level per key, like a real typing course
+var ROW_GROUPS = [
+  { name:'Средний ряд', keys:['a','s','d','f','g','h','j','k','l',';'] },
+  { name:'Верхний ряд', keys:['q','w','e','r','t','y','u','i','o','p'] },
+  { name:'Нижний ряд', keys:['z','x','c','v','b','n','m',',','.'] },
+  { name:'Цифры', keys:['1','2','3','4','5','6','7','8','9','0'] }
 ];
+function buildLevelDefs(){
+  var levels = [];
+  ROW_GROUPS.forEach(function(group){
+    group.keys.forEach(function(key, ki){
+      // one key on its own first — "аааа"
+      levels.push({ kind:'single', group:group.name, chars:[key], len:24 });
+      // then that key alternating with the one just learned — "авававав"
+      if(ki > 0){
+        levels.push({ kind:'combo', group:group.name, chars:[group.keys[ki-1], key], len:28 });
+      }
+    });
+    levels.push({ kind:'rowmix', group:group.name, chars:group.keys.slice(), len:36 });
+  });
+  var allLetters = ROW_GROUPS.slice(0,3).reduce(function(acc,g){ return acc.concat(g.keys); }, []);
+  levels.push({ kind:'allmix', chars:allLetters, len:44 });
+  levels.push({ kind:'words', n:10 });
+  levels.push({ kind:'words2', n:16 });
+  levels.push({ kind:'sentence' });
+  levels.push({ kind:'paragraph' });
+  levels.forEach(function(d, i){ d.id = i; });
+  return levels;
+}
+var LEVEL_DEFS = buildLevelDefs();
+
+function levelLetters(def, lang){
+  return def.chars.map(function(id){ return langChar(id, lang).toUpperCase(); });
+}
+function levelTitle(def, lang){
+  if(def.kind === 'single') return def.group + ' · буква ' + levelLetters(def, lang)[0];
+  if(def.kind === 'combo') return def.group + ' · ' + levelLetters(def, lang).join(' + ');
+  if(def.kind === 'rowmix') return def.group + ' · всё вместе';
+  if(def.kind === 'allmix') return 'Все буквы вперемешку';
+  if(def.kind === 'words') return 'Короткие слова';
+  if(def.kind === 'words2') return 'Слова подлиннее';
+  if(def.kind === 'sentence') return 'Предложения';
+  if(def.kind === 'paragraph') return 'Связный текст';
+  return '—';
+}
+function levelDesc(def, lang){
+  if(def.kind === 'single') return 'Одна клавиша без остановки: ' + levelLetters(def, lang)[0];
+  if(def.kind === 'combo') return 'Чередуем клавиши: ' + levelLetters(def, lang).join(' ');
+  if(def.kind === 'rowmix') return 'Смешиваем весь ряд, без подглядывания';
+  if(def.kind === 'allmix') return 'Смешанная тренировка по всей клавиатуре';
+  if(def.kind === 'words') return 'Печатаем целые слова';
+  if(def.kind === 'words2') return 'Больше слов подряд, без подглядывания';
+  if(def.kind === 'sentence') return 'Знаки препинания и заглавные буквы';
+  if(def.kind === 'paragraph') return 'Финальный уровень — целый абзац';
+  return '';
+}
+function levelChipLabel(def, lang){
+  if(def.kind === 'single') return levelLetters(def, lang)[0];
+  if(def.kind === 'combo') return levelLetters(def, lang).join('');
+  if(def.kind === 'rowmix') return 'Ряд';
+  if(def.kind === 'allmix') return 'Микс';
+  if(def.kind === 'words') return 'Слова';
+  if(def.kind === 'words2') return 'Слова+';
+  if(def.kind === 'sentence') return 'Фразы';
+  if(def.kind === 'paragraph') return 'Текст';
+  return '?';
+}
 
 function buildLevelText(def, lang){
-  if(def.mode === 'drill') return makeDrill(def.chars, def.len, lang);
-  if(def.mode === 'words') return pickWords(WORDS[lang], def.n);
-  if(def.mode === 'sentence'){
+  if(def.kind === 'single' || def.kind === 'combo' || def.kind === 'rowmix' || def.kind === 'allmix'){
+    return makeDrill(def.chars, def.len, lang);
+  }
+  if(def.kind === 'words' || def.kind === 'words2') return pickWords(WORDS[lang], def.n);
+  if(def.kind === 'sentence'){
     var arr = SENTENCES[lang];
     return arr[Math.floor(Math.random()*arr.length)];
   }
-  if(def.mode === 'paragraph') return PARAGRAPHS[lang];
+  if(def.kind === 'paragraph') return PARAGRAPHS[lang];
   return '';
 }
 
 /* ================= state ================= */
-var STORAGE_KEY = 'klava_trainer_v1';
+var STORAGE_KEY = 'klava_trainer_v2';
 var state = {
   lang: 'ru',
   theme: 'dark',
@@ -457,7 +520,7 @@ function renderRail(){
     var chip = document.createElement('div');
     chip.className = 'lchip' + (i === state.currentLevel ? ' active' : '') + (locked ? ' locked' : '');
     var stars = prog.stars[i] || 0;
-    chip.innerHTML = '<div class="n">Ур. ' + (i+1) + '</div><div class="t">' + def.title.split('·')[0].trim() + '</div><div class="stars">' + (stars ? '★'.repeat(stars) + '☆'.repeat(3-stars) : '') + '</div>';
+    chip.innerHTML = '<div class="n">Ур. ' + (i+1) + '</div><div class="t">' + levelChipLabel(def, state.lang) + '</div><div class="stars">' + (stars ? '★'.repeat(stars) + '☆'.repeat(3-stars) : '') + '</div>';
     if(!locked){
       chip.addEventListener('click', function(){ startLevel(i); });
     }
@@ -543,30 +606,57 @@ function palmCenter(fingerIds){
   var maxY = Math.max.apply(null, pts.map(function(p){ return p.y; }));
   return { x: avgX, y: maxY + 44 };
 }
+
+// persistent SVG elements, created once — attributes are then updated in place
+// so CSS transitions actually have a "from" value to animate from
+var fingerEls = null;
+var palmEls = null;
+function buildHandsDom(){
+  elHandsSvg.innerHTML = '';
+  palmEls = {
+    left: svgEl('ellipse', { rx:62, ry:38, cx:0, cy:0, class:'palmShape' }),
+    right: svgEl('ellipse', { rx:62, ry:38, cx:0, cy:0, class:'palmShape' })
+  };
+  elHandsSvg.appendChild(palmEls.left);
+  elHandsSvg.appendChild(palmEls.right);
+  fingerEls = {};
+  Object.keys(FINGER_HOME).forEach(function(f){
+    var line = svgEl('line', { x1:0, y1:0, x2:0, y2:0, class:'fingerShape' });
+    var knuckle = svgEl('circle', { cx:0, cy:0, r:8, class:'knuckle' });
+    var tip = svgEl('circle', { cx:0, cy:0, r:8, class:'fingertip' });
+    [line, knuckle, tip].forEach(function(el){ el.style.setProperty('--fc', FINGER_COLOR[f]); });
+    elHandsSvg.appendChild(line);
+    elHandsSvg.appendChild(knuckle);
+    elHandsSvg.appendChild(tip);
+    fingerEls[f] = { line:line, knuckle:knuckle, tip:tip };
+  });
+}
 function drawHands(){
   if(!elKbd.offsetWidth) return;
+  if(!fingerEls) buildHandsDom();
   elHandsSvg.setAttribute('viewBox', '0 0 ' + elKbd.offsetWidth + ' ' + elKbd.offsetHeight);
-  elHandsSvg.innerHTML = '';
-  [LEFT_FINGERS, RIGHT_FINGERS].forEach(function(group){
-    var palm = palmCenter(group);
-    if(!palm) return;
-    elHandsSvg.appendChild(svgEl('ellipse', { cx:palm.x, cy:palm.y, rx:62, ry:38, class:'palmShape' }));
-  });
+
+  var leftPalm = palmCenter(LEFT_FINGERS), rightPalm = palmCenter(RIGHT_FINGERS);
+  if(leftPalm){ palmEls.left.setAttribute('cx', leftPalm.x); palmEls.left.setAttribute('cy', leftPalm.y); }
+  if(rightPalm){ palmEls.right.setAttribute('cx', rightPalm.x); palmEls.right.setAttribute('cy', rightPalm.y); }
+
   Object.keys(FINGER_HOME).forEach(function(f){
     var base = KEY_CENTERS[FINGER_HOME[f]];
     if(!base) return;
     var active = f === lastFinger;
     var tip = (active && lastKeyId && KEY_CENTERS[lastKeyId]) ? KEY_CENTERS[lastKeyId] : base;
     var knuckle = { x: base.x, y: base.y + 26 };
-    var line = svgEl('line', { x1:knuckle.x, y1:knuckle.y, x2:tip.x, y2:tip.y, class:'fingerShape' + (active?' active':'') });
-    line.style.setProperty('--fc', FINGER_COLOR[f]);
-    elHandsSvg.appendChild(line);
-    var tipDot = svgEl('circle', { cx:tip.x, cy:tip.y, r: active?10:8, class:'fingertip' + (active?' active':'') });
-    tipDot.style.setProperty('--fc', FINGER_COLOR[f]);
-    elHandsSvg.appendChild(tipDot);
-    var knuckleDot = svgEl('circle', { cx:knuckle.x, cy:knuckle.y, r:8, class:'knuckle' });
-    knuckleDot.style.setProperty('--fc', FINGER_COLOR[f]);
-    elHandsSvg.appendChild(knuckleDot);
+    var els = fingerEls[f];
+
+    els.line.setAttribute('x1', knuckle.x); els.line.setAttribute('y1', knuckle.y);
+    els.line.setAttribute('x2', tip.x); els.line.setAttribute('y2', tip.y);
+    els.line.classList.toggle('active', active);
+
+    els.knuckle.setAttribute('cx', knuckle.x); els.knuckle.setAttribute('cy', knuckle.y);
+
+    els.tip.setAttribute('cx', tip.x); els.tip.setAttribute('cy', tip.y);
+    els.tip.setAttribute('r', active ? 10 : 8);
+    els.tip.classList.toggle('active', active);
   });
 }
 var resizeTimer = null;
@@ -591,18 +681,15 @@ function startLevel(idx){
   state.currentLevel = idx;
   var def = LEVEL_DEFS[idx];
   session = { text: buildLevelText(def, state.lang), typed:'', errors:0, totalKeystrokes:0, combo:0, bestCombo:0, startTime:0, finished:false };
-  elLvlTitle.textContent = 'Уровень ' + (idx+1) + ' · ' + def.title;
-  if(def.descPrefix && def.chars){
-    var letters = def.chars.map(function(id){ return langChar(id, state.lang).toUpperCase(); }).join(' ');
-    elLvlDesc.textContent = def.descPrefix + ' ' + letters;
-  } else {
-    elLvlDesc.textContent = def.desc;
-  }
+  elLvlTitle.textContent = 'Уровень ' + (idx+1) + ' · ' + levelTitle(def, state.lang);
+  elLvlDesc.textContent = levelDesc(def, state.lang);
   renderTextbox();
   renderRail();
   updateBadges();
   highlightKey(session.text[0]);
   saveState();
+  var activeChip = elRail.querySelector('.lchip.active');
+  if(activeChip && activeChip.scrollIntoView) activeChip.scrollIntoView({ behavior:'smooth', inline:'center', block:'nearest' });
 }
 
 function renderTextbox(){
