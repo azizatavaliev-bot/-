@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Панель агента</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#14161a;--mute:#6b7280;--line:#e5e7eb;--acc:#0f766e;--acc-ink:#fff;--bad:#b91c1c;--ok:#15803d;--warn:#b45309;--chip:#eef2f1}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1214;--card:#171b1e;--ink:#e8eaed;--mute:#9aa3ad;--line:#272d32;--acc:#2dd4bf;--acc-ink:#04201c;--bad:#f87171;--ok:#4ade80;--warn:#fbbf24;--chip:#1f2529}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:10px 16px}
+header h1{font-size:16px;margin:0 8px 0 0}
+nav{display:flex;gap:4px;overflow-x:auto;flex:1}
+nav button{background:none;border:0;color:var(--mute);padding:8px 12px;border-radius:8px;cursor:pointer;font:inherit;white-space:nowrap}
+nav button.on{background:var(--chip);color:var(--ink);font-weight:600}
+main{max-width:980px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+.card h2{font-size:15px;margin:0 0 12px}
+.row{display:flex;gap:12px;flex-wrap:wrap}.row>*{flex:1 1 220px}
+label{display:block;font-size:13px;color:var(--mute);margin:10px 0 4px}
+input,select,textarea{width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 10px;font:inherit}
+textarea{min-height:110px;resize:vertical}
+button.btn{background:var(--acc);color:var(--acc-ink);border:0;border-radius:8px;padding:9px 14px;font:inherit;font-weight:600;cursor:pointer}
+button.btn.ghost{background:var(--chip);color:var(--ink)}button.btn.danger{background:var(--bad);color:#fff}
+button.btn:disabled{opacity:.5;cursor:default}
+.hint{font-size:12.5px;color:var(--mute);margin-top:4px}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;background:var(--chip)}
+.pill.ok{color:var(--ok)}.pill.bad{color:var(--bad)}.pill.warn{color:var(--warn)}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--mute);font-weight:600}
+tr.click{cursor:pointer}tr.click:hover{background:var(--chip)}
+.msgs{max-height:340px;overflow:auto;background:var(--bg);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.m{max-width:85%;padding:7px 10px;border-radius:10px;white-space:pre-wrap;word-break:break-word;font-size:14px}
+.m.user{background:var(--card);border:1px solid var(--line);align-self:flex-start}
+.m.assistant{background:var(--acc);color:var(--acc-ink);align-self:flex-end}
+.m.human{background:var(--warn);color:#fff;align-self:flex-end}
+.sw{display:flex;align-items:center;gap:8px;margin:8px 0}.sw input{width:auto}
+.sw label{margin:0;color:var(--ink);font-size:14px}
+.qr{display:flex;justify-content:center;padding:12px}.qr img{width:260px;height:260px;background:#fff;padding:8px;border-radius:8px}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);width:min(680px,94vw);padding:18px}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:10px;opacity:0;transition:.2s;pointer-events:none;z-index:20}
+.toast.on{opacity:1}
+#login{max-width:340px;margin:18vh auto}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<div id="login" class="card hide">
+  <h2>Вход в панель</h2>
+  <label>Пароль</label>
+  <input id="pw" type="password" autocomplete="current-password">
+  <p><button class="btn" id="loginBtn">Войти</button></p>
+  <div id="loginErr" class="hint" style="color:var(--bad)"></div>
+</div>
+
+<div id="app" class="hide">
+<header>
+  <h1>🤖 Агент</h1>
+  <nav id="nav"></nav>
+  <button class="btn ghost" id="logout">Выйти</button>
+</header>
+<main id="view"></main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const api = async (path, opts = {}) => {
+  const r = await fetch(path, { ...opts, headers: { 'Content-Type': 'application/json' }, body: opts.body ? JSON.stringify(opts.body) : undefined });
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401 && path !== '/api/login') { showLogin(); throw new Error('Нужен вход'); }
+  if (!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+};
+function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('on'); setTimeout(() => el.classList.remove('on'), 2400); }
+const MODE = { off: 'Выключен', client: 'Клиентский', owner: 'Владелец' };
+const TABS = [['status', 'Подключение'], ['chats', 'Чаты'], ['reminders', 'Напоминания'], ['settings', 'Настройки'], ['test', 'Тест'], ['log', 'Журнал']];
+let tab = 'status', timer = null;
+
+function showLogin() { $('#app').classList.add('hide'); $('#login').classList.remove('hide'); $('#pw').focus(); clearInterval(timer); }
+async function boot() {
+  try { await api('/api/status'); } catch { return; }
+  $('#login').classList.add('hide'); $('#app').classList.remove('hide');
+  $('#nav').innerHTML = TABS.map(([k, n]) => `<button data-t="${k}">${n}</button>`).join('');
+  $('#nav').onclick = (e) => { const t = e.target.dataset.t; if (t) go(t); };
+  go(tab);
+}
+$('#loginBtn').onclick = async () => {
+  try { await api('/api/login', { method: 'POST', body: { password: $('#pw').value } }); $('#loginErr').textContent = ''; boot(); }
+  catch (e) { $('#loginErr').textContent = e.message; }
+};
+$('#pw').onkeydown = (e) => e.key === 'Enter' && $('#loginBtn').click();
+$('#logout').onclick = async () => { await api('/api/logout', { method: 'POST' }).catch(() => {}); showLogin(); };
+
+function go(t) {
+  tab = t; clearInterval(timer);
+  document.querySelectorAll('#nav button').forEach((b) => b.classList.toggle('on', b.dataset.t === t));
+  ({ status: vStatus, chats: vChats, reminders: vReminders, settings: vSettings, test: vTest, log: vLog })[t]();
+}
+
+// ---------- Подключение ----------
+async function vStatus() {
+  const draw = async () => {
+    const s = await api('/api/status');
+    const waMap = { open: ['ok', 'Подключён'], qr: ['warn', 'Ждёт сканирования QR'], connecting: ['warn', 'Подключается…'], starting: ['warn', 'Запускается…'], logged_out: ['bad', 'Сессия закрыта — нужен новый QR'] };
+    const [cls, label] = waMap[s.wa.status] || ['warn', s.wa.status];
+    $('#view').innerHTML = `
+      <div class="card"><h2>WhatsApp</h2>
+        <p><span class="pill ${cls}">${label}</span> ${s.wa.me ? `<span class="hint">${esc(s.wa.me)}</span>` : ''}</p>
+        ${s.wa.qr ? `<div class="qr"><img src="${s.wa.qr}" alt="QR"></div><p class="hint">На втором телефоне: WhatsApp → Настройки → Связанные устройства → Привязать устройство → навести камеру на QR.</p>` : ''}
+        ${s.wa.status === 'logged_out' ? `<p class="hint">Перезапусти сервис — QR появится снова (если не появился, удали папку data/wa_auth).</p>` : ''}
+        ${s.wa.status === 'open' ? `<button class="btn danger" id="waOut">Отвязать номер</button>` : ''}
+      </div>
+      <div class="card"><h2>Интеграции</h2>
+        <p>Claude API: <span class="pill ${s.anthropic ? 'ok' : 'bad'}">${s.anthropic ? 'ключ есть' : 'нет ANTHROPIC_API_KEY'}</span></p>
+        <p>Meta токен: <span class="pill ${s.meta.token ? 'ok' : 'bad'}">${s.meta.token ? 'есть' : 'нет META_ACCESS_TOKEN'}</span>
+           Рекламный аккаунт: <span class="pill ${s.meta.account ? 'ok' : 'warn'}">${s.meta.account ? 'указан' : 'не указан (Настройки)'}</span>
+           <button class="btn ghost" id="metaCheck" style="margin-left:8px">Проверить доступ</button></p>
+        <pre id="metaOut" class="hint" style="white-space:pre-wrap"></pre>
+      </div>
+      <div class="card"><h2>Сводка</h2>
+        <p>Чатов: <b>${s.counts.chats}</b> · с включённым агентом: <b>${s.counts.active}</b> · активных напоминаний: <b>${s.counts.reminders}</b></p>
+        <p class="hint">Время сервера в твоём поясе: ${esc(s.time)}</p></div>`;
+    const out = $('#waOut'); if (out) out.onclick = async () => { if (confirm('Отвязать номер от агента?')) { await api('/api/wa/logout', { method: 'POST' }); draw(); } };
+    $('#metaCheck').onclick = async () => {
+      $('#metaOut').textContent = 'Проверяю…';
+      try { const r = await api('/api/meta/check'); $('#metaOut').textContent = `✅ ${r.name} · валюта ${r.currency} · статус ${r.account_status} · пояс ${r.timezone_name}`; }
+      catch (e) { $('#metaOut').textContent = '❌ ' + e.message; }
+    };
+  };
+  await draw(); timer = setInterval(() => { if (!document.querySelector('#metaOut')?.textContent) draw(); }, 4000);
+}
+
+// ---------- Чаты ----------
+async function vChats() {
+  const { chats, default_mode } = await api('/api/chats');
+  $('#view').innerHTML = `
+    <div class="card"><h2>Добавить чат заранее</h2>
+      <div class="row"><div><label>Номер (международный формат, цифры)</label><input id="newPhone" placeholder="996555123456"></div>
+      <div><label>Имя</label><input id="newName"></div>
+      <div><label>Режим</label><select id="newMode"><option value="client">Клиентский</option><option value="owner">Владелец (ты)</option></select></div></div>
+      <p><button class="btn" id="addChat">Добавить</button></p></div>
+    <div class="card"><h2>Все чаты</h2>
+      <p class="hint">Новые чаты получают режим по умолчанию: <b>${MODE[default_mode] || default_mode}</b> (меняется в Настройках). Нажми на строку, чтобы настроить чат.</p>
+      <table><thead><tr><th>Чат</th><th>Режим</th><th>Реклама</th><th>Последнее</th></tr></thead><tbody>
+      ${chats.map((c) => `<tr class="click" data-jid="${esc(c.jid)}"><td><b>${esc(c.name || c.phone || c.jid)}</b>${c.is_group ? ' <span class="pill">группа</span>' : ''}<div class="hint">${esc(c.phone || c.jid)}</div></td>
+        <td>${c.mode ? MODE[c.mode] : `<span class="hint">по умолч. (${MODE[default_mode]})</span>`}${c.paused_until > Date.now() ? ' <span class="pill warn">пауза</span>' : ''}</td>
+        <td>${c.ads_read ? 'чтение' : ''}${c.ads_write ? ' + запись' : ''}${!c.ads_read && !c.ads_write ? '—' : ''}</td>
+        <td class="hint">${c.last_message_at ? new Date(c.last_message_at).toLocaleString('ru') : ''}</td></tr>`).join('') || '<tr><td colspan="4" class="hint">Пока пусто — напиши на номер бота или добавь чат вручную.</td></tr>'}
+      </tbody></table></div>
+    <dialog id="dlg"></dialog>`;
+  $('#addChat').onclick = async () => {
+    try { await api('/api/chats', { method: 'POST', body: { phone: $('#newPhone').value, name: $('#newName').value, mode: $('#newMode').value } }); toast('Добавлено'); vChats(); }
+    catch (e) { toast(e.message); }
+  };
+  document.querySelectorAll('tr.click').forEach((tr) => (tr.onclick = () => openChat(tr.dataset.jid)));
+}
+async function openChat(jid) {
+  const { chat: c, messages } = await api('/api/chat?jid=' + encodeURIComponent(jid));
+  const dlg = $('#dlg');
+  dlg.innerHTML = `
+    <h2 style="margin-top:0">${esc(c.name || c.phone || c.jid)}</h2>
+    <div class="row"><div><label>Режим агента</label>
+      <select id="cMode"><option value="">По умолчанию</option>${['off', 'client', 'owner'].map((m) => `<option value="${m}" ${c.mode === m ? 'selected' : ''}>${MODE[m]}</option>`).join('')}</select>
+      <div class="hint">Выключен — молчит. Клиентский — отвечает по базе знаний о бизнесе. Владелец — полный ассистент с рекламой и напоминаниями.</div></div>
+      <div><label>Имя в панели</label><input id="cName" value="${esc(c.name)}"></div></div>
+    <div class="sw"><input type="checkbox" id="cRead" ${c.ads_read ? 'checked' : ''}><label for="cRead">Может запрашивать статистику рекламы</label></div>
+    <div class="sw"><input type="checkbox" id="cWrite" ${c.ads_write ? 'checked' : ''}><label for="cWrite">Может менять рекламу (всегда через подтверждение)</label></div>
+    <div class="sw"><input type="checkbox" id="cRem" ${c.reminders ? 'checked' : ''}><label for="cRem">Может ставить напоминания</label></div>
+    <div class="hint">В режиме «Владелец» реклама и напоминания включены автоматически.</div>
+    <label>Особые инструкции для этого чата</label>
+    <textarea id="cPrompt" placeholder="Например: это партнёр, общайся на «вы», отвечай только про условия сотрудничества.">${esc(c.prompt)}</textarea>
+    ${c.paused_until > Date.now() ? `<p><span class="pill warn">Бот на паузе до ${new Date(c.paused_until).toLocaleTimeString('ru')}</span> <button class="btn ghost" id="unpause">Снять паузу</button></p>` : ''}
+    <label>Последние сообщения</label>
+    <div class="msgs">${messages.map((m) => `<div class="m ${m.role}">${esc(m.text)}</div>`).join('') || '<span class="hint">нет</span>'}</div>
+    <label>Написать от имени бота</label>
+    <div class="row"><input id="sendTxt" placeholder="Сообщение"><button class="btn ghost" id="sendBtn" style="flex:0 0 auto">Отправить</button></div>
+    <div style="display:flex;gap:8px;margin-top:16px;justify-content:space-between;flex-wrap:wrap">
+      <button class="btn danger" id="clr">Очистить память чата</button>
+      <span><button class="btn ghost" id="close">Закрыть</button> <button class="btn" id="save">Сохранить</button></span></div>`;
+  dlg.showModal();
+  $('#close').onclick = () => dlg.close();
+  $('#save').onclick = async () => {
+    await api('/api/chat?jid=' + encodeURIComponent(jid), { method: 'PUT', body: { mode: $('#cMode').value || null, name: $('#cName').value, prompt: $('#cPrompt').value, ads_read: $('#cRead').checked, ads_write: $('#cWrite').checked, reminders: $('#cRem').checked } });
+    dlg.close(); toast('Сохранено'); vChats();
+  };
+  const un = $('#unpause'); if (un) un.onclick = async () => { await api('/api/chat?jid=' + encodeURIComponent(jid), { method: 'PUT', body: { unpause: true } }); dlg.close(); vChats(); };
+  $('#clr').onclick = async () => { if (confirm('Агент забудет всю переписку с этим чатом.')) { await api('/api/chat/messages?jid=' + encodeURIComponent(jid), { method: 'DELETE' }); toast('Очищено'); openChat(jid); } };
+  $('#sendBtn').onclick = async () => { try { await api('/api/chat/send?jid=' + encodeURIComponent(jid), { method: 'POST', body: { text: $('#sendTxt').value } }); toast('Отправлено'); openChat(jid); } catch (e) { toast(e.message); } };
+}
+
+// ---------- Напоминания ----------
+async function vReminders() {
+  const [{ reminders }, { chats }] = await Promise.all([api('/api/reminders'), api('/api/chats')]);
+  $('#view').innerHTML = `
+    <div class="card"><h2>Новое напоминание / автозадача</h2>
+      <div class="row"><div><label>Кому</label><select id="rJid">${chats.map((c) => `<option value="${esc(c.jid)}">${esc(c.name || c.phone || c.jid)}</option>`).join('')}</select></div>
+      <div><label>Когда (твой часовой пояс)</label><input id="rWhen" type="datetime-local"></div>
+      <div><label>Повтор</label><select id="rRep"><option value="none">Не повторять</option><option value="daily">Каждый день</option><option value="weekdays">По будням</option><option value="weekly">Раз в неделю</option></select></div>
+      <div><label>Тип</label><select id="rKind"><option value="text">Просто текст</option><option value="task">Задача для агента (он сам соберёт данные)</option></select></div></div>
+      <label>Текст / задача</label><textarea id="rText" style="min-height:70px" placeholder="Например: «Пришли расход по всем кампаниям за вчера и сравни с позавчера»"></textarea>
+      <p><button class="btn" id="rAdd">Добавить</button></p>
+      <div class="hint">Проще: напиши агенту в WhatsApp «напомни завтра в 9 позвонить Айдару» или «каждый день в 21:00 присылай расход по направлению X».</div></div>
+    <div class="card"><h2>Активные</h2><table><thead><tr><th>Когда</th><th>Кому</th><th>Что</th><th></th></tr></thead><tbody>
+    ${reminders.map((r) => `<tr><td>${esc(r.when_local)}${r.repeat !== 'none' ? `<div class="hint">повтор: ${r.repeat}</div>` : ''}</td><td>${esc(r.chat)}</td><td>${r.kind === 'task' ? '🧠 ' : ''}${esc(r.text)}</td><td><button class="btn ghost" data-del="${r.id}">✕</button></td></tr>`).join('') || '<tr><td colspan="4" class="hint">Нет</td></tr>'}
+    </tbody></table></div>`;
+  $('#rAdd').onclick = async () => {
+    const v = $('#rWhen').value; if (!v) return toast('Укажи время');
+    try { await api('/api/reminders', { method: 'POST', body: { jid: $('#rJid').value, when: v.replace('T', ' '), text: $('#rText').value, repeat: $('#rRep').value, kind: $('#rKind').value } }); toast('Добавлено'); vReminders(); }
+    catch (e) { toast(e.message); }
+  };
+  document.querySelectorAll('[data-del]').forEach((b) => (b.onclick = async () => { await api('/api/reminders/' + b.dataset.del, { method: 'DELETE' }); vReminders(); }));
+}
+
+// ---------- Настройки ----------
+async function vSettings() {
+  const { settings: s } = await api('/api/settings');
+  const f = (k, label, hint = '', type = 'text') => `<label>${label}</label><input data-k="${k}" type="${type}" value="${esc(s[k])}">${hint ? `<div class="hint">${hint}</div>` : ''}`;
+  $('#view').innerHTML = `
+    <div class="card"><h2>Бизнес и клиенты</h2>
+      ${f('business_name', 'Название компании')}
+      <label>Что агент знает о бизнесе (услуги, цены, условия, FAQ)</label>
+      <textarea data-k="business_info" style="min-height:220px">${esc(s.business_info)}</textarea>
+      <div class="hint">Единственный источник фактов для клиентов. Чем конкретнее — тем меньше выдумок. Чего нет в тексте, агент не пообещает: передаст тебе.</div>
+      <label>Тон общения</label><textarea data-k="tone" style="min-height:70px">${esc(s.tone)}</textarea>
+      <label>Режим для новых чатов</label>
+      <select data-k="default_mode"><option value="off" ${s.default_mode === 'off' ? 'selected' : ''}>Выключен (безопасно: включаешь чаты вручную)</option><option value="client" ${s.default_mode === 'client' ? 'selected' : ''}>Клиентский (отвечает всем, кто написал)</option></select>
+      <div class="hint">Группы по умолчанию всегда выключены.</div></div>
+    <div class="card"><h2>Владелец и поведение</h2>
+      ${f('owner_numbers', 'Твои номера (через запятую, только цифры)', 'С этих номеров агент работает как личный ассистент: реклама, напоминания. Например: 996555123456')}
+      <div class="row"><div>${f('timezone', 'Часовой пояс', 'IANA, например Asia/Bishkek')}</div><div>${f('model', 'Модель Claude')}</div></div>
+      <div class="row"><div>${f('handoff_minutes', 'Пауза после твоего ручного ответа (мин)', 'Если ты сам ответил клиенту с телефона, агент замолкает в этом чате. 0 — не молчать.', 'number')}</div>
+      <div>${f('reply_delay_sec', 'Задержка перед ответом (сек)', 'Склеивает быстрые сообщения клиента в одно', 'number')}</div>
+      <div>${f('history_limit', 'Сколько сообщений помнит', '', 'number')}</div></div>
+      ${f('group_trigger', 'Слово-триггер в группах', 'В включённых группах агент отвечает на @упоминание или если в сообщении есть это слово')}</div>
+    <div class="card"><h2>Meta Ads</h2>
+      ${f('ads_account_id', 'ID рекламного аккаунта', 'Цифры из Ads Manager (act_ добавится сам). Токен задаётся в .env как META_ACCESS_TOKEN.')}
+      <div class="row"><div>${f('ads_max_budget_change_pct', 'Макс. изменение бюджета за раз, %', '0 — без лимита', 'number')}</div>
+      <div>${f('ads_max_daily_budget', 'Потолок дневного бюджета (в валюте аккаунта)', '0 — без потолка', 'number')}</div></div>
+      <div class="hint">Любое изменение рекламы агент делает только после твоего «да» отдельным сообщением. Новые объявления создаются на паузе.</div></div>
+    <button class="btn" id="saveS">Сохранить настройки</button>`;
+  $('#saveS').onclick = async () => {
+    const body = {}; document.querySelectorAll('[data-k]').forEach((el) => (body[el.dataset.k] = el.value));
+    try { await api('/api/settings', { method: 'PUT', body }); toast('Сохранено'); } catch (e) { toast(e.message); }
+  };
+}
+
+// ---------- Тест ----------
+async function vTest() {
+  $('#view').innerHTML = `
+    <div class="card"><h2>Песочница</h2>
+      <p class="hint">Проверь, как агент ответит, не трогая WhatsApp. В режиме «Владелец» инструменты (реклама, напоминания) работают по-настоящему.</p>
+      <div class="row"><div><label>Режим</label><select id="tMode"><option value="client">Клиент пишет боту</option><option value="owner">Я пишу как владелец</option></select></div>
+      <div class="sw" style="align-items:flex-end"><input type="checkbox" id="tRead"><label for="tRead">ads_read (для клиентского)</label></div></div>
+      <div class="msgs" id="tLog" style="min-height:180px"></div>
+      <div class="row" style="margin-top:10px"><input id="tTxt" placeholder="Сообщение…"><button class="btn" id="tSend" style="flex:0 0 auto">Отправить</button><button class="btn ghost" id="tReset" style="flex:0 0 auto">Сбросить</button></div></div>`;
+  const log = $('#tLog');
+  const add = (cls, t) => { const d = document.createElement('div'); d.className = 'm ' + cls; d.textContent = t; log.appendChild(d); log.scrollTop = 1e9; return d; };
+  const send = async (reset) => {
+    const text = $('#tTxt').value.trim(); if (!text && !reset) return;
+    if (text) add('user', text); $('#tTxt').value = '';
+    const w = add('assistant', '…');
+    try { const r = await api('/api/test', { method: 'POST', body: { mode: $('#tMode').value, text, reset, ads_read: $('#tRead').checked } }); w.textContent = r.reply; }
+    catch (e) { w.textContent = '⚠️ ' + e.message; }
+  };
+  $('#tSend').onclick = () => send(false);
+  $('#tTxt').onkeydown = (e) => e.key === 'Enter' && send(false);
+  $('#tReset').onclick = async () => { log.innerHTML = ''; await api('/api/test', { method: 'POST', body: { mode: $('#tMode').value, text: '', reset: true } }).catch(() => {}); };
+}
+
+// ---------- Журнал ----------
+async function vLog() {
+  const { rows } = await api('/api/audit');
+  $('#view').innerHTML = `<div class="card"><h2>Последние действия</h2><table><thead><tr><th>Время</th><th>Событие</th><th>Детали</th></tr></thead><tbody>
+    ${rows.map((r) => `<tr><td class="hint">${new Date(r.ts).toLocaleString('ru')}</td><td>${esc(r.action)}</td><td class="hint" style="word-break:break-all">${esc((r.detail || '').slice(0, 300))}</td></tr>`).join('') || '<tr><td colspan="3" class="hint">Пусто</td></tr>'}</tbody></table></div>`;
+}
+
+boot();
+</script>
+</body>
+</html>

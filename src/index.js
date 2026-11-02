@@ -1,89 +1,24 @@
-require('dotenv').config();
+import 'dotenv/config';
+import crypto from 'node:crypto';
+import { createServer } from './server.js';
+import { startWhatsApp, wa } from './whatsapp.js';
+import { onIncoming, notifyOwners } from './handler.js';
+import { startScheduler } from './scheduler.js';
+import { setNotifyOwner } from './tools.js';
 
-const {
-  default: makeWASocket,
-  useMultiFileAuthState,
-  DisconnectReason,
-  fetchLatestBaileysVersion,
-} = require('@whiskeysockets/baileys');
-const pino = require('pino');
-const qrcode = require('qrcode-terminal');
+process.on('unhandledRejection', (e) => console.error('[unhandledRejection]', e));
+process.on('uncaughtException', (e) => console.error('[uncaughtException]', e));
 
-const { getReply } = require('./ai');
-const { getHistory, addMessage } = require('./store');
-
-const logger = pino({ level: 'silent' });
-
-async function startBot() {
-  const { state, saveCreds } = await useMultiFileAuthState('auth_info');
-  const { version } = await fetchLatestBaileysVersion();
-
-  const sock = makeWASocket({
-    version,
-    auth: state,
-    logger,
-    printQRInTerminal: false,
-  });
-
-  sock.ev.on('creds.update', saveCreds);
-
-  sock.ev.on('connection.update', (update) => {
-    const { connection, lastDisconnect, qr } = update;
-
-    if (qr) {
-      console.log('Отсканируйте этот QR-код в WhatsApp (Связанные устройства):');
-      qrcode.generate(qr, { small: true });
-    }
-
-    if (connection === 'close') {
-      const statusCode = lastDisconnect?.error?.output?.statusCode;
-      const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
-      console.log('Соединение закрыто.', shouldReconnect ? 'Переподключаюсь...' : 'Нужна повторная авторизация.');
-      if (shouldReconnect) {
-        startBot();
-      }
-    } else if (connection === 'open') {
-      console.log('Бот подключён к WhatsApp и готов к работе.');
-    }
-  });
-
-  sock.ev.on('messages.upsert', async ({ messages, type }) => {
-    if (type !== 'notify') return;
-
-    for (const msg of messages) {
-      if (msg.key.fromMe) continue;
-
-      const jid = msg.key.remoteJid;
-      if (!jid || jid === 'status@broadcast') continue;
-
-      const text =
-        msg.message?.conversation ||
-        msg.message?.extendedTextMessage?.text ||
-        msg.message?.imageMessage?.caption ||
-        '';
-
-      if (!text) continue;
-
-      try {
-        await sock.sendPresenceUpdate('composing', jid);
-
-        addMessage(jid, 'user', text);
-        const history = getHistory(jid);
-        const reply = await getReply(history);
-        addMessage(jid, 'assistant', reply);
-
-        await sock.sendMessage(jid, { text: reply });
-      } catch (err) {
-        console.error('Ошибка обработки сообщения:', err);
-        await sock.sendMessage(jid, {
-          text: 'Извините, произошла техническая ошибка. Мы уже разбираемся, попробуйте написать чуть позже.',
-        });
-      }
-    }
-  });
+if (!process.env.ADMIN_PASSWORD) {
+  process.env.ADMIN_PASSWORD = crypto.randomBytes(9).toString('base64url');
+  console.log(`[panel] ADMIN_PASSWORD не задан — временный пароль на этот запуск: ${process.env.ADMIN_PASSWORD}`);
 }
+if (!process.env.ANTHROPIC_API_KEY) console.warn('[warn] ANTHROPIC_API_KEY не задан — агент отвечать не сможет.');
 
-startBot().catch((err) => {
-  console.error('Не удалось запустить бота:', err);
-  process.exit(1);
-});
+setNotifyOwner(notifyOwners);
+wa.onMessage = onIncoming;
+
+const port = Number(process.env.PORT) || 3000;
+createServer().listen(port, '0.0.0.0', () => console.log(`[panel] http://localhost:${port}`));
+startScheduler();
+startWhatsApp().catch((e) => console.error('[wa] старт не удался', e));

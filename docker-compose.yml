@@ -1,0 +1,13 @@
+services:
+  agent:
+    build: .
+    restart: always            # поднимется сам после сбоя и перезагрузки сервера
+    env_file: .env
+    environment:
+      DATA_DIR: /data
+    volumes:
+      - agent-data:/data       # БД + сессия WhatsApp (без этого после рестарта снова просит QR)
+    ports:
+      - "127.0.0.1:3000:3000"  # наружу — только через HTTPS-прокси (Caddy/nginx), см. README
+volumes:
+  agent-data:
