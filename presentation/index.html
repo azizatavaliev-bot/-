@@ -1,0 +1,851 @@
+<title>Многоуровневые парковки Бишкека</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800&display=swap">
+<style>
+/* Концепт: сцена 1920×1080 поверх живого WebGL-фона. Тёмный графит и серая студия (как в референсе-видео),
+   жёлтый «P» из проекта как единственный акцент, бирюза только для данных. */
+:root{
+  --navy:#0E1726; --navy2:#16233A; --navy3:#22324F;
+  --paper:#F2EFE8; --card:#FFFFFF;
+  --yellow:#FFB600; --amber:#B97800;
+  --teal:#2EC4B6; --teal-d:#0C7468;
+  --red:#E63946; --red-d:#B3202C;
+  --ink:#0E1726; --ink-mut:#4F5A6D;
+  --on-dark:#F4F1EA; --on-dark-mut:#A9B5C8;
+  --line-light:#D9D4C8; --line-dark:#2C3D5C;
+  --ease:cubic-bezier(.2,.75,.2,1);
+  --font:'Montserrat','Inter','Segoe UI',system-ui,-apple-system,Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:#5a5e66;color:var(--on-dark);font-family:var(--font);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+#bg{position:fixed;inset:0;background:radial-gradient(120% 100% at 70% 15%,#868a92 0%,#6a6e76 50%,#45484f 100%)}
+#bgdark{position:fixed;inset:0;background:radial-gradient(100% 80% at 50% 50%,#10141b 0%,#05070a 100%);opacity:var(--dark,0);pointer-events:none}
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity .6s var(--ease)}
+#gl.show{opacity:1}
+#viewport{position:fixed;inset:0;padding:0 16px;display:flex;align-items:center;justify-content:center}
+#stage{position:relative;width:1920px;height:1080px;flex:none;transform-origin:center center}
+.slide{position:absolute;inset:0;overflow:hidden;visibility:hidden;opacity:0;transition:opacity .55s var(--ease),visibility 0s .55s}
+.slide.on{visibility:visible;opacity:1;transition:opacity .55s var(--ease)}
+.t-paper{background:var(--paper);color:var(--ink)}
+.t-navy{background:var(--navy);color:var(--on-dark)}
+.t-clear{background:transparent;color:#fff}
+.t-clear.light{color:var(--ink)}
+
+/* типографика */
+.kick{position:absolute;left:120px;top:84px;font-size:22px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--teal-d)}
+.t-navy .kick{color:var(--teal)}
+.t-clear .kick{color:var(--yellow)}
+h2{position:absolute;left:120px;top:128px;right:120px;font-size:68px;line-height:1.05;font-weight:800;letter-spacing:-.025em;text-wrap:balance;max-width:1500px}
+h2 i{font-style:normal;color:var(--amber)}
+.t-navy h2 i,.t-clear h2 i{color:var(--yellow)}
+.body{position:absolute;left:120px;right:120px;top:300px;bottom:128px}
+p,li{text-wrap:pretty}
+.lead{font-size:32px;line-height:1.45;font-weight:500;max-width:1100px}
+.mut{color:var(--ink-mut)} .t-navy .mut{color:var(--on-dark-mut)}
+.cap{font-size:20px;line-height:1.4;font-weight:500;color:var(--ink-mut)}
+.t-navy .cap{color:var(--on-dark-mut)}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.foot{position:absolute;left:120px;right:120px;bottom:44px;display:flex;justify-content:space-between;font-size:20px;font-weight:500;color:var(--ink-mut)}
+.t-navy .foot,.t-clear .foot{color:var(--on-dark-mut)}
+.src{position:absolute;left:120px;right:120px;bottom:84px;font-size:18px;line-height:1.35;color:var(--ink-mut);font-weight:500}
+.t-navy .src{color:var(--on-dark-mut)}
+.t-clear .src{color:#E6E9EF}
+.src b{font-weight:700}
+
+/* движение: появление со сдвигом, шаг задержки 70 мс */
+.rv{opacity:0;transform:translateY(32px);transition:opacity .8s var(--ease) calc(var(--d,0)*70ms + 260ms),transform .9s var(--ease) calc(var(--d,0)*70ms + 260ms)}
+.on .rv{opacity:1;transform:none}
+.rv-x{opacity:0;transform:translateX(-40px);transition:opacity .8s var(--ease) calc(var(--d,0)*70ms + 260ms),transform .9s var(--ease) calc(var(--d,0)*70ms + 260ms)}
+.on .rv-x{opacity:1;transform:none}
+.rv-s{opacity:0;transform:scale(.86);transform-origin:center;transition:opacity .7s var(--ease) calc(var(--d,0)*70ms + 260ms),transform .9s var(--ease) calc(var(--d,0)*70ms + 260ms)}
+.on .rv-s{opacity:1;transform:none}
+
+/* карточки */
+.grid{display:grid;gap:24px}
+.card{background:var(--card);border-radius:24px;padding:36px 40px}
+.t-navy .card{background:var(--navy2)}
+.card.dk{background:var(--navy);color:var(--on-dark)}
+.card h3{font-size:30px;line-height:1.15;font-weight:800;letter-spacing:-.01em}
+.card p{font-size:24px;line-height:1.45;font-weight:500;margin-top:12px}
+.big{font-size:84px;line-height:1;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.t-paper .big{color:var(--amber)} .card.dk .big,.t-navy .big{color:var(--yellow)}
+
+/* логотип P */
+.plogo{position:absolute;right:120px;top:76px;width:84px;height:84px;border-radius:22px;background:var(--yellow);display:grid;place-items:center;color:var(--navy);font-weight:800;font-size:60px;line-height:1}
+
+/* обложка */
+.cover-txt{position:absolute;left:120px;top:250px;width:1000px}
+.cover-txt .kick{position:static;margin-bottom:36px;color:var(--yellow)}
+.cover-txt h1{font-size:104px;line-height:1.0;font-weight:800;letter-spacing:-.035em;text-wrap:balance}
+.cover-txt .sub{font-size:34px;line-height:1.4;font-weight:500;margin-top:40px;color:#EDEFF3;max-width:820px}
+.cover-txt .who{font-size:24px;line-height:1.6;font-weight:500;margin-top:56px;color:#DDE1E8}
+.cover-txt .who span{color:#C3CAD6}
+.hint{position:absolute;left:120px;bottom:60px;display:flex;gap:18px;align-items:center;font-size:20px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#fff}
+.hint i{width:56px;height:2px;background:var(--yellow);display:block;transform-origin:left;animation:hint 2.4s var(--ease) infinite}
+@keyframes hint{0%{transform:scaleX(0)}60%{transform:scaleX(1)}100%{transform:scaleX(1);opacity:.2}}
+.topnav{position:absolute;left:120px;right:120px;top:64px;display:flex;justify-content:space-between;font-size:20px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#fff}
+
+/* сцена «продукт» */
+.chap{position:absolute;left:120px;top:340px;display:flex;flex-direction:column;gap:22px;font-size:22px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.chap div{display:flex;gap:18px;align-items:center;color:rgba(255,255,255,.45);transition:color .5s var(--ease),transform .5s var(--ease)}
+.chap div b{display:block;width:34px;height:2px;background:currentColor;transition:width .5s var(--ease)}
+.chap div.a{color:#fff;transform:translateX(10px)} .chap div.a b{width:86px;background:var(--yellow)}
+.capt{position:absolute;left:120px;bottom:150px;width:760px;font-size:34px;line-height:1.35;font-weight:700;letter-spacing:-.01em;min-height:140px}
+.capt span{position:absolute;left:0;top:0;opacity:0;transform:translateY(20px);transition:opacity .6s var(--ease),transform .7s var(--ease)}
+.capt span.a{opacity:1;transform:none}
+.hud{position:absolute;right:120px;top:340px;text-align:right;font-weight:800;font-variant-numeric:tabular-nums;opacity:0;transition:opacity .5s}
+.hud.a{opacity:1}
+.hud small{display:block;font-size:20px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.7)}
+.hud b{font-size:150px;line-height:1;letter-spacing:-.04em;color:var(--yellow)}
+.ctl{position:absolute;left:50%;bottom:52px;transform:translateX(-50%);display:flex;align-items:center;gap:20px;width:760px}
+.ctl button{width:56px;height:56px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:rgba(10,14,22,.35);color:#fff;font-size:20px;cursor:pointer;font-family:var(--font);backdrop-filter:blur(6px)}
+.ctl button:hover,.ctl button:focus-visible{background:var(--yellow);border-color:var(--yellow);color:var(--navy);outline:none}
+.ctl input[type=range]{flex:1;-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;background:rgba(255,255,255,.35);outline:none}
+.ctl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--yellow);border:0;cursor:pointer}
+.ctl input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--yellow);border:0;cursor:pointer}
+.ctl input[type=range]:focus-visible{box-shadow:0 0 0 3px var(--yellow)}
+.ctl .cap{color:#fff;width:90px;text-align:right}
+
+/* прогресс и навигация */
+#prog{position:fixed;left:0;top:0;height:4px;background:var(--yellow);width:0;transition:width .6s var(--ease);z-index:5}
+.navb{position:fixed;top:0;bottom:0;width:7vw;z-index:4;background:none;border:0;cursor:pointer;opacity:0}
+.navb:focus-visible{opacity:1;outline:3px solid var(--yellow);outline-offset:-6px}
+#prev{left:0}#next{right:0}
+
+/* графики */
+.bars{display:grid;gap:18px;align-items:center}
+.brow{display:grid;grid-template-columns:420px 1fr 120px;align-items:center;gap:24px;font-size:26px;font-weight:600}
+.brow .tr{height:34px;border-radius:10px;background:rgba(14,23,38,.07);overflow:hidden}
+.brow .fl{height:100%;border-radius:10px;background:var(--teal);width:calc(var(--w)*1%);transform:scaleX(0);transform-origin:left;transition:transform 1.1s var(--ease) calc(var(--d,0)*90ms + 500ms)}
+.on .brow .fl{transform:scaleX(1)}
+.brow .fl.y{background:var(--yellow)}
+.brow b{font-weight:800;text-align:right;font-variant-numeric:tabular-nums}
+.t-navy .brow .tr{background:rgba(255,255,255,.08)}
+
+.vbars{display:flex;align-items:flex-end;gap:36px;height:520px;border-bottom:3px solid var(--navy)}
+.vb{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:14px;height:100%}
+.vb .col{width:100%;height:calc(var(--h)*1%);border-radius:18px 18px 0 0;background:var(--navy3);transform:scaleY(0);transform-origin:bottom;transition:transform 1.1s var(--ease) calc(var(--d,0)*140ms + 500ms)}
+.on .vb .col{transform:scaleY(1)}
+.vb.hi .col{background:var(--yellow)}
+.vb .v{font-size:56px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.vlab{display:flex;gap:36px;margin-top:16px}
+.vlab span{flex:1;text-align:center;font-size:26px;font-weight:700}
+
+/* таблицы-сетки */
+.tbl{display:grid;gap:0;font-size:24px;line-height:1.4;font-weight:500}
+.tbl>div{padding:22px 26px;border-bottom:1px solid var(--line-light)}
+.tbl .h{font-size:20px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mut);border-bottom:2px solid var(--ink)}
+.tbl b{font-weight:800}
+
+.tag{display:inline-block;font-size:18px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:6px 14px;border-radius:999px;background:var(--navy);color:var(--on-dark)}
+.tag.y{background:var(--yellow);color:var(--navy)}
+.tag.t{background:var(--teal);color:var(--navy)}
+
+/* дерево */
+.tree svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.tree path{fill:none;stroke:#5A6C8E;stroke-width:3;stroke-dasharray:var(--len,600);stroke-dashoffset:var(--len,600);transition:stroke-dashoffset 1.2s var(--ease) calc(var(--d,0)*90ms + 700ms)}
+.on .tree path{stroke-dashoffset:0}
+.t-paper .tree path{stroke:#B9B3A4}
+.node{position:absolute;border-radius:20px;padding:22px 28px;font-size:25px;line-height:1.35;font-weight:600;display:flex;align-items:center}
+.t-navy .node{background:var(--navy2)}
+.node.core{background:var(--yellow);color:var(--navy);font-size:36px;font-weight:800;justify-content:center;text-align:center;letter-spacing:-.01em}
+.node.goal{background:var(--navy);color:var(--on-dark);font-size:34px;font-weight:800;justify-content:center;text-align:center}
+.t-paper .node:not(.goal):not(.core){background:#fff}
+.lbl{position:absolute;font-size:20px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--teal)}
+.t-paper .lbl{color:var(--teal-d)}
+
+/* SWOT */
+.sw{padding:36px 40px;border-radius:24px;background:#fff;border-top:10px solid var(--c)}
+.sw h3{font-size:34px;font-weight:800;color:var(--cd);letter-spacing:-.01em;margin-bottom:18px}
+.sw li{list-style:none;font-size:26px;line-height:1.35;font-weight:500;padding:8px 0 8px 30px;position:relative}
+.sw li::before{content:"";position:absolute;left:0;top:20px;width:12px;height:12px;border-radius:3px;background:var(--c)}
+
+/* спайдер */
+.radar .ring{fill:none;stroke:#CFC9BB;stroke-width:1.5}
+.radar .axis{stroke:#CFC9BB;stroke-width:1.5}
+.radar .poly{transform-box:view-box;transform-origin:360px 360px;transform:scale(0);transition:transform 1.3s var(--ease) 700ms}
+.radar .poly.b{transition-delay:1400ms}
+.on .radar .poly{transform:scale(1)}
+.radar text{font-family:var(--font);font-size:23px;font-weight:700;fill:var(--ink)}
+
+/* Гант */
+.gantt{position:absolute;left:0;right:0;top:0}
+.g-head{display:grid;grid-template-columns:470px 1fr;font-size:19px;font-weight:700;letter-spacing:.08em;color:var(--on-dark-mut)}
+.g-q{display:grid;grid-template-columns:repeat(12,1fr)}
+.g-q span{padding:6px 0 10px 8px;border-left:1px solid var(--line-dark)}
+.g-row{display:grid;grid-template-columns:470px 1fr;align-items:center;height:104px;border-top:1px solid var(--line-dark)}
+.g-row .l{display:flex;gap:22px;align-items:center;padding-right:24px}
+.g-row .l em{font-style:normal;font-size:44px;font-weight:800;color:var(--yellow);width:44px;font-variant-numeric:tabular-nums}
+.g-row .l div{font-size:25px;font-weight:700;line-height:1.2}
+.g-row .l small{display:block;font-size:18px;font-weight:500;color:var(--on-dark-mut);margin-top:4px}
+.g-tr{position:relative;height:100%;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(100%/12 - 1px),var(--line-dark) calc(100%/12 - 1px),var(--line-dark) calc(100%/12))}
+.g-bar{position:absolute;top:32px;height:40px;left:calc(var(--s)*100%/36);width:calc(var(--n)*100%/36);border-radius:12px;background:var(--yellow);transform:scaleX(0);transform-origin:left;transition:transform 1s var(--ease) calc(var(--d,0)*110ms + 600ms)}
+.on .g-bar{transform:scaleX(1)}
+.g-bar.h{background:repeating-linear-gradient(135deg,rgba(255,182,0,.9) 0 8px,rgba(255,182,0,.25) 8px 16px)}
+.g-bar.t{background:var(--teal)}
+
+/* бюджет */
+.bud-tile{background:var(--navy);color:var(--on-dark);border-radius:28px;padding:52px 52px}
+.bud-tile .big{font-size:132px;color:var(--yellow)}
+.bud-tile p{font-size:30px;line-height:1.35;font-weight:500;margin-top:20px;color:var(--on-dark)}
+
+/* таблица окупаемости */
+.pay{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.pay .c{background:var(--navy2);border-radius:24px;padding:36px 40px}
+.pay .c .y{font-size:26px;font-weight:700;color:var(--on-dark-mut);letter-spacing:.04em}
+.pay .c .v{font-size:78px;font-weight:800;letter-spacing:-.03em;color:var(--yellow);margin:12px 0 6px;font-variant-numeric:tabular-nums}
+.pay .c .d{font-size:24px;font-weight:500;color:var(--on-dark)}
+.meter{height:12px;border-radius:6px;background:rgba(255,255,255,.1);margin-top:26px;overflow:hidden}
+.meter i{display:block;height:100%;width:calc(var(--w)*1%);background:var(--teal);transform:scaleX(0);transform-origin:left;transition:transform 1.1s var(--ease) calc(var(--d,0)*120ms + 700ms)}
+.on .meter i{transform:scaleX(1)}
+
+/* матрица влияния */
+.imx{position:absolute;left:0;top:0;width:1100px;height:540px;border-left:3px solid var(--ink);border-bottom:3px solid var(--ink)}
+.imx .q{position:absolute;width:50%;height:50%;padding:20px 24px;font-size:20px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mut)}
+.imx .q.hot{background:rgba(255,182,0,.22)}
+.imx .dot{position:absolute;white-space:nowrap;display:flex;align-items:center;gap:14px;font-size:24px;font-weight:700;transform:translate(-14px,-14px)}
+.imx .dot::before{content:"";width:28px;height:28px;border-radius:50%;background:var(--navy);flex:none}
+.imx .dot.y::before{background:var(--yellow);box-shadow:0 0 0 4px var(--navy)}
+.ax{position:absolute;font-size:19px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mut)}
+
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.kpi .card{padding:40px 36px;min-height:500px;display:flex;flex-direction:column;justify-content:space-between}
+.kpi .big{font-size:76px}
+.kpi p{font-size:24px}
+
+.sources{columns:2;column-gap:64px;font-size:24px;line-height:1.45;font-weight:500}
+.sources p{break-inside:avoid;margin-bottom:22px;color:var(--ink-mut)}
+.sources b{color:var(--ink);font-weight:800;display:block;font-size:24px}
+
+@media (prefers-reduced-motion:reduce){
+  .rv,.rv-x,.rv-s{transform:none!important;transition:opacity .3s!important}
+  .hint i{animation:none}
+}
+.cap-mode .ctl,.cap-mode #prog{display:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+
+<div id="bg"></div>
+<div id="bgdark"></div>
+<canvas id="gl" aria-hidden="true"></canvas>
+<div id="viewport"><main id="stage" aria-live="polite"></main></div>
+<div id="prog"></div>
+<button class="navb" id="prev" aria-label="Предыдущий слайд"></button>
+<button class="navb" id="next" aria-label="Следующий слайд"></button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+var CAPTURE=/[?&]capture/.test(location.search);if(CAPTURE)document.body.classList.add('cap-mode');
+var clamp=function(x,a,b){return Math.max(a,Math.min(b,x))};
+var lerp=function(a,b,t){return a+(b-a)*t};
+var sstep=function(a,b,x){x=clamp((x-a)/(b-a),0,1);return x*x*(3-2*x)};
+var easeIO=function(x){return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2};
+var easeOut=function(x){return 1-Math.pow(1-x,3)};
+var easeBack=function(x){var c1=1.4,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2)};
+
+/* ================= ДАННЫЕ ================= */
+var D={
+  jams:[{m:'Июль',v:197},{m:'Август',v:256},{m:'Сентябрь',v:324}],
+  mode:[{n:'Личный автомобиль',v:43,c:'#FFB600'},{n:'Общественный транспорт',v:36,c:'#2EC4B6'},{n:'Прочие способы',v:21,c:'#44577A'}],
+  quality:[{n:'Мобильное приложение',v:126},{n:'Шлагбаум',v:82},{n:'Пандусы',v:78},{n:'Сейсмостойкость',v:57},{n:'Охрана',v:51},{n:'Тарифы',v:50}],
+  budget:[{n:'Строительство',v:150},{n:'Проект и экспертиза',v:9},{n:'Оборудование въезда',v:7},{n:'Благоустройство',v:6},{n:'ПО и приложение',v:4},{n:'Охрана и свет',v:3},{n:'Исследования и запуск',v:3},{n:'Резерв 10%',v:18.2}],
+  radar:{axes:['Места','Въезд и выезд','Пешеходы','Цифровизация','Тарифы','Сейсмика','Экономика'],now:[4,4.5,2.5,1,3,4,4.5],goal:[7.5,8,6.5,8.5,6,8.5,6.5]}
+};
+var fmt=function(n,d){return n.toLocaleString('ru-RU',{minimumFractionDigits:d||0,maximumFractionDigits:d||0})};
+
+/* ================= СЛАЙДЫ ================= */
+var N=0;
+function foot(){return '<div class="foot"><span>Паркинги Бишкека · 2026</span><span class="num" data-n></span></div>'}
+function head(k,t){return '<div class="kick rv-x">'+k+'</div><h2 class="rv" style="--d:1">'+t+'</h2>'}
+var slides=[];
+function add(cls,html,opt){slides.push({cls:cls,html:html,opt:opt||{}})}
+
+/* 1 обложка */
+add('t-clear',
+ '<div class="topnav rv"><span>КГТУ им. И. Раззакова</span><span>Высшая школа логистики</span></div>'+
+ '<div class="cover-txt"><div class="kick rv-x">Проект · 2026</div>'+
+ '<h1 class="rv" style="--d:1">Многоуровневые парковки в&nbsp;Бишкеке</h1>'+
+ '<p class="sub rv" style="--d:3">Пилотный паркинг на 200 мест: партнёрство города и инвесторов</p>'+
+ '<p class="who rv" style="--d:5">Маматбеков Мухамбет · Мейманбеков Элхан · Казымбеков Исхак<br><span>Проверил: Тойгонбаев Максат</span></p></div>'+
+ '<div class="hint rv" style="--d:7"><i></i>Листайте стрелками</div>',
+ {gl:{u:0,shift:.2}});
+
+/* 2 цифры */
+add('t-paper',
+ head('01 · Проблема','Машин больше, чем&nbsp;мест')+
+ '<div class="body"><div class="grid" style="grid-template-columns:repeat(4,1fr);gap:24px">'+
+ [['1,2','млн','жителей в городе',0],['425','тыс.','авто зарегистрировано',1],['100','тыс.+','машин въезжают ежедневно',2],['205','ч','сильных заторов за I кв. 2026',3]].map(function(c,i){
+  return '<div class="card'+(i%2?' dk':'')+' rv" style="--d:'+(i+3)+';min-height:400px;display:flex;flex-direction:column;justify-content:space-between"><div class="big"><span data-to="'+c[0].replace(',','.')+'" data-dec="'+(c[0].indexOf(',')>-1?1:0)+'">0</span> <span style="font-size:.42em;letter-spacing:0">'+c[1]+'</span></div><p style="font-size:26px;margin:0">'+c[2]+'</p></div>'}).join('')+
+ '</div><p class="lead rv" style="--d:8;margin-top:56px;max-width:1300px">Хаотичная парковка во дворах и на тротуарах снижает пропускную способность дорог и создаёт риски для пешеходов. Город лежит в сейсмоопасной зоне, поэтому нужны продуманные решения.</p></div>'+
+ '<div class="src"><b>Источник:</b> данные проекта. Оценки въездов в СМИ расходятся: 100–200 тыс. в день (economist.kg, 24.12.2024).</div>'+foot());
+
+/* 3 моноцентричность */
+add('t-navy',
+ head('02 · Контекст','Бишкек стягивает всё в&nbsp;один центр')+
+ '<div class="body"><svg id="mono" viewBox="0 0 960 700" style="position:absolute;left:-10px;top:-24px;width:1000px;height:730px" role="img" aria-label="Схема моноцентричного города"></svg>'+
+ '<div style="position:absolute;right:0;top:0;width:610px;display:flex;flex-direction:column;gap:22px">'+
+ [['×2','Средняя скорость в центре вдвое ниже, чем на окраинах'],['+63%','Время в пути превышает нормативы'],['Ж/Д','Север и юг разделяет железная дорога с переездами в одном уровне']].map(function(s,i){
+  return '<div class="card rv" style="--d:'+(i+4)+';padding:30px 36px"><div class="big" style="font-size:72px">'+s[0]+'</div><p style="font-size:24px;margin-top:10px">'+s[1]+'</p></div>'}).join('')+
+ '</div></div>'+
+ '<div class="src"><b>Источник:</b> оценка разработчиков Генплана-2050 (economist.kg, 15.10.2025). Схема условная, не в масштабе.</div>'+foot(),
+ {init:'mono'});
+
+/* 4 пробки */
+add('t-paper',
+ head('02 · Контекст','Заторы растут быстрее, чем&nbsp;город успевает отвечать')+
+ '<div class="body"><div style="position:absolute;left:0;top:0;width:880px"><div class="vbars">'+
+ D.jams.map(function(j,i){return '<div class="vb'+(i==2?' hi':'')+'"><div class="v rv" style="--d:'+(i+4)+'"><span data-to="'+j.v+'">0</span></div><div class="col" style="--h:'+(j.v/324*84)+';--d:'+i+'"></div></div>'}).join('')+
+ '</div><div class="vlab">'+D.jams.map(function(j){return '<span>'+j.m+', ч</span>'}).join('')+'</div></div>'+
+ '<div style="position:absolute;right:0;top:0;width:700px"><div class="big rv" style="--d:3;font-size:150px">+64%</div>'+
+ '<p class="lead rv" style="--d:4;margin-top:18px">часов в пробках за три месяца: с июля по сентябрь 2024 года</p>'+
+ '<div class="card dk rv" style="--d:6;margin-top:44px;padding:30px 36px"><div style="font-size:24px;font-weight:600;line-height:1.4">777 часов суммарно за III кв. 2024. В декабре 2024 зафиксированы пробки в 10 баллов, максимум шкалы.</div></div>'+
+ '<p class="cap rv" style="--d:7;margin-top:22px">Для сравнения: 205 ч сильных заторов за I квартал 2026 по данным проекта. Методики разные, ряды напрямую не сопоставимы.</p></div></div>'+
+ '<div class="src"><b>Источник:</b> 2ГИС, по данным 24.kg (306881) и Akchabar, 2024.</div>'+foot());
+
+/* 5 модальный раздел */
+add('t-navy',
+ head('02 · Контекст','Машина остаётся главным способом передвижения')+
+ '<div class="body"><svg id="donut" viewBox="0 0 520 520" style="position:absolute;left:40px;top:-10px;width:620px;height:620px" role="img" aria-label="Структура поездок"></svg>'+
+ '<div style="position:absolute;left:760px;top:10px;right:0">'+
+ D.mode.map(function(m,i){return '<div class="rv" style="--d:'+(i+4)+';display:flex;align-items:center;gap:26px;padding:24px 0;border-bottom:1px solid var(--line-dark)"><span style="width:26px;height:26px;border-radius:8px;background:'+m.c+';flex:none"></span><span style="font-size:30px;font-weight:600;flex:1">'+m.n+'</span><b class="num" style="font-size:52px;font-weight:800;letter-spacing:-.02em">'+m.v+'%</b></div>'}).join('')+
+ '<div class="rv" style="--d:8;margin-top:44px;display:flex;gap:28px;align-items:baseline"><span class="big" style="font-size:96px">≈300</span><span style="font-size:28px;line-height:1.35;font-weight:500">автомобилей на 1000 жителей. Парк растёт, пропускная способность сети падает</span></div></div></div>'+
+ '<div class="src"><b>Источник:</b> разработчик Генплана (economist.kg, 15.10.2025; 24.kg, 19.11.2025). Доля «прочие» — остаток до 100%.</div>'+foot(),
+ {init:'donut'});
+
+/* 6 генплан */
+add('t-paper',
+ head('03 · Политика города','Генплан-2050 уже включает перехватывающие и&nbsp;платные парковки')+
+ '<div class="body"><div class="grid" style="grid-template-columns:repeat(5,1fr);gap:20px">'+
+ [['Транспортно-пересадочные узлы','Пересадка с личного авто на общественный транспорт',1],['Выделенные полосы','Ускоренные виды общественного транспорта',0],['Перехватывающие и платные парковки','В центре города. Здесь работает наш пилот',1],['Обход 89 км','Транзит мимо центра, разгрузка дорог',0],['Новая железная дорога','Вывод грузового транзита, пассажирское сообщение',0]].map(function(c,i){
+  return '<div class="card rv'+(c[2]?' dk':'')+'" style="--d:'+(i+3)+';min-height:500px;display:flex;flex-direction:column;justify-content:space-between;'+(c[2]?'box-shadow:0 0 0 6px var(--yellow)':'')+'"><div><h3 style="font-size:28px">'+c[0]+'</h3><p style="font-size:22px">'+c[1]+'</p></div>'+(c[2]?'<span class="tag y" style="align-self:flex-start">Наш пилот</span>':'<span></span>')+'</div>'}).join('')+
+ '</div><p class="lead rv" style="--d:9;margin-top:44px;max-width:1500px">Проект постановления о Генплане до 2050 года одобрен Кабмином 27 апреля 2026 года. Пилот на 200 мест становится первым практическим шагом по этим пунктам.</p></div>'+
+ '<div class="src"><b>Источник:</b> economist.kg: материалы от 15.10.2025, 27.10.2025 и 27.04.2026.</div>'+foot());
+
+/* 7 дерево проблем */
+add('t-navy',
+ head('04 · Анализ','Дерево проблем')+
+ '<div class="body tree">'+
+ '<svg viewBox="0 0 1680 660" preserveAspectRatio="none">'+
+ [280,840,1400].map(function(x,i){return '<path style="--d:'+i+';--len:130" d="M'+x+' 176 V292"/>'}).join('')+
+ [280,840,1400].map(function(x,i){return '<path style="--d:'+(i+3)+';--len:130" d="M'+x+' 524 V408"/>'}).join('')+
+ '</svg>'+
+ '<div class="lbl rv" style="--d:2;left:0;top:-30px">Следствия</div>'+
+ [['Хаос во дворах, на газонах и тротуарах',0],['Пробки: 205+ часов заторов за квартал',560],['Паркинги могут остаться невостребованными',1120]].map(function(n,i){return '<div class="node rv" style="--d:'+(i+3)+';left:'+n[1]+'px;top:0;width:560px;height:176px">'+n[0]+'</div>'}).join('')+
+ '<div class="node core rv" style="--d:6;left:0;right:0;top:290px;height:120px;margin:0">Нехватка парковочных мест</div>'+
+ '<div class="lbl rv" style="--d:5;left:0;top:468px">Причины</div>'+
+ [['Быстрый рост автопарка, 100 тыс.+ въездов в день',0],['Мало паркингов: парковки в застройке меняли на ТЦ',560],['Неудобные въезды, нет тарифной политики, сейсмика',1120]].map(function(n,i){return '<div class="node rv" style="--d:'+(i+7)+';left:'+n[1]+'px;top:524px;width:560px;height:136px">'+n[0]+'</div>'}).join('')+
+ '</div>'+
+ '<div class="src"><b>Причины</b> внизу, <b>следствия</b> вверху. Источник: данные проекта.</div>'+foot());
+
+/* 8 дерево целей */
+add('t-paper',
+ head('04 · Анализ','Дерево целей: от задач к&nbsp;результату')+
+ '<div class="body tree">'+
+ '<svg viewBox="0 0 1680 660" preserveAspectRatio="none">'+
+ [0,1,2,3].map(function(i){var x=210+i*420;return '<path style="--d:'+i+';--len:260" d="M'+x+' 430 V380 C'+x+' 345 840 360 840 325"/>'}).join('')+
+ '<path style="--d:4;--len:200" d="M840 215 V150"/></svg>'+
+ '<div class="node goal rv" style="--d:3;left:260px;right:260px;top:0;height:150px">Меньше нехватка мест, свободнее дворы и дороги, ниже заторы</div>'+
+ '<div class="node rv" style="--d:4;left:480px;right:480px;top:215px;height:110px;justify-content:center;text-align:center;background:var(--navy)!important;color:var(--on-dark);font-weight:800;font-size:30px">Предложить сеть многоуровневых парковок</div>'+
+ [['Оценить опыт паркинга в 7-м мкр'],['Выбрать места у рынков, офисов, жилья'],['Учесть сейсмичность'],['Продумать въезд, тарифы и оплату']].map(function(t,i){return '<div class="node rv" style="--d:'+(i+5)+';left:'+(i*420)+'px;width:390px;top:430px;height:200px;font-size:27px"><div><div class="big" style="font-size:56px;margin-bottom:10px">'+(i+1)+'</div>'+t[0]+'</div></div>'}).join('')+
+ '</div><div class="src"><b>Результат</b> наверху, <b>задачи</b> внизу. Источник: цели проекта.</div>'+foot());
+
+/* 9 ПРОДУКТ: сцена */
+add('t-clear',
+ '<div class="kick rv-x" style="color:var(--yellow)">05 · Продукт</div>'+
+ '<h2 class="rv" style="--d:1;color:#fff">Пять уровней. Двести мест.</h2>'+
+ '<div class="chap rv" style="--d:3"><div data-ch="0"><b></b>Сборка</div><div data-ch="1"><b></b>Въезд</div><div data-ch="2"><b></b>Подъём</div><div data-ch="3"><b></b>Целиком</div></div>'+
+ '<div class="capt"><span data-c="0">Пять уровней по 40 мест собираются в одно здание</span><span data-c="1">Въезд без очереди: шлагбаум, навигация, широкие проезды</span><span data-c="2">Пандусы связывают уровни, свободные места видны в приложении</span><span data-c="3">Пилот: 200 мест в 7-м микрорайоне</span></div>'+
+ '<div class="hud" id="hud"><small>Уровень</small><b id="hudn">0</b></div>'+
+ '<div class="ctl rv" style="--d:5"><button id="pp" aria-label="Пауза или воспроизведение">❚❚</button><input id="scrub" type="range" min="0" max="1000" value="0" aria-label="Положение анимации"><span class="cap num" id="tm">0:00</span></div>',
+ {gl:{play:true,shift:0}});
+
+/* 10 шесть решений */
+add('t-clear',
+ '<div class="kick rv-x">05 · Продукт</div><h2 class="rv" style="--d:1;color:#fff;max-width:1060px">Шесть решений в&nbsp;одном здании</h2>'+
+ '<div class="body" style="right:auto;width:1060px"><div class="grid" style="grid-template-columns:1fr 1fr;gap:20px">'+
+ [['Широкие пандусы','Места для крупных авто, плавный подъём между уровнями'],['Сейсмостойкость','Геология, сейсмостойкий проект, госэкспертиза'],['Шлагбаум','Быстрый въезд и выезд без очереди'],['Мобильное приложение','Видно свободные места, оплата и навигация'],['Понятные тарифы','Абонементы для жителей, разовый тариф для гостей'],['Охрана и свет','Безопасность людей и автомобилей круглосуточно']].map(function(c,i){
+  return '<div class="card rv" style="--d:'+(i+3)+';padding:28px 32px;background:rgba(255,255,255,.95);color:var(--ink)"><h3 style="font-size:26px">'+c[0]+'</h3><p style="font-size:21px;margin-top:8px;color:var(--ink-mut)">'+c[1]+'</p></div>'}).join('')+
+ '</div></div>'+
+ '<div class="src" style="width:1060px;right:auto;color:#E6E9EF"><b>Концепт:</b> 5 уровней × 40 мест = 200 мест; участок и компоновка уточняются после выбора площадки.</div>'+foot(),
+ {gl:{u:1,shift:.2}});
+
+/* 11 матрица качества */
+add('t-navy',
+ head('06 · Качество','Матрица качества: приложение даёт наибольший эффект')+
+ '<div class="body"><div style="position:absolute;left:0;top:0;width:640px"><div class="lbl rv" style="position:static;margin-bottom:20px;--d:2">Требования и вес, баллы</div>'+
+ [['Достаточно мест',5],['Удобный въезд и выезд',5],['Безопасность здания',5],['Сохранность авто и людей',4],['Доступная цена',4],['Быстрая оплата',3],['Видно свободные места',3]].map(function(r,i){return '<div class="rv" style="--d:'+(i+3)+';display:flex;justify-content:space-between;padding:17px 0;border-bottom:1px solid var(--line-dark);font-size:26px;font-weight:600"><span>'+r[0]+'</span><b class="num" style="color:var(--yellow);font-weight:800">'+r[1]+'</b></div>'}).join('')+'</div>'+
+ '<div style="position:absolute;left:760px;right:0;top:0"><div class="lbl rv" style="position:static;margin-bottom:20px;--d:2">Итоговый балл решений</div><div class="bars">'+
+ D.quality.map(function(q,i){return '<div class="brow" style="grid-template-columns:330px 1fr 90px;--d:'+i+'"><span>'+q.n+'</span><div class="tr"><div class="fl'+(i==0?' y':'')+'" style="--w:'+(q.v/126*100)+';--d:'+i+'"></div></div><b>'+q.v+'</b></div>'}).join('')+'</div></div></div>'+
+ '<div class="src"><b>Метод:</b> связь «требование — решение»: 9 сильная, 3 средняя, 1 слабая; сумма по весу. Источник: данные проекта.</div>'+foot());
+
+/* 12 стейкхолдеры */
+add('t-paper',
+ head('07 · Участники','Кто нужен, чтобы паркинг появился')+
+ '<div class="body"><div class="grid" style="grid-template-columns:repeat(3,1fr);gap:24px">'+
+ [['Мэрия Бишкека','Участки без аукциона, согласования, проект указа о парковках','Внешний'],['Инвесторы','Капитал на ~200 млн сом, доля в доходе паркинга','Внешний'],['Госэкспертиза','Сейсмостойкость проекта, заключение','Внешний'],['Жители 7-го мкр','Свободные дворы, абонементы, удобный въезд','Пользователи'],['Рынки и офисы','Якорный спрос в радиусе пешей доступности','Пользователи'],['Оператор и приложение','Эксплуатация, оплата, охрана, навигация','Исполнитель']].map(function(c,i){
+  return '<div class="card rv" style="--d:'+(i+3)+';min-height:300px;display:flex;flex-direction:column;justify-content:space-between"><div><h3>'+c[0]+'</h3><p style="font-size:23px">'+c[1]+'</p></div><span class="tag'+(i<3?'':' t')+'" style="align-self:flex-start">'+c[2]+'</span></div>'}).join('')+
+ '</div></div><div class="src"><b>Примечание:</b> роли предварительные, договорённости с сторонами не заключены.</div>'+foot());
+
+/* 13 Венн */
+add('t-navy',
+ head('07 · Участники','Диаграмма Венна: где интересы пересекаются')+
+ '<div class="body"><svg id="venn" viewBox="0 0 1100 650" style="position:absolute;left:0;top:-10px;width:1180px;height:700px" role="img" aria-label="Диаграмма Венна"></svg>'+
+ '<div style="position:absolute;right:0;top:20px;width:470px;display:flex;flex-direction:column;gap:20px">'+
+ [['Город и инвесторы','Участок плюс капитал: партнёрская модель'],['Инвесторы и пользователи','Тарифы и сервис, которые окупают здание'],['Город и пользователи','Порядок во дворах и свободные дороги']].map(function(t,i){return '<div class="card rv" style="--d:'+(i+5)+';padding:26px 30px"><h3 style="font-size:26px;color:var(--yellow)">'+t[0]+'</h3><p style="font-size:22px;margin-top:8px">'+t[1]+'</p></div>'}).join('')+'</div></div>'+
+ '<div class="src"><b>Примечание:</b> размер условный. Совпадение интересов всех трёх сторон — сам паркинг.</div>'+foot(),
+ {init:'venn'});
+
+/* 14 матрица влияния */
+add('t-paper',
+ head('07 · Участники','Матрица влияния и интереса')+
+ '<div class="body"><div style="position:absolute;left:0;top:40px;width:1100px;height:540px"><div class="imx">'+
+ '<div class="q" style="left:0;top:0">Удовлетворять</div><div class="q hot" style="left:50%;top:0">Тесно взаимодействовать</div><div class="q" style="left:0;top:50%">Наблюдать</div><div class="q" style="left:50%;top:50%">Информировать</div>'+
+ [['Мэрия Бишкека',88,14,1],['Инвесторы',76,28,1],['Госэкспертиза',34,24,0],['Оператор',62,64,0],['Рынки и офисы',56,78,0],['Жители 7-го мкр',90,90,0]].map(function(d,i){return '<div class="dot'+(d[3]?' y':'')+' rv-s" style="--d:'+(i+4)+';left:'+d[1]+'%;top:'+d[2]+'%;'+(d[1]>70?'flex-direction:row-reverse;transform:translate(calc(-100% + 14px),-14px)':'')+'">'+d[0]+'</div>'}).join('')+
+ '</div><div class="ax" style="left:0;bottom:-40px">Интерес низкий →</div><div class="ax" style="right:0;bottom:-40px">Интерес высокий</div><div class="ax" style="left:0;top:-40px">↑ Влияние высокое</div></div>'+
+ '<div style="position:absolute;left:1220px;right:0;top:20px"><p class="lead rv" style="--d:8;font-size:28px">Мэрия и инвесторы решают, будет ли паркинг. Им нужны регулярные встречи и расчёты.</p><p class="lead rv" style="--d:9;font-size:28px;margin-top:26px">Жители и рынки решают, будет ли он полон. Их мнение проверяем опросом жителей.</p></div></div>'+
+ '<div class="src"><b>Оценка</b> предварительная, экспертная.</div>'+foot());
+
+/* 15 SWOT */
+add('t-paper',
+ head('08 · Стратегия','SWOT-анализ')+
+ '<div class="body"><div class="grid" style="grid-template-columns:1fr 1fr;gap:24px">'+
+ [['Сильные стороны','#2EC4B6','#0C7468',['Поддержка мэрии, участки без аукциона','Партнёрство города и инвесторов','Есть пилот: паркинг в 7-м мкр']],
+  ['Слабые стороны','#E63946','#B3202C',['~200 млн сом на 200 мест','Строительство 12–18 месяцев','Сложные согласования']],
+  ['Возможности','#FFB600','#8A5A00',['Дефицит мест = стабильный спрос','Проект указа о парковках','Масштабирование на другие районы']],
+  ['Угрозы','#59647A','#2F3A4E',['Бесплатные дворы конкурируют','Сейсмические риски','Сбои оплаты, недоверие жителей']]].map(function(s,i){
+  return '<div class="sw rv" style="--d:'+(i+3)+';--c:'+s[1]+';--cd:'+s[2]+'"><h3>'+s[0]+'</h3><ul>'+s[3].map(function(l){return '<li>'+l+'</li>'}).join('')+'</ul></div>'}).join('')+
+ '</div></div>'+foot());
+
+/* 16 радар */
+add('t-paper',
+ head('08 · Стратегия','Спайдер-диаграмма: что изменит пилот')+
+ '<div class="body"><svg class="radar" id="radar" viewBox="-130 -10 980 740" style="position:absolute;left:-40px;top:-30px;width:900px;height:680px" role="img" aria-label="Радар до и после пилота"></svg>'+
+ '<div style="position:absolute;left:900px;top:60px;right:0">'+
+ '<div class="rv" style="--d:3;display:flex;gap:22px;align-items:center;font-size:30px;font-weight:600"><span style="width:30px;height:30px;border-radius:9px;background:var(--red)"></span>Сейчас: дворы и стихийная парковка</div>'+
+ '<div class="rv" style="--d:4;display:flex;gap:22px;align-items:center;font-size:30px;font-weight:600;margin-top:26px"><span style="width:30px;height:30px;border-radius:9px;background:var(--teal)"></span>Цель: после пилотного паркинга</div>'+
+ '<p class="lead rv" style="--d:6;margin-top:56px;font-size:28px;color:var(--ink-mut)">Сильнее всего растут цифровизация и доступность мест. Оценки экспертные, по шкале 0–10.</p></div></div>'+
+ '<div class="src"><b>Источник:</b> оценки команды проекта; значения считаны с исходной диаграммы с точностью до 0,5.</div>'+foot(),
+ {init:'radar'});
+
+/* 17 стратегия + Гант */
+add('t-navy',
+ head('08 · Стратегия','Шесть этапов за три года')+
+ '<div class="body" style="top:268px"><div class="gantt" id="gantt"></div></div>'+
+ '<div class="src"><b>План ориентировочный.</b> Строительство 12–18 месяцев: сплошная часть — минимум, штриховка — запас по срокам.</div>'+foot(),
+ {init:'gantt'});
+
+/* 18 бюджет */
+add('t-paper',
+ head('09 · Финансы','Бюджет пилота: 200,2 млн сом')+
+ '<div class="body"><div class="bud-tile rv" style="--d:3;position:absolute;left:0;top:0;width:520px"><div class="big"><span data-to="200.2" data-dec="1">0</span></div><p>млн сом, паркинг на 200 мест в 7-м микрорайоне</p><p class="cap" style="margin-top:34px;color:var(--on-dark-mut)">≈ 1 млн сом на одно место</p></div>'+
+ '<div class="bars" style="position:absolute;left:600px;right:0;top:0">'+
+ D.budget.map(function(b,i){return '<div class="brow" style="grid-template-columns:330px 1fr 100px;font-size:25px;--d:'+i+'"><span>'+b.n+'</span><div class="tr"><div class="fl'+(i==0?' y':'')+'" style="--w:'+Math.max(b.v/150*100,2.5)+';--d:'+i+'"></div></div><b>'+fmt(b.v,b.v%1?1:1)+'</b></div>'}).join('')+'</div></div>'+
+ '<div class="src"><b>Единицы:</b> млн сом. Строительство составляет 75% бюджета. Источник: данные проекта.</div>'+foot());
+
+/* 19 экономика */
+add('t-navy',
+ head('09 · Финансы','Один тариф не окупит здание — нужен микс')+
+ '<div class="body"><div class="pay">'+
+ [[7,18700,623,100],[10,13100,436,70],[15,8700,291,47]].map(function(p,i){return '<div class="c rv" style="--d:'+(i+3)+'"><div class="y">Окупаемость за '+p[0]+' лет</div><div class="v">'+fmt(p[1])+'</div><div class="d">сом в месяц за место ≈ '+p[2]+' сом в сутки</div><div class="meter"><i style="--w:'+p[3]+';--d:'+i+'"></i></div></div>'}).join('')+
+ '</div><div style="margin-top:44px;display:grid;grid-template-columns:1.2fr 1fr;gap:56px"><p class="lead rv" style="--d:7;font-size:29px">Чем выше тариф, тем меньше водителей. Поэтому в модель добавляем абонементы для жителей, коммерческие площади, рекламу и участие города.</p><p class="cap rv" style="--d:8;font-size:21px">Допущения расчёта: бюджет 200,2 млн сом, заполняемость 85%, эксплуатационные расходы 25% выручки, без дисконтирования. Тарифы проверяем опросом спроса.</p></div></div>'+
+ '<div class="src"><b>Расчёт:</b> тариф = 200,2 млн ÷ срок ÷ 0,75 ÷ (200 мест × 12 мес. × 0,85).</div>'+foot());
+
+/* 20 риски */
+add('t-paper',
+ head('10 · Риски','Главные риски и&nbsp;ответы')+
+ '<div class="body"><div class="grid" style="grid-template-columns:1fr 1fr;gap:24px">'+
+ [['Низкая востребованность','Разумные тарифы, абонементы для жителей, участок у рынков и офисов'],['Неудобный въезд','Широкие пандусы, навигация, места для крупных авто'],['Сейсмика','Сейсмостойкий проект, геология, госэкспертиза'],['Нехватка денег','Партнёрство с инвесторами, резерв 10%, поэтапная стройка']].map(function(r,i){
+  return '<div class="card rv" style="--d:'+(i+3)+';min-height:300px;display:flex;flex-direction:column;gap:26px"><div style="display:flex;gap:18px;align-items:center"><span class="tag" style="background:var(--red)">Риск</span><h3 style="font-size:32px">'+r[0]+'</h3></div><div style="display:flex;gap:18px;align-items:flex-start"><span class="tag t" style="margin-top:6px">Ответ</span><p style="margin:0;font-size:26px">'+r[1]+'</p></div></div>'}).join('')+
+ '</div></div>'+foot());
+
+/* 21 KPI */
+add('t-navy',
+ head('10 · Результат','Как поймём, что пилот сработал')+
+ '<div class="body"><div class="kpi">'+
+ [['≥ 80%','Заполняемость','через 6 месяцев после открытия'],['≤ 1 мин','Въезд и оплата','от шлагбаума до свободного места'],['≥ 70%','Цифровая оплата','доля оплат через приложение'],['Меньше','Стихийной парковки','опрос жителей 7-го мкр до и после']].map(function(k,i){
+  return '<div class="card rv" style="--d:'+(i+3)+'"><div class="big">'+k[0]+'</div><div><h3>'+k[1]+'</h3><p>'+k[2]+'</p></div></div>'}).join('')+
+ '</div></div><div class="src"><b>Целевые значения предлагаются командой</b> и утверждаются совместно с мэрией до запуска.</div>'+foot());
+
+/* 22 финал */
+add('t-clear',
+ '<div class="cover-txt" style="top:300px;width:1100px"><div class="kick rv-x">Итог</div>'+
+ '<h1 class="rv" style="--d:1;font-size:92px">Пилот на 200 мест — первый шаг к&nbsp;сети паркингов</h1>'+
+ '<p class="sub rv" style="--d:3">Партнёрство мэрии и инвесторов, сейсмостойкость, цифровая оплата и разумные тарифы. Успех пилота можно тиражировать по городу.</p>'+
+ '<p class="rv" style="--d:5;font-size:48px;font-weight:800;margin-top:56px;color:var(--yellow);letter-spacing:-.02em">Спасибо за внимание</p></div>'+foot(),
+ {gl:{u:1,shift:.22}});
+
+/* 23 источники */
+add('t-paper',
+ head('Приложение','Источники данных')+
+ '<div class="body"><div class="sources">'+
+ '<p><b>Заторы, часы в пробках</b>2ГИС: 777 часов за июль–сентябрь 2024 (197 / 256 / 324), 10-балльные пробки в декабре 2024. 24.kg, Akchabar.</p>'+
+ '<p><b>Транспорт и скорость</b>Разработчики Генплана-2050: скорость в центре вдвое ниже, превышение нормативов времени в пути на 63%, доли 43% и 36%. economist.kg, 15.10.2025.</p>'+
+ '<p><b>Автопарк</b>Более 400 тыс. зарегистрированных авто и 100–200 тыс. въездов в день: economist.kg, 24.12.2024. Около 300 авто на 1000 жителей: 24.kg, 19.11.2025.</p>'+
+ '<p><b>Генплан-2050</b>Обход 89 км, ТПУ, перехватывающие и платные парковки, новая железная дорога: economist.kg, 27.10.2025. Проект постановления одобрен Кабмином 27.04.2026.</p>'+
+ '<p><b>Данные проекта</b>Население, 205 ч заторов за I кв. 2026, бюджет 200,2 млн сом, SWOT, матрица качества, оценки радара: исходная презентация команды.</p>'+
+ '<p><b>Расчёты, добавленные в презентацию</b>Тарифы окупаемости, сроки этапов, участники и матрица влияния, целевые KPI, схема монocентричности. Это модели и допущения, не официальные данные.</p>'+
+ '</div></div>'+foot());
+
+/* ================= ДВИЖОК СЛАЙДОВ ================= */
+var stage=document.getElementById('stage');
+stage.innerHTML=slides.map(function(s,i){return '<section class="slide '+s.cls+'" data-i="'+i+'" aria-label="Слайд '+(i+1)+'">'+s.html+'</section>'}).join('');
+var els=[].slice.call(stage.children);
+N=els.length;
+els.forEach(function(el,i){
+  [].forEach.call(el.querySelectorAll('[data-n]'),function(n){n.textContent=(i+1)+' / '+N});
+});
+function fit(){
+  var s=Math.min((innerWidth-32)/1920,innerHeight/1080);
+  stage.style.transform='scale('+s+')';
+  stage.style.margin=(-(1080*(1-s))/2)+'px '+(-(1920*(1-s))/2)+'px';
+}
+addEventListener('resize',fit);fit();
+
+var cur=-1;
+function countUp(root){
+  [].forEach.call(root.querySelectorAll('[data-to]'),function(el){
+    var to=parseFloat(el.getAttribute('data-to')),dec=parseInt(el.getAttribute('data-dec')||'0',10),t0=performance.now()+400,dur=1300;
+    if(matchMedia('(prefers-reduced-motion:reduce)').matches){el.textContent=fmt(to,dec);return}
+    (function f(now){var k=clamp((now-t0)/dur,0,1);el.textContent=fmt(to*easeOut(k),dec);if(k<1)requestAnimationFrame(f)})(performance.now());
+  });
+}
+var inits={};
+function show(n,instant){
+  n=clamp(n,0,N-1);if(n===cur)return;
+  var prev=cur;cur=n;
+  els.forEach(function(el,i){el.classList.toggle('on',i===n)});
+  document.getElementById('prog').style.width=((n+1)/N*100)+'%';
+  try{history.replaceState(null,'','#'+(n+1))}catch(e){}
+  var s=slides[n];
+  if(s.opt.init&&inits[s.opt.init])inits[s.opt.init](els[n]);
+  countUp(els[n]);
+  GL.setSlide(s.opt.gl||null,n,prev);
+}
+function go(d){
+  if(cur===solIdx&&GL.scrubKey(d))return;
+  show(cur+d);
+}
+document.getElementById('next').onclick=function(){go(1)};
+document.getElementById('prev').onclick=function(){go(-1)};
+addEventListener('keydown',function(e){
+  if(e.target&&e.target.tagName==='INPUT'&&/Arrow(Left|Right)/.test(e.key))return;
+  if(/^(ArrowRight|ArrowDown|PageDown|\s)$/.test(e.key)||e.key===' '){e.preventDefault();go(1)}
+  else if(/^(ArrowLeft|ArrowUp|PageUp)$/.test(e.key)){e.preventDefault();go(-1)}
+  else if(e.key==='Home')show(0);else if(e.key==='End')show(N-1);
+  else if(e.key==='f'||e.key==='F'){try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}catch(_){}}
+  else if(e.key==='p'||e.key==='P')GL.toggle();
+});
+var wl=0;
+addEventListener('wheel',function(e){
+  if(cur===solIdx&&GL.scrubWheel(e.deltaY)){e.preventDefault();return}
+  var now=Date.now();if(now-wl<900||Math.abs(e.deltaY)<18)return;wl=now;go(e.deltaY>0?1:-1);
+},{passive:false});
+var tx=null;
+addEventListener('touchstart',function(e){tx=e.touches[0].clientX},{passive:true});
+addEventListener('touchend',function(e){if(tx===null)return;var dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)go(dx<0?1:-1);tx=null},{passive:true});
+
+/* ================= ИНИЦИАЛИЗАЦИЯ ДИАГРАММ ================= */
+var NS='http://www.w3.org/2000/svg';
+function svgEl(p,tag,a){var e=document.createElementNS(NS,tag);for(var k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e}
+
+inits.mono=function(root){
+  var s=root.querySelector('#mono');if(s.dataset.d)return;s.dataset.d=1;
+  var cx=480,cy=350;
+  var defs=svgEl(s,'defs',{});
+  var g=svgEl(defs,'radialGradient',{id:'heat',cx:'50%',cy:'50%',r:'50%'});
+  svgEl(g,'stop',{offset:'0','stop-color':'#FFB600','stop-opacity':'.95'});
+  svgEl(g,'stop',{offset:'.45','stop-color':'#FFB600','stop-opacity':'.28'});
+  svgEl(g,'stop',{offset:'1','stop-color':'#FFB600','stop-opacity':'0'});
+  svgEl(s,'ellipse',{cx:cx,cy:cy,rx:440,ry:320,fill:'#16233A',stroke:'#2C3D5C','stroke-width':2});
+  for(var x=80;x<=880;x+=50)svgEl(s,'line',{x1:x,y1:cy-Math.sqrt(1-Math.pow((x-cx)/440,2))*320|0,x2:x,y2:cy+Math.sqrt(Math.max(0,1-Math.pow((x-cx)/440,2)))*320|0,stroke:'#22324F','stroke-width':1.5});
+  for(var y=60;y<=640;y+=50){var w=Math.sqrt(Math.max(0,1-Math.pow((y-cy)/320,2)))*440;svgEl(s,'line',{x1:cx-w,y1:y,x2:cx+w,y2:y,stroke:'#22324F','stroke-width':1.5})}
+  var rail=svgEl(s,'path',{d:'M60 140 Q 480 100 900 140',fill:'none',stroke:'#A9B5C8','stroke-width':4,'stroke-dasharray':'14 8'});
+  [170,300,660,790].forEach(function(x){var yy=140-40*Math.sin((x-60)/840*Math.PI);svgEl(s,'circle',{cx:x,cy:yy+2,r:9,fill:'#E63946'})});
+  var heat=svgEl(s,'circle',{cx:cx,cy:cy,r:300,fill:'url(#heat)'});heat.setAttribute('class','rv-s');heat.style.setProperty('--d',2);
+  [[70,'#FFB600'],[170,'#8EA0BF'],[290,'#5A6C8E']].forEach(function(r,i){svgEl(s,'circle',{cx:cx,cy:cy,r:r[0],fill:'none',stroke:r[1],'stroke-width':2,'stroke-dasharray':i?'6 8':'0'})});
+  for(var a=0;a<12;a++){
+    var ang=a/12*Math.PI*2+.2,x1=cx+Math.cos(ang)*395,y1=cy+Math.sin(ang)*285,x2=cx+Math.cos(ang)*92,y2=cy+Math.sin(ang)*92*.9;
+    var ln=svgEl(s,'line',{x1:x1,y1:y1,x2:x2,y2:y2,stroke:'#2EC4B6','stroke-width':4,'stroke-linecap':'round','stroke-dasharray':'2 16'});
+    ln.innerHTML='<animate attributeName="stroke-dashoffset" from="36" to="0" dur="1.6s" repeatCount="indefinite"/>';
+  }
+  var pulse=svgEl(s,'circle',{cx:cx,cy:cy,r:36,fill:'#FFB600'});
+  pulse.innerHTML='<animate attributeName="r" values="30;42;30" dur="2.4s" repeatCount="indefinite"/>';
+  var T=function(x,y,t,c,sz,anc){var e=svgEl(s,'text',{x:x,y:y,fill:c,'font-size':sz,'font-weight':700,'font-family':'Montserrat,sans-serif','text-anchor':anc||'middle'});e.textContent=t;return e};
+  T(cx,cy+8,'P','#0E1726',34);
+  T(cx,cy-92,'ЦЕНТР','#FFB600',24);
+  T(cx,cy+108,'Работа, учёба, рынки','#F4F1EA',20);
+  T(cx,cy+132,'и госорганы','#F4F1EA',20);
+  T(cx+215,cy+190,'Жилые массивы','#A9B5C8',21);
+  T(cx-290,cy+120,'Жилые массивы','#A9B5C8',21);
+  T(110,78,'Железная дорога','#A9B5C8',19,'start');
+  T(110,100,'красные точки: переезды в одном уровне','#FF8A93',17,'start');
+};
+
+inits.donut=function(root){
+  var s=root.querySelector('#donut');if(s.dataset.d)return;s.dataset.d=1;
+  var r=190,C=2*Math.PI*r,off=0,gap=10;
+  svgEl(s,'circle',{cx:260,cy:260,r:r,fill:'none',stroke:'#16233A','stroke-width':60});
+  D.mode.forEach(function(m,i){
+    var len=m.v/100*C-gap;
+    var c=svgEl(s,'circle',{cx:260,cy:260,r:r,fill:'none',stroke:m.c,'stroke-width':60,'stroke-dasharray':'0 '+C,'stroke-dashoffset':-off,transform:'rotate(-90 260 260)'});
+    c.style.transition='stroke-dasharray 1.3s cubic-bezier(.2,.75,.2,1) '+(0.5+i*0.25)+'s';
+    setTimeout(function(){c.setAttribute('stroke-dasharray',len+' '+C)},30);
+    off+=m.v/100*C;
+  });
+  var t=svgEl(s,'text',{x:260,y:282,'text-anchor':'middle',fill:'#FFB600','font-size':96,'font-weight':800,'font-family':'Montserrat,sans-serif'});t.textContent='43%';
+  var t2=svgEl(s,'text',{x:260,y:326,'text-anchor':'middle',fill:'#A9B5C8','font-size':22,'font-weight':700,'font-family':'Montserrat,sans-serif'});t2.textContent='на личном авто';
+};
+
+inits.venn=function(root){
+  var s=root.querySelector('#venn');if(s.dataset.d)return;s.dataset.d=1;
+  var C=[{x:380,y:260,c:'#FFB600',n:'Город',s:'мэрия, госорганы'},{x:690,y:260,c:'#2EC4B6',n:'Инвесторы',s:'капитал, оператор'},{x:535,y:430,c:'#E63946',n:'Пользователи',s:'жители, рынки, офисы'}];
+  C.forEach(function(c,i){
+    var e=svgEl(s,'circle',{cx:c.x,cy:c.y,r:220,fill:c.c,'fill-opacity':.28,stroke:c.c,'stroke-width':3});
+    e.setAttribute('class','rv-s');e.style.setProperty('--d',i+2);e.style.transformOrigin=c.x+'px '+c.y+'px';
+  });
+  var T=function(x,y,t,sz,fill,w){var e=svgEl(s,'text',{x:x,y:y,'text-anchor':'middle',fill:fill||'#F4F1EA','font-size':sz,'font-weight':w||800,'font-family':'Montserrat,sans-serif'});e.textContent=t};
+  T(290,180,'Город',34);T(290,216,'мэрия, госорганы',20,'#C9D2E1',500);
+  T(780,180,'Инвесторы',34);T(780,216,'капитал, оператор',20,'#C9D2E1',500);
+  T(535,556,'Пользователи',34);T(535,592,'жители, рынки, офисы',20,'#C9D2E1',500);
+  var c=svgEl(s,'circle',{cx:535,cy:316,r:52,fill:'#FFB600'});T(535,336,'P',58,'#0E1726');
+};
+
+inits.radar=function(root){
+  var s=root.querySelector('#radar');if(s.dataset.d)return;s.dataset.d=1;
+  var cx=360,cy=360,R=250,n=D.radar.axes.length;
+  var pt=function(i,v){var a=-Math.PI/2+i/n*Math.PI*2;return [cx+Math.cos(a)*R*v/10,cy+Math.sin(a)*R*v/10]};
+  [2,4,6,8,10].forEach(function(v){svgEl(s,'polygon',{class:'ring',points:D.radar.axes.map(function(_,i){return pt(i,v).join(',')}).join(' ')})});
+  D.radar.axes.forEach(function(a,i){
+    var p=pt(i,10);svgEl(s,'line',{class:'axis',x1:cx,y1:cy,x2:p[0],y2:p[1]});
+    var q=pt(i,11.9),t=svgEl(s,'text',{x:q[0],y:q[1]+7,'text-anchor':Math.abs(q[0]-cx)<20?'middle':(q[0]>cx?'start':'end')});t.textContent=a;
+  });
+  var poly=function(vals,col,cls){svgEl(s,'polygon',{class:'poly '+cls,points:vals.map(function(v,i){return pt(i,v).join(',')}).join(' '),fill:col,'fill-opacity':.32,stroke:col,'stroke-width':5,'stroke-linejoin':'round'})};
+  poly(D.radar.goal,'#2EC4B6','b');poly(D.radar.now,'#E63946','a');
+};
+
+inits.gantt=function(root){
+  var g=root.querySelector('#gantt');if(g.dataset.d)return;g.dataset.d=1;
+  var rows=[
+    ['1','Анализ','Районы, опыт 7-го мкр, опрос',[[0,3,'']]],
+    ['2','Участки','Мэрия, транспорт, инвесторы',[[1,5,'']]],
+    ['3','Проект','Сейсмика, въезды, навигация',[[4,6,'']]],
+    ['4','Стройка','Контроль сроков и безопасности',[[9,12,''],[21,6,'h']]],
+    ['5','Запуск','Тарифы, приложение, номера',[[27,3,'t']]],
+    ['6','Масштаб','Оценка и другие районы',[[30,6,'t']]]];
+  var h='<div class="g-head"><div></div><div class="g-q">'+[1,2,3,4,5,6,7,8,9,10,11,12].map(function(q){return '<span>'+(q<5?'Г1':q<9?'Г2':'Г3')+' · К'+(((q-1)%4)+1)+'</span>'}).join('')+'</div></div>';
+  rows.forEach(function(r,i){
+    h+='<div class="g-row rv" style="--d:'+(i+2)+'"><div class="l"><em>'+r[0]+'</em><div>'+r[1]+'<small>'+r[2]+'</small></div></div><div class="g-tr">'+r[3].map(function(b){return '<div class="g-bar '+b[2]+'" style="--s:'+b[0]+';--n:'+b[1]+';--d:'+i+'"></div>'}).join('')+'</div></div>';
+  });
+  g.innerHTML=h;
+};
+
+/* ================= 3D ================= */
+var GL=(function(){
+  var api={setSlide:function(){},scrubKey:function(){return false},scrubWheel:function(){return false},toggle:function(){},renderAt:function(){}};
+  if(!window.THREE){return api}
+  var canvas=document.getElementById('gl');
+  var renderer;
+  try{renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true,preserveDrawingBuffer:CAPTURE})}catch(e){return api}
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+  var scene=new THREE.Scene();
+  var cam=new THREE.PerspectiveCamera(36,1,.5,900);
+  scene.fog=new THREE.Fog(0x61656d,150,600);
+  var hemi=new THREE.HemisphereLight(0xe8ecf2,0x4b4f58,.95);scene.add(hemi);
+  var sun=new THREE.DirectionalLight(0xffffff,.9);sun.position.set(-40,80,50);scene.add(sun);
+  var inner=new THREE.PointLight(0xffd28a,0,46,1.2);scene.add(inner);
+
+  var M={
+    slab:new THREE.MeshLambertMaterial({color:0x2f343c}),
+    edge:new THREE.MeshLambertMaterial({color:0x444b56}),
+    col:new THREE.MeshLambertMaterial({color:0x4b525e}),
+    yel:new THREE.MeshBasicMaterial({color:0xffb600}),
+    strip:new THREE.MeshBasicMaterial({color:0xffe6a8}),
+    line:new THREE.MeshBasicMaterial({color:0xdfe4ec}),
+    ground:new THREE.MeshLambertMaterial({color:0x5d6169}),
+    road:new THREE.MeshLambertMaterial({color:0x23272d}),
+    ramp:new THREE.MeshLambertMaterial({color:0x2c313a}),
+    block:new THREE.MeshLambertMaterial({color:0x6b7079})
+  };
+  var H=3.6,NL=5,XMIN=-22,XMAX0=22,XMAX=14;
+  var building=new THREE.Group();scene.add(building);
+  var levels=[];
+  function box(w,h,d,m,x,y,z,p){var b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);b.position.set(x,y,z);(p||building).add(b);return b}
+  var rnd=(function(){var s=7;return function(){s=(s*16807)%2147483647;return (s-1)/2147483646}})();
+  var carCols=[0xf2f2f0,0xd9dce2,0x2b2f36,0x8a919c,0xb03a3f,0xf0b429,0x3d5a80,0x1f2329];
+  var bodyG=new THREE.BoxGeometry(1.8,.75,4.2),cabG=new THREE.BoxGeometry(1.55,.55,2.3),lineG=new THREE.BoxGeometry(.08,.03,4.4);
+  var dashG=new THREE.BoxGeometry(1.4,.03,.18);
+  for(var i=0;i<NL;i++){
+    var g=new THREE.Group(),xmax=i===0?XMAX0:XMAX,len=xmax-XMIN,cx=(xmax+XMIN)/2;
+    box(len,.5,24,M.slab,cx,-.25,0,g);
+    box(len,.9,.25,M.edge,cx,.45,11.88,g);box(len,.9,.25,M.edge,cx,.45,-11.88,g);
+    box(len,.07,.29,M.yel,cx,.935,11.88,g);box(len,.07,.29,M.yel,cx,.935,-11.88,g);
+    box(.25,.9,24,M.edge,XMIN+.12,.45,0,g);box(.29,.07,24,M.yel,XMIN+.12,.935,0,g);
+    if(i===0){box(.25,.9,24,M.edge,xmax-.12,.45,0,g);box(.29,.07,24,M.yel,xmax-.12,.935,0,g)}
+    if(i>0){
+      [-11,0,11].forEach(function(x){[-7.35,7.35].forEach(function(z){box(.6,H-.5,.6,M.col,x,-.5-(H-.5)/2,z,g)})});
+      [XMIN+.5,xmax-.4].forEach(function(x){[-11.6,11.6].forEach(function(z){box(.7,H-.5,.7,M.col,x,-.5-(H-.5)/2,z,g)})});
+      [-3.2,0,3.2].forEach(function(z){box(len-2,.05,.16,M.strip,cx,-.53,z,g)});
+      [-16,-5.5,5.5].forEach(function(x){box(.16,.05,23,M.strip,x,-.53,0,g)});
+    }
+    /* разметка и машины */
+    var dash=new THREE.InstancedMesh(dashG,M.yel,Math.floor(len/3));
+    var m4=new THREE.Matrix4();
+    for(var d=0;d<dash.count;d++){m4.makeTranslation(XMIN+2+d*3,.02,0);dash.setMatrixAt(d,m4)}g.add(dash);
+    var rows=[-9.6,-5.1,5.1,9.6],ln=new THREE.InstancedMesh(lineG,M.line,11*4);var li=0;
+    rows.forEach(function(z){for(var k=0;k<=10;k++){m4.makeTranslation(-11+k*2.2,.02,z);ln.setMatrixAt(li++,m4)}});g.add(ln);
+    var cg=new THREE.Group();g.add(cg);
+    var bm=new THREE.InstancedMesh(bodyG,new THREE.MeshLambertMaterial({color:0xffffff}),40),cm=new THREE.InstancedMesh(cabG,new THREE.MeshLambertMaterial({color:0xffffff}),40);
+    var ci=0,col=new THREE.Color();
+    rows.forEach(function(z){for(var k=0;k<10;k++){
+      var present=rnd()>.08,sc=present?1:0;
+      m4.compose(new THREE.Vector3(-11+1.1+k*2.2,.62,z),new THREE.Quaternion(),new THREE.Vector3(sc,sc,sc));bm.setMatrixAt(ci,m4);
+      m4.compose(new THREE.Vector3(-11+1.1+k*2.2,1.27,z+(z>0?.2:-.2)*0),new THREE.Quaternion(),new THREE.Vector3(sc,sc,sc));cm.setMatrixAt(ci,m4);
+      var c=carCols[Math.floor(rnd()*carCols.length)];col.setHex(c);bm.setColorAt(ci,col);col.multiplyScalar(.5);cm.setColorAt(ci,col);ci++;
+    }});
+    cg.add(bm);cg.add(cm);
+    /* пандус в шахте */
+    if(i<NL-1){
+      var ang=Math.atan(H/8),dir=i%2?1:-1;
+      var rp=box(8.4,.3,5.4,M.ramp,18,H/2-.15,(i%2?6:-6),g);rp.rotation.z=dir*ang*-1;
+      var ry=box(8.4,.06,.3,M.yel,18,H/2-.15+.18,(i%2?8.8:-8.8),g);ry.rotation.z=rp.rotation.z;
+    }
+    building.add(g);levels.push({g:g,cg:cg});
+  }
+  /* знак P */
+  (function(){
+    var c=document.createElement('canvas');c.width=c.height=256;var x=c.getContext('2d');
+    x.fillStyle='#FFB600';x.beginPath();if(x.roundRect)x.roundRect(8,8,240,240,48);else x.rect(8,8,240,240);x.fill();
+    x.fillStyle='#0E1726';x.font='800 190px Montserrat,Arial,sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('P',128,138);
+    var t=new THREE.CanvasTexture(c);t.anisotropy=4;
+    var sign=new THREE.Mesh(new THREE.PlaneGeometry(6.4,6.4),new THREE.MeshBasicMaterial({map:t,transparent:true}));
+    sign.position.set(-19,(NL-1)*H+5.1,10.6);sign.name='sign';building.add(sign);
+    box(.35,3,.35,M.col,-19,(NL-1)*H+1.5,10.5);
+    var sign2=sign.clone();sign2.position.set(-19,(NL-1)*H+5.1,10.2);sign2.rotation.y=Math.PI;building.add(sign2);
+  })();
+  /* будка и въезд */
+  box(1.6,2.4,1.8,M.edge,-17,1.2,-5.2);box(1.8,.12,2,M.yel,-17,2.46,-5.2);
+  /* земля, дорога, город */
+  var gnd=new THREE.Mesh(new THREE.PlaneGeometry(900,900),M.ground);gnd.rotation.x=-Math.PI/2;gnd.position.y=-.52;scene.add(gnd);
+  box(110,.06,14,M.road,-77,-.48,0,scene);
+  for(var r=0;r<18;r++)box(2.6,.07,.3,M.yel,-128+r*5.6,-.45,0,scene);
+  box(60,.06,10,M.road,0,-.48,30,scene);
+  for(var r2=0;r2<12;r2++)box(2.6,.07,.3,M.line,-30+r2*5.4,-.45,30,scene);
+  for(var b=0;b<70;b++){
+    var a=rnd()*Math.PI*2,rad=80+rnd()*190,w=8+rnd()*16,h=5+Math.pow(rnd(),2)*34;
+    var px=Math.cos(a)*rad,pz=Math.sin(a)*rad;if(px<-20&&Math.abs(pz)<14)continue;
+    box(w,h,8+rnd()*16,M.block,px,h/2-.5,pz,scene);
+  }
+  /* камера */
+  var KT=[0,.10,.20,.30,.36,.42,.50,.58,.65,.70,.75,.80,.85,.92,1];
+  var KP=[[64,42,76],[22,34,86],[-44,19,72],[-64,5.8,28],[-44,2.5,7],[-28,1.75,1],[-8,1.5,-.4],[8,1.45,.3],[17.2,2.1,0],[19.4,5,.2],[19.6,9,-.2],[19.4,13,0],[19,17.8,0],[32,26,24],[38,24,60]];
+  var KL=[[0,12,0],[0,11,0],[-6,7,0],[-22,3,0],[-8,2,0],[2,1.6,0],[16,2.4,0],[27,4.5,0],[21,8,0],[8,6,0],[8,10,0],[8,13.5,0],[2,14,0],[0,9,0],[0,9,0]];
+  function cr(P,u,o){
+    var k=0;while(k<KT.length-2&&u>KT[k+1])k++;
+    var s=clamp((u-KT[k])/(KT[k+1]-KT[k]),0,1),p0=P[Math.max(k-1,0)],p1=P[k],p2=P[k+1],p3=P[Math.min(k+2,P.length-1)];
+    for(var c=0;c<3;c++){o[c]=.5*((2*p1[c])+(-p0[c]+p2[c])*s+(2*p0[c]-5*p1[c]+4*p2[c]-p3[c])*s*s+(-p0[c]+3*p1[c]-3*p2[c]+p3[c])*s*s*s)}
+    return o;
+  }
+  var pp=[0,0,0],tt=[0,0,0];
+  var state={u:0,target:0,play:false,idle:0,shift:.2,t:0,vis:false,tshift:.2};
+  var hudEl=document.getElementById('hud'),hudn=document.getElementById('hudn'),scrub=document.getElementById('scrub'),tmEl=document.getElementById('tm'),ppBtn=document.getElementById('pp');
+  var DUR=15;
+
+  function applyView(){
+    var w=innerWidth,h=innerHeight;
+    cam.aspect=w/h;
+    if(Math.abs(state.shift)>.002)cam.setViewOffset(w,h,-state.shift*w,0,w,h);else cam.clearViewOffset();
+    cam.updateProjectionMatrix();
+  }
+  function resize(){renderer.setSize(innerWidth,innerHeight,false);applyView()}
+  addEventListener('resize',resize);resize();
+
+  function pose(u,time){
+    /* сборка уровней */
+    var uA=clamp(u/.30,0,1);
+    levels.forEach(function(L,i){
+      var p=easeIO(clamp((uA-i*.1)/.6,0,1)),e=1-p;
+      var fl=Math.sin(time*.9+i*1.7)*.5*e;
+      L.g.position.set((i%2?1:-1)*(i+1)*2.6*e,i*H+(i-1.5)*9*e+fl,(i-2)*-3*e);
+      L.g.rotation.y=(i-2)*.32*e;
+      var cs=easeBack(clamp((u-.20-i*.014)/.09,0,1));
+      L.cg.scale.y=Math.max(.001,cs);L.cg.visible=cs>.01;
+    });
+    /* камера */
+    cr(KP,u,pp);cr(KL,u,tt);
+    var amp=(1-sstep(0,.03,u))+sstep(.97,1,u);amp=clamp(amp,0,1);
+    var ph=amp*Math.sin(time*.22)*.32,cs_=Math.cos(ph),sn=Math.sin(ph);
+    var px=pp[0]*cs_+pp[2]*sn,pz=-pp[0]*sn+pp[2]*cs_;
+    cam.position.set(px,pp[1]+amp*Math.sin(time*.31)*1.2,pz);cam.lookAt(tt[0],tt[1],tt[2]);
+    var fov=36+34*sstep(.28,.40,u)-30*sstep(.80,.93,u)+0;
+    if(Math.abs(cam.fov-fov)>.01){cam.fov=fov;cam.updateProjectionMatrix()}
+    var dark=sstep(.30,.40,u)*(1-sstep(.80,.90,u));
+    document.documentElement.style.setProperty('--dark',dark.toFixed(3));
+    scene.fog.near=lerp(150,12,dark);scene.fog.far=lerp(600,130,dark);
+    scene.fog.color.setRGB(lerp(.38,.02,dark),lerp(.40,.025,dark),lerp(.43,.035,dark));
+    hemi.intensity=lerp(.95,.55,dark);sun.intensity=lerp(.9,.35,dark);
+    inner.intensity=dark*1.9;inner.position.copy(cam.position);
+    /* HUD уровня */
+    if(hudEl){var asc=u>.68&&u<.86;hudEl.classList.toggle('a',asc);if(asc)hudn.textContent=Math.min(5,Math.max(1,Math.floor(cam.position.y/H)+1))}
+    var ch=u<.30?0:u<.66?1:u<.86?2:3;
+    document.querySelectorAll('.chap div').forEach(function(d){d.classList.toggle('a',+d.dataset.ch===ch)});
+    document.querySelectorAll('.capt span').forEach(function(d){d.classList.toggle('a',+d.dataset.c===ch)});
+  }
+  function draw(time){pose(state.u,time);renderer.render(scene,cam)}
+  api.renderAt=function(u,time){state.u=u;applyView();draw(time||0)};
+
+  var last=performance.now(),acc=0;
+  function frame(now){
+    var dt=Math.min((now-last)/1000,.1);last=now;acc+=dt;
+    state.shift+=(state.tshift-state.shift)*Math.min(1,dt*3.2);applyView();
+    if(state.play){state.u=Math.min(1,state.u+dt/DUR);if(state.u>=1)state.play=false;syncUI()}
+    else if(Math.abs(state.u-state.target)>.0005&&state.target!==null){var sp=Math.max(.35,Math.abs(state.u-state.target)*2.2)*dt;state.u+=clamp(state.target-state.u,-sp,sp);syncUI()}
+    if(state.vis||canvas.classList.contains('show')){if(state.vis||acc<.7)draw(acc)}
+    if(!CAPTURE)requestAnimationFrame(frame);
+  }
+  function syncUI(){
+    if(scrub&&document.activeElement!==scrub)scrub.value=Math.round(state.u*1000);
+    if(tmEl){var s=Math.round(state.u*DUR);tmEl.textContent='0:'+(s<10?'0':'')+s}
+    if(ppBtn)ppBtn.textContent=state.play?'❚❚':'▶';
+  }
+  if(scrub){scrub.addEventListener('input',function(){state.play=false;state.target=null;state.u=scrub.value/1000;syncUI()})}
+  if(ppBtn){ppBtn.addEventListener('click',function(){if(state.u>=.999)state.u=0;state.play=!state.play;state.target=null;syncUI()})}
+
+  api.setSlide=function(cfg,n,prev){
+    if(!cfg){state.vis=false;canvas.classList.remove('show');return}
+    state.vis=true;canvas.classList.add('show');
+    state.tshift=cfg.shift||0;
+    if(prev<0||!slides[prev]||!slides[prev].opt.gl){state.shift=state.tshift}
+    if(cfg.play){
+      if(!(slides[prev]&&slides[prev].opt.gl&&n<prev)){state.u=0}
+      state.target=null;state.play=!matchMedia('(prefers-reduced-motion:reduce)').matches;
+      if(!state.play)state.u=1;
+    }else{state.play=false;state.target=cfg.u}
+    syncUI();
+  };
+  api.toggle=function(){if(cur===solIdx&&ppBtn)ppBtn.click()};
+  api.scrubKey=function(d){
+    if(d>0&&state.u<.995){state.play=false;state.target=null;/* перейти к следующей главе */
+      var marks=[.30,.66,.86,1],nx=marks.find(function(m){return m>state.u+.01});state.target=nx;return true}
+    if(d<0&&state.u>.005){state.play=false;var marks2=[0,.30,.66,.86],pv=marks2.slice().reverse().find(function(m){return m<state.u-.02});state.target=pv===undefined?0:pv;return true}
+    return false;
+  };
+  api.scrubWheel=function(dy){
+    if(dy>0&&state.u>=.999)return false;if(dy<0&&state.u<=.001)return false;
+    state.play=false;state.target=null;state.u=clamp(state.u+dy/3200,0,1);syncUI();return true;
+  };
+  api.state=state;
+  if(!CAPTURE)requestAnimationFrame(frame);
+  return api;
+})();
+var solIdx=slides.findIndex(function(s){return s.opt.gl&&s.opt.gl.play});
+window.__GL=GL;window.__show=show;window.__N=N;
+
+var h0=parseInt((location.hash||'').slice(1),10);
+show(isFinite(h0)&&h0>0?h0-1:0);
+})();
+</script>
