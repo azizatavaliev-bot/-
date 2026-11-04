@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AdOps — платформа таргетологов</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--ink:#14161a;--mute:#6b7280;--line:#e5e7eb;--acc:#4338ca;--acc-ink:#fff;--bad:#b91c1c;--ok:#15803d;--warn:#b45309;--chip:#eef0f6}
+@media(prefers-color-scheme:dark){:root{--bg:#0e1013;--card:#171a1f;--ink:#e8eaed;--mute:#9aa3ad;--line:#272c33;--acc:#818cf8;--acc-ink:#0b0d20;--bad:#f87171;--ok:#4ade80;--warn:#fbbf24;--chip:#20242b}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:8px 14px}
+header h1{font-size:16px;margin:0 6px 0 0;white-space:nowrap}
+nav{display:flex;gap:2px;overflow-x:auto;flex:1}
+nav button{background:none;border:0;color:var(--mute);padding:8px 11px;border-radius:8px;cursor:pointer;font:inherit;white-space:nowrap}
+nav button.on{background:var(--chip);color:var(--ink);font-weight:600}
+main{max-width:1060px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+.card h2{font-size:15px;margin:0 0 10px}.card h3{font-size:14px;margin:14px 0 6px}
+.row{display:flex;gap:12px;flex-wrap:wrap}.row>*{flex:1 1 180px}
+label{display:block;font-size:13px;color:var(--mute);margin:10px 0 4px}
+input,select,textarea{width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit}
+textarea{min-height:90px;resize:vertical}
+.btn{background:var(--acc);color:var(--acc-ink);border:0;border-radius:8px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer}
+.btn.ghost{background:var(--chip);color:var(--ink)}.btn.danger{background:var(--bad);color:#fff}.btn.sm{padding:4px 9px;font-size:13px}
+.btn:disabled{opacity:.5}
+.hint{font-size:12.5px;color:var(--mute)}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;background:var(--chip)}
+.pill.ok{color:var(--ok)}.pill.bad{color:var(--bad)}.pill.warn{color:var(--warn)}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--mute);font-weight:600}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tr.click{cursor:pointer}tr.click:hover{background:var(--chip)}
+.tbl{overflow-x:auto}
+.flag{font-size:12.5px;margin-top:3px}.flag.bad{color:var(--bad)}.flag.warn{color:var(--warn)}
+.msgs{max-height:55vh;min-height:220px;overflow:auto;background:var(--bg);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.m{max-width:88%;padding:7px 10px;border-radius:10px;white-space:pre-wrap;word-break:break-word}
+.m.user{background:var(--card);border:1px solid var(--line);align-self:flex-end}.m.assistant{background:var(--chip);align-self:flex-start}
+.sw{display:flex;align-items:center;gap:8px;margin:8px 0}.sw input{width:auto}.sw label{margin:0;color:var(--ink)}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);width:min(720px,95vw);padding:18px;max-height:92vh}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:10px;opacity:0;transition:.2s;pointer-events:none;z-index:20;max-width:92vw}
+.toast.on{opacity:1}
+#login{max-width:340px;margin:16vh auto}
+.hide{display:none!important}
+.big{font-size:22px;font-weight:700}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+.doc ol,.doc ul{padding-left:20px}.doc li{margin:4px 0}.doc code,.code{background:var(--chip);padding:1px 6px;border-radius:5px;font-size:13px}
+.doc a{color:var(--acc)}.doc .note{background:var(--chip);border-left:3px solid var(--warn);padding:8px 12px;border-radius:6px;margin:10px 0}
+.doc details{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:8px 0}.doc summary{cursor:pointer;font-weight:600}
+svg.spark{width:84px;height:24px;vertical-align:middle}
+</style>
+</head>
+<body>
+<div id="login" class="card hide">
+  <h2>AdOps · вход</h2>
+  <label>Логин</label><input id="lg" autocomplete="username">
+  <label>Пароль</label><input id="pw" type="password" autocomplete="current-password">
+  <p><button class="btn" id="loginBtn">Войти</button></p>
+  <div id="loginErr" class="hint" style="color:var(--bad)"></div>
+</div>
+<div id="app" class="hide">
+  <header><h1>📈 AdOps</h1><nav id="nav"></nav><span class="hint" id="who"></span><button class="btn ghost sm" id="logout">Выйти</button></header>
+  <main id="view"></main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const n2 = (n) => (n == null ? '—' : (Math.round(n * 100) / 100).toLocaleString('ru'));
+const api = async (path, method = 'GET', body) => {
+  const r = await fetch(path, { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401 && path !== '/api/login') { showLogin(); throw new Error('Нужен вход'); }
+  if (!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+};
+function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('on'); setTimeout(() => el.classList.remove('on'), 3000); }
+let ME = null, CFG = {}, tab = 'dash';
+const TOK = { ok: ['ok', 'токен ок'], expiring: ['warn', 'скоро истечёт'], invalid: ['bad', 'токен не работает'], none: ['warn', 'не подключён'] };
+const tokPill = (p) => { const [c, t] = TOK[p.token_status] || TOK.none; return `<span class="pill ${c}">${t}</span>`; };
+
+function showLogin() { $('#app').classList.add('hide'); $('#login').classList.remove('hide'); $('#lg').focus(); }
+async function boot() {
+  try { const r = await api('/api/me'); ME = r.user; CFG = r.config; } catch { return; }
+  $('#login').classList.add('hide'); $('#app').classList.remove('hide');
+  $('#who').textContent = ME.name || ME.login;
+  const tabs = [['dash', 'Дашборд'], ['projects', 'Проекты'], ['reports', 'Отчёты'], ['salary', 'Зарплаты'], ['advisor', 'Советник'], ['guide', 'Инструкция'], ['profile', 'Профиль']];
+  if (ME.role === 'owner') tabs.push(['team', 'Команда'], ['settings', 'Настройки'], ['log', 'Журнал']);
+  $('#nav').innerHTML = tabs.map(([k, n]) => `<button data-t="${k}">${n}</button>`).join('');
+  $('#nav').onclick = (e) => e.target.dataset.t && go(e.target.dataset.t);
+  go(tab);
+}
+$('#loginBtn').onclick = async () => { try { await api('/api/login', 'POST', { login: $('#lg').value, password: $('#pw').value }); $('#pw').value = ''; boot(); } catch (e) { $('#loginErr').textContent = e.message; } };
+$('#pw').onkeydown = (e) => e.key === 'Enter' && $('#loginBtn').click();
+$('#logout').onclick = async () => { await api('/api/logout', 'POST').catch(() => {}); showLogin(); };
+function go(t) {
+  tab = t;
+  document.querySelectorAll('#nav button').forEach((b) => b.classList.toggle('on', b.dataset.t === t));
+  ({ dash: vDash, projects: vProjects, reports: vReports, salary: vSalary, advisor: vAdvisor, guide: vGuide, profile: vProfile, team: vTeam, settings: vSettings, log: vLog })[t]().catch((e) => toast(e.message));
+}
+function spark(rows) {
+  if (!rows.length) return '';
+  const v = rows.map((r) => r.spend), max = Math.max(...v, 1), w = 84, h = 24, step = w / Math.max(v.length - 1, 1);
+  const pts = v.map((x, i) => `${(i * step).toFixed(1)},${(h - 2 - (x / max) * (h - 4)).toFixed(1)}`).join(' ');
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}"><polyline points="${pts}" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".7"/></svg>`;
+}
+
+// ================= Дашборд =================
+async function vDash() {
+  const { projects, today } = await api('/api/dashboard');
+  const act = projects.filter((p) => p.status === 'active');
+  const tot = {}; let flagged = 0, y = 0;
+  for (const p of act) { const a = p.analysis.yesterday; if (a) { tot[p.currency] = (tot[p.currency] || 0) + a.spend; y++; } if (p.analysis.flags.some((f) => f.level === 'bad')) flagged++; }
+  $('#view').innerHTML = `
+  <div class="kpis">
+    <div class="kpi"><div class="hint">Проектов активно</div><div class="big">${act.length}</div></div>
+    <div class="kpi"><div class="hint">Расход вчера</div><div class="big">${Object.entries(tot).map(([c, v]) => `${n2(v)} ${c}`).join(' + ') || '—'}</div></div>
+    <div class="kpi"><div class="hint">Требуют внимания</div><div class="big" style="color:${flagged ? 'var(--bad)' : 'var(--ok)'}">${flagged}</div></div>
+  </div>
+  <div class="card"><h2>Проекты</h2><div class="tbl"><table><thead><tr><th>Проект</th><th>Токен</th><th class="n">Вчера</th><th class="n">Рез.</th><th class="n">Цена</th><th class="n">Ср. 7 дн.</th><th>14 дней</th></tr></thead><tbody>
+  ${act.map((p) => { const a = p.analysis, y = a.yesterday; return `<tr class="click" data-id="${p.id}">
+    <td><b>${esc(p.name)}</b>${ME.role === 'owner' ? `<div class="hint">${esc(p.user_name || '')}</div>` : ''}${a.flags.slice(0, 3).map((f) => `<div class="flag ${f.level}">${f.level === 'bad' ? '🔴' : '⚠️'} ${esc(f.text)}</div>`).join('')}</td>
+    <td>${tokPill(p)}</td><td class="n">${y ? n2(y.spend) + ' ' + p.currency : '—'}</td><td class="n">${y ? n2(y.results) : '—'}</td><td class="n">${n2(a.cpl_yesterday)}</td>
+    <td class="n">${a.avg7 ? n2(a.avg7.spend) : '—'}</td><td>${spark(p.spark)}</td></tr>`; }).join('') || '<tr><td colspan="7" class="hint">Проектов нет. Открой «Проекты» → «Новый проект».</td></tr>'}
+  </tbody></table></div><p class="hint">Данные подтягиваются из Facebook каждые 30 минут. Дата «сегодня» по часовому поясу платформы: ${today}.</p></div>`;
+  document.querySelectorAll('tr.click').forEach((tr) => (tr.onclick = () => openProject(Number(tr.dataset.id))));
+}
+
+// ================= Проекты =================
+async function vProjects() {
+  const { projects } = await api('/api/projects');
+  $('#view').innerHTML = `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">Проекты</h2><button class="btn" id="newP">+ Новый проект</button></div>
+  <div class="tbl"><table><thead><tr><th>Проект</th><th>Аккаунт FB</th><th>Токен</th>${ME.role === 'owner' ? '<th class="n">Клиент платит</th><th class="n">Исполн.</th><th class="n">Владелец</th>' : ''}<th></th></tr></thead><tbody>
+  ${projects.map((p) => `<tr class="click" data-id="${p.id}"><td><b>${esc(p.name)}</b>${p.status === 'archived' ? ' <span class="pill">архив</span>' : ''}${ME.role === 'owner' ? `<div class="hint">${esc(p.user_name || '')}</div>` : ''}</td>
+  <td class="hint">${esc(p.ad_account_id || '—')}</td><td>${tokPill(p)}</td>
+  ${ME.role === 'owner' ? `<td class="n">${n2(p.client_fee)} ${p.fee_currency}</td><td class="n">${p.employee_pct}%</td><td class="n">${p.owner_pct}%</td>` : ''}<td></td></tr>`).join('') || '<tr><td colspan="7" class="hint">Пока пусто</td></tr>'}
+  </tbody></table></div></div><dialog id="dlg"></dialog>`;
+  $('#newP').onclick = () => openProject(null);
+  document.querySelectorAll('tr.click').forEach((tr) => (tr.onclick = () => openProject(Number(tr.dataset.id))));
+}
+async function openProject(id) {
+  if (!$('#dlg')) { go('projects'); await new Promise((r) => setTimeout(r, 300)); }
+  const isOwner = ME.role === 'owner';
+  let p = { name: '', ad_account_id: '', name_filter: '', result_type: 'auto', client_fee: 0, fee_currency: 'USD', employee_pct: 0, owner_pct: 0, status: 'active', user_id: ME.id };
+  let users = [];
+  if (id) p = (await api('/api/projects')).projects.find((x) => x.id === id) || p;
+  if (isOwner) users = (await api('/api/users')).users.filter((u) => u.active);
+  const d = $('#dlg');
+  d.innerHTML = `<h2 style="margin-top:0">${id ? esc(p.name) : 'Новый проект'}</h2>
+  <div class="row"><div><label>Название проекта / клиента</label><input id="pName" value="${esc(p.name)}"></div>
+  <div><label>ID рекламного аккаунта Facebook</label><input id="pAcc" value="${esc(p.ad_account_id)}" placeholder="act_1234567890 или просто цифры"></div></div>
+  <div class="row"><div><label>Фильтр кампаний (необязательно)</label><input id="pFilter" value="${esc(p.name_filter)}" placeholder="часть названия кампании"><div class="hint">Если в одном аккаунте несколько направлений/клиентов — в отчёт попадут только кампании с этим текстом в названии.</div></div>
+  <div><label>Что считать результатом</label><select id="pRes">${[['auto', 'Автоопределение'], ['lead', 'Лиды (формы)'], ['messages', 'Переписки (WhatsApp/Direct/Messenger)'], ['purchase', 'Покупки'], ['link_click', 'Клики по ссылке']].map(([v, t]) => `<option value="${v}" ${p.result_type === v ? 'selected' : ''}>${t}</option>`).join('')}</select></div></div>
+  ${isOwner ? `<h3>Деньги и исполнитель</h3><div class="row"><div><label>Исполнитель</label><select id="pUser">${users.map((u) => `<option value="${u.id}" ${u.id === p.user_id ? 'selected' : ''}>${esc(u.name || u.login)}</option>`).join('')}</select></div>
+  <div><label>Клиент платит в месяц</label><input id="pFee" type="number" step="any" value="${p.client_fee}"></div>
+  <div><label>Валюта оплаты</label><input id="pCur" value="${esc(p.fee_currency)}"></div></div>
+  <div class="row"><div><label>% исполнителю</label><input id="pEmp" type="number" step="any" value="${p.employee_pct}"></div><div><label>% владельцу</label><input id="pOwn" type="number" step="any" value="${p.owner_pct}"></div>
+  <div><label>Статус</label><select id="pStatus"><option value="active" ${p.status === 'active' ? 'selected' : ''}>Активный</option><option value="archived" ${p.status === 'archived' ? 'selected' : ''}>Архив (снят с проекта)</option></select></div></div>
+  <div class="hint">Проценты считаются от оплаты клиента. Остаток после процентов исполнителя и владельца — на расходы/агентство. Архивный проект выпадает из зарплат со следующего месяца.</div>` : ''}
+  ${id ? `<h3>Подключение к Facebook</h3><div id="tokBox"><p>${tokPill(p)} <span class="hint">${esc(p.token_note || '')}</span></p>
+  <label>API-токен (вставь новый, чтобы заменить)</label><input id="pTok" type="password" placeholder="EAAB… — хранится зашифрованным" autocomplete="off">
+  <div class="hint">Как получить бессрочный токен — вкладка «Инструкция». Токен показывается только при создании, не отправляй его в чаты.</div>
+  <p style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="saveTok">Сохранить токен и проверить</button><button class="btn ghost" id="chkTok">Проверить текущий</button><button class="btn ghost" id="syncNow">Обновить отчёты (14 дн.)</button>${p.has_token ? '<button class="btn danger sm" id="rmTok">Удалить токен</button>' : ''}</p><div id="tokOut" class="hint"></div></div>` : '<p class="hint">Токен можно подключить после создания проекта.</p>'}
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn ghost" id="pClose">Закрыть</button><button class="btn" id="pSave">Сохранить</button></div>`;
+  d.showModal();
+  $('#pClose').onclick = () => d.close();
+  $('#pSave').onclick = async () => {
+    const body = { name: $('#pName').value, ad_account_id: $('#pAcc').value, name_filter: $('#pFilter').value, result_type: $('#pRes').value };
+    if (isOwner) Object.assign(body, { user_id: Number($('#pUser').value), client_fee: $('#pFee').value, fee_currency: $('#pCur').value, employee_pct: $('#pEmp').value, owner_pct: $('#pOwn').value, ...(id ? { status: $('#pStatus').value } : {}) });
+    try { if (id) await api('/api/projects/' + id, 'PUT', body); else { const r = await api('/api/projects', 'POST', body); toast('Создан — теперь подключи токен'); d.close(); await vProjects(); return openProject(r.id); } toast('Сохранено'); d.close(); go(tab); }
+    catch (e) { toast(e.message); }
+  };
+  if (!id) return;
+  const out = (t) => ($('#tokOut').textContent = t);
+  $('#saveTok').onclick = async () => { out('Проверяю…'); try { const accBody = { token: $('#pTok').value, ad_account_id: $('#pAcc').value }; const r = await api(`/api/projects/${id}/token`, 'POST', accBody); out(`${r.check.status === 'ok' ? '✅' : '⚠️'} ${r.check.note || r.check.status}${r.backfill?.written ? ` · загружено дней: ${r.backfill.written}` : ''}${r.backfill?.error ? ' · ' + r.backfill.error : ''}`); $('#pTok').value = ''; } catch (e) { out('❌ ' + e.message); } };
+  $('#chkTok').onclick = async () => { out('Проверяю…'); try { const r = await api(`/api/projects/${id}/check`, 'POST'); out(`${r.status === 'ok' ? '✅' : '⚠️'} ${r.note || r.status}`); } catch (e) { out('❌ ' + e.message); } };
+  $('#syncNow').onclick = async () => { out('Загружаю…'); try { const r = await api(`/api/projects/${id}/sync`, 'POST', { days: 14 }); out(r.skipped ? 'Нет токена/аккаунта' : `✅ Обновлено дней: ${r.written}, результат = «${r.type}»`); } catch (e) { out('❌ ' + e.message); } };
+  const rm = $('#rmTok'); if (rm) rm.onclick = async () => { if (confirm('Удалить токен проекта?')) { await api(`/api/projects/${id}/token`, 'DELETE'); toast('Удалён'); d.close(); go(tab); } };
+}
+
+// ================= Отчёты =================
+async function vReports() {
+  const { projects } = await api('/api/projects');
+  const to = new Date().toISOString().slice(0, 10), from = new Date(Date.now() - 13 * 864e5).toISOString().slice(0, 10);
+  $('#view').innerHTML = `<div class="card"><h2>Дневные отчёты</h2><p class="hint">Заполняются автоматически из Facebook. Можно поправить вручную (✎) — правка сверяется с Facebook, расхождение видно в дашборде.</p>
+  <div class="row"><div><label>Проект</label><select id="rP"><option value="">Все</option>${projects.map((p) => `<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select></div>
+  <div><label>С</label><input id="rF" type="date" value="${from}"></div><div><label>По</label><input id="rT" type="date" value="${to}"></div>
+  <div style="flex:0 0 auto;align-self:flex-end"><button class="btn" id="rGo">Показать</button> <button class="btn ghost" id="rCsv">CSV</button></div></div></div>
+  <div class="card tbl" id="rOut"></div><dialog id="dlg"></dialog>`;
+  let rows = [];
+  const load = async () => {
+    const q = new URLSearchParams({ from: $('#rF').value, to: $('#rT').value, ...($('#rP').value ? { project: $('#rP').value } : {}) });
+    rows = (await api('/api/reports?' + q)).rows;
+    const tot = {}; rows.forEach((r) => (tot[r.currency] = (tot[r.currency] || 0) + r.spend));
+    $('#rOut').innerHTML = `<table><thead><tr><th>Дата</th><th>Проект</th><th class="n">Расход</th><th class="n">Показы</th><th class="n">Клики</th><th class="n">Результаты</th><th class="n">Цена</th><th></th></tr></thead><tbody>
+    ${rows.map((r, i) => `<tr><td>${r.date}${r.partial ? ' <span class="pill warn">идёт</span>' : ''}</td><td>${esc(r.project)}</td><td class="n">${n2(r.spend)} ${r.currency}</td><td class="n">${r.impressions}</td><td class="n">${r.clicks}</td><td class="n">${n2(r.results)}</td><td class="n">${r.results ? n2(r.spend / r.results) : '—'}</td>
+    <td>${r.source === 'manual' ? `<span class="pill warn" title="${esc(r.note)}">✎ ${r.auto_spend != null ? 'FB: ' + n2(r.auto_spend) : ''}</span> ` : ''}<button class="btn ghost sm" data-i="${i}">Править</button></td></tr>`).join('') || '<tr><td colspan="8" class="hint">Нет данных за период</td></tr>'}
+    </tbody><tfoot><tr><th colspan="2">Итого</th><th class="n">${Object.entries(tot).map(([c, v]) => n2(v) + ' ' + c).join(' + ')}</th><th colspan="5"></th></tr></tfoot></table>`;
+    document.querySelectorAll('[data-i]').forEach((b) => (b.onclick = () => editRow(rows[Number(b.dataset.i)], load)));
+  };
+  $('#rGo').onclick = () => load().catch((e) => toast(e.message));
+  $('#rCsv').onclick = () => { const csv = ['date,project,currency,spend,impressions,clicks,results,source'].concat(rows.map((r) => [r.date, `"${r.project.replace(/"/g, '""')}"`, r.currency, r.spend, r.impressions, r.clicks, r.results, r.source].join(','))).join('\n'); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = `reports_${$('#rF').value}_${$('#rT').value}.csv`; a.click(); };
+  await load();
+}
+function editRow(r, reload) {
+  const d = $('#dlg');
+  d.innerHTML = `<h2 style="margin-top:0">${esc(r.project)} · ${r.date}</h2>
+  ${r.auto_spend != null ? `<p class="hint">Facebook насчитал: расход ${n2(r.auto_spend)}, результатов ${n2(r.auto_results)}</p>` : ''}
+  <div class="row"><div><label>Расход (${r.currency})</label><input id="eS" type="number" step="any" value="${r.spend}"></div><div><label>Результаты</label><input id="eR" type="number" step="any" value="${r.results}"></div></div>
+  <label>Причина правки</label><input id="eN" value="${esc(r.note || '')}" placeholder="например: часть расхода не в Facebook / ошибка трекинга">
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">${r.source === 'manual' ? '<button class="btn ghost" id="eReset">Вернуть данные Facebook</button>' : ''}<button class="btn ghost" id="eC">Отмена</button><button class="btn" id="eOk">Сохранить</button></div>`;
+  d.showModal(); $('#eC').onclick = () => d.close();
+  $('#eOk').onclick = async () => { try { await api(`/api/reports/${r.project_id}/${r.date}`, 'PUT', { spend: Number($('#eS').value), results: Number($('#eR').value), note: $('#eN').value }); d.close(); toast('Сохранено'); reload(); } catch (e) { toast(e.message); } };
+  const rs = $('#eReset'); if (rs) rs.onclick = async () => { await api(`/api/reports/${r.project_id}/${r.date}/reset`, 'POST'); d.close(); reload(); };
+}
+
+// ================= Зарплаты =================
+async function vSalary() {
+  const month = new Date().toISOString().slice(0, 7);
+  $('#view').innerHTML = `<div class="card"><h2>Начисления</h2><div class="row"><div style="flex:0 0 200px"><label>Месяц</label><input type="month" id="sM" value="${month}"></div></div></div><div id="sOut"></div>`;
+  const load = async () => {
+    const s = await api('/api/salary?month=' + $('#sM').value);
+    const own = ME.role === 'owner';
+    $('#sOut').innerHTML = `<div class="card tbl"><h2>По проектам</h2><table><thead><tr><th>Проект</th>${own ? '<th>Исполнитель</th>' : ''}<th class="n">Клиент платит</th><th class="n">% исп.</th><th class="n">Исполнителю</th>${own ? '<th class="n">Владельцу</th><th class="n">Остаток</th>' : ''}<th class="n">Рекл. бюджет</th></tr></thead><tbody>
+    ${s.projects.map((p) => `<tr><td>${esc(p.project)}</td>${own ? `<td>${esc(p.employee)}</td>` : ''}<td class="n">${n2(p.client_fee)} ${p.fee_currency}</td><td class="n">${p.employee_pct}%</td><td class="n"><b>${n2(p.employee_amount)}</b></td>${own ? `<td class="n">${n2(p.owner_amount)}</td><td class="n">${n2(p.remainder)}</td>` : ''}<td class="n">${n2(p.ad_spend)} ${p.ad_currency}</td></tr>`).join('') || '<tr><td colspan="8" class="hint">Нет проектов за этот месяц</td></tr>'}</tbody></table>
+    <p class="hint">Проект учитывается, если был активен хотя бы часть месяца (без пропорции по дням).</p></div>
+    <div class="card tbl"><h2>${own ? 'К выплате сотрудникам' : 'Итого к выплате мне'}</h2><table><tbody>${s.employees.map((e) => `<tr><td>${own ? esc(e.employee) : 'Я'} <span class="hint">(${e.projects} проект.)</span></td><td class="n"><b>${n2(e.amount)} ${e.currency}</b></td></tr>`).join('') || '<tr><td class="hint">—</td></tr>'}</tbody></table></div>
+    ${own ? `<div class="card"><h2>Итого по компании</h2>${Object.entries(s.totals).map(([c, t]) => `<p>${c}: клиенты ${n2(t.fees)} · сотрудники ${n2(t.employees)} · владелец ${n2(t.owner)} · остаток ${n2(t.remainder)}</p>`).join('') || '—'}</div>` : ''}`;
+  };
+  $('#sM').onchange = () => load().catch((e) => toast(e.message)); await load();
+}
+
+// ================= Советник =================
+async function vAdvisor() {
+  const { messages } = await api('/api/chat');
+  $('#view').innerHTML = `<div class="card"><h2>Советник</h2><p class="hint">То же, что бот в Telegram: видит твои проекты, отчёты и расходы, подсказывает настройки. Изменения в рекламе — только после твоего «да». Примеры: «что с проектом …?», «сколько потратили сегодня?», «какие кампании резать?», «останови кампанию …».</p>
+  <div class="msgs" id="cLog">${messages.map((m) => `<div class="m ${m.role}">${esc(m.text)}</div>`).join('')}</div>
+  <div class="row" style="margin-top:10px"><input id="cTxt" placeholder="Напиши вопрос…"><button class="btn" id="cSend" style="flex:0 0 auto">Отправить</button><button class="btn ghost" id="cReset" style="flex:0 0 auto">Сбросить</button></div></div>`;
+  const log = $('#cLog'); log.scrollTop = 1e9;
+  const add = (c, t) => { const d = document.createElement('div'); d.className = 'm ' + c; d.textContent = t; log.appendChild(d); log.scrollTop = 1e9; return d; };
+  const send = async () => { const t = $('#cTxt').value.trim(); if (!t) return; $('#cTxt').value = ''; add('user', t); const w = add('assistant', '…'); try { w.textContent = (await api('/api/chat', 'POST', { text: t })).reply; } catch (e) { w.textContent = '⚠️ ' + e.message; } log.scrollTop = 1e9; };
+  $('#cSend').onclick = send; $('#cTxt').onkeydown = (e) => e.key === 'Enter' && send();
+  $('#cReset').onclick = async () => { await api('/api/chat', 'POST', { reset: true }); vAdvisor(); };
+}
+
+// ================= Инструкция =================
+async function vGuide() {
+  $('#view').innerHTML = `<div class="card doc"><h2>Как подключить Facebook-аккаунт клиента</h2>
+  <p>Платформе нужен <b>API-токен</b> — «ключ», по которому она читает расходы и управляет кампаниями. От его типа зависит, как долго он живёт:</p>
+  <ul><li><b>Токен системного пользователя — бессрочный.</b> ✅ Рекомендуется. Настроил один раз — работает, пока ты не удалишь его сам.</li>
+  <li>Обычный токен из Graph API Explorer — живёт <b>1–2 часа</b>. Годится только чтобы обменять на длинный.</li>
+  <li>Длинный токен — живёт <b>60 дней</b>, потом надо выпускать заново (платформа напомнит за 7 дней).</li></ul>
+
+  <details open><summary>Способ 1. Бессрочный токен (системный пользователь) — 10 минут</summary>
+  <ol>
+   <li>Зайди в <a href="https://business.facebook.com/settings" target="_blank" rel="noopener">Настройки бизнеса</a> (Business Manager), в котором находится рекламный аккаунт клиента — твой или тот, куда клиент дал тебе доступ как партнёру.
+     <div class="note">Если аккаунт клиента лежит в <i>его</i> Business Manager: клиент → Настройки бизнеса → Партнёры → «Предоставить доступ партнёру» → твой Business ID → доступ к рекламному аккаунту «Управление кампаниями». После этого аккаунт появится у тебя в «Аккаунты → Рекламные аккаунты».</div></li>
+   <li><b>Пользователи → Системные пользователи → Добавить.</b> Имя — любое (например «adops»), роль — <b>Администратор</b>.</li>
+   <li>Выбери системного пользователя → <b>Добавить активы</b> → «Рекламные аккаунты» → отметь нужный аккаунт → включи <b>«Управление кампаниями»</b> (полный контроль) → Сохранить.</li>
+   <li>Если приложения ещё нет: <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener">developers.facebook.com/apps</a> → <b>Создать приложение</b> → тип «Бизнес» (Business) → привяжи к своему Business Manager. Проверка приложения (App Review) для <u>своих</u> аккаунтов не нужна.</li>
+   <li>Вернись к системному пользователю → <b>Создать новый токен</b> → выбери приложение → срок действия <b>«Никогда» (Never)</b> → отметь разрешения <code>ads_management</code> и <code>ads_read</code> (для нужд платформы больше не нужно) → Создать.</li>
+   <li><b>Скопируй токен сразу</b> — Facebook покажет его один раз. Вставь в проект: «Проекты → твой проект → API-токен».</li>
+   <li><b>ID рекламного аккаунта</b>: Ads Manager → в ссылке <code>act=1234567890</code> (или в выпадающем списке аккаунтов). Вставь в поле «ID рекламного аккаунта».</li>
+   <li>Нажми «Сохранить токен и проверить» — платформа покажет название аккаунта, валюту и загрузит последние 14 дней.</li>
+  </ol></details>
+
+  <details><summary>Способ 2. Токен на 60 дней (если нет доступа к Business Manager)</summary>
+  <ol>
+   <li>Открой <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener">Graph API Explorer</a> → справа выбери своё приложение → «Получить токен доступа пользователя» → отметь <code>ads_read</code>, <code>ads_management</code> → «Generate Access Token». Получится короткий токен (≈1–2 часа).</li>
+   <li>В приложении (Настройки → Основное) возьми <b>ID приложения</b> и <b>Секрет приложения</b>.</li>
+   <li>Обменяй короткий токен на длинный в форме ниже и вставь результат в проект. Повторяй каждые ~55 дней.</li>
+  </ol>
+  <div class="row"><div><label>Короткий токен</label><input id="xTok" type="password" autocomplete="off"></div>
+  ${CFG.app_configured ? '<div class="hint" style="align-self:flex-end">App ID и секрет уже заданы на платформе владельцем.</div>' : '<div><label>App ID</label><input id="xId"></div><div><label>App Secret</label><input id="xSec" type="password" autocomplete="off"></div>'}</div>
+  <p><button class="btn" id="xGo">Обменять на 60-дневный</button></p><div id="xOut"></div>
+  <p class="hint">App Secret не сохраняется — используется один раз для запроса.</p></details>
+
+  <details><summary>Что платформа делает сама, а что остаётся тебе</summary>
+  <ul><li><b>Сама:</b> каждые 30 минут обновляет расход/показы/клики/результаты, заполняет дневные отчёты, сравнивает с прошлой неделей, ищет проблемы (реклама встала, цена результата выросла, токен умирает), присылает утреннюю сводку в Telegram, показывает начисления.</li>
+  <li><b>Через Telegram / «Советник»:</b> включить/остановить кампанию, поменять дневной бюджет (лимит ±30% за раз, всегда после твоего «да»), поправить отчёт, разобрать проект и подсказать, что подкрутить.</li>
+  <li><b>Только человек:</b> привязать/пополнить карту, оплатить счёт, пройти проверку личности, снять блокировку аккаунта, создать Business Manager, принять партнёрский доступ.</li></ul></details>
+
+  <details><summary>Безопасность токена</summary>
+  <ul><li>Токен хранится зашифрованным (AES-256), в интерфейсе повторно не показывается.</li>
+  <li>Не отправляй токен в мессенджеры, письма и скриншоты. Если токен утёк — в Business Manager удали системного пользователя или нажми «Отозвать» у токена: он тут же перестанет работать.</li>
+  <li>Давай системному пользователю доступ только к нужным аккаунтам.</li></ul></details>
+
+  <details><summary>Ошибки и что с ними делать</summary>
+  <ul><li><b>«код 190» / «токен не работает»</b> — токен истёк или отозван. Выпусти новый (способ 1) и вставь в проект.</li>
+  <li><b>«код 200», «код 273», «нет прав»</b> — у системного пользователя нет доступа к этому рекламному аккаунту (шаг 3) или аккаунт не передан тебе клиентом (заметка в шаге 1).</li>
+  <li><b>«код 17 / 613 / 4»</b> — лимит запросов Facebook. Подожди 10–15 минут, платформа повторит сама.</li>
+  <li><b>Расход в отчёте не совпадает с Ads Manager</b> — проверь фильтр кампаний у проекта и часовой пояс аккаунта: сутки считаются по поясу рекламного аккаунта. Сегодняшний день неполный до конца суток.</li>
+  <li><b>Результатов 0, а лиды есть</b> — в проекте выбери тип результата вручную (лиды / переписки / покупки), а не «авто».</li></ul></details>
+
+  <details><summary>Подключить Telegram</summary>
+  <ol><li>Вкладка «Профиль» → «Подключить Telegram» → получишь одноразовый код.</li><li>Открой бота${CFG.bot ? ` <b>@${esc(CFG.bot)}</b>` : ''} и отправь код. Готово: бот знает твои проекты и ставку.</li>
+  <li>Команды: <code>/today</code> <code>/yesterday</code> <code>/projects</code> <code>/salary</code> или пиши обычным текстом.</li></ol></details>
+  </div>`;
+  const x = $('#xGo');
+  if (x) x.onclick = async () => { $('#xOut').textContent = 'Обмениваю…'; try { const r = await api('/api/tools/exchange-token', 'POST', { short_token: $('#xTok').value, app_id: $('#xId')?.value, app_secret: $('#xSec')?.value }); $('#xOut').innerHTML = `✅ Готово${r.expires_days ? ` (действует ~${r.expires_days} дн.)` : ''}. Скопируй токен:<br><input readonly value="${esc(r.token)}" onclick="this.select()">`; } catch (e) { $('#xOut').textContent = '❌ ' + e.message; } };
+}
+
+// ================= Профиль =================
+async function vProfile() {
+  const r = await api('/api/me'); ME = r.user; CFG = r.config;
+  $('#view').innerHTML = `<div class="card"><h2>Telegram</h2>
+  ${!CFG.telegram ? '<p class="hint">Бот не настроен владельцем (нет TELEGRAM_BOT_TOKEN).</p>' : ME.telegram ? `<p><span class="pill ok">подключён</span> Бот отвечает на твои сообщения и присылает утреннюю сводку.</p><button class="btn danger sm" id="tgOff">Отключить</button>` : `<p>Не подключён.</p><button class="btn" id="tgOn">Подключить Telegram</button><div id="tgBox" class="hint" style="margin-top:8px"></div>`}
+  <div class="sw"><input type="checkbox" id="dg" ${ME.digest ? 'checked' : ''}><label for="dg">Присылать утреннюю сводку за вчера</label></div></div>
+  <div class="card"><h2>Смена пароля</h2><div class="row"><div><label>Старый</label><input id="p0" type="password"></div><div><label>Новый (мин. 8 символов)</label><input id="p1" type="password"></div></div><p><button class="btn" id="pSet">Сменить</button></p></div>`;
+  const on = $('#tgOn'); if (on) on.onclick = async () => { const c = await api('/api/me/telegram-code', 'POST'); $('#tgBox').innerHTML = `Открой бота ${c.bot ? '<b>@' + esc(c.bot) + '</b>' : ''} и отправь код: <span class="big code">${esc(c.code)}</span><br>Код действует ${c.expires_min} минут. После привязки обнови страницу.`; };
+  const off = $('#tgOff'); if (off) off.onclick = async () => { await api('/api/me/telegram', 'DELETE'); vProfile(); };
+  $('#dg').onchange = (e) => api('/api/me', 'PUT', { digest: e.target.checked });
+  $('#pSet').onclick = async () => { try { await api('/api/me/password', 'POST', { old: $('#p0').value, new: $('#p1').value }); toast('Пароль изменён'); $('#p0').value = $('#p1').value = ''; } catch (e) { toast(e.message); } };
+}
+
+// ================= Команда =================
+async function vTeam() {
+  const { users } = await api('/api/users');
+  $('#view').innerHTML = `<div class="card"><h2>Сотрудники</h2><div class="tbl"><table><thead><tr><th>Имя / логин</th><th>Роль</th><th>Telegram</th><th class="n">Проектов</th><th></th></tr></thead><tbody>
+  ${users.map((u) => `<tr><td><b>${esc(u.name || u.login)}</b><div class="hint">${esc(u.login)}${u.active ? '' : ' · отключён'}</div></td><td>${u.role === 'owner' ? 'владелец' : 'сотрудник'}</td><td>${u.telegram ? '✅' : '—'}</td><td class="n">${u.projects}</td>
+  <td style="white-space:nowrap"><button class="btn ghost sm" data-pw="${u.id}">Новый пароль</button> ${u.id !== ME.id ? `<button class="btn ghost sm" data-act="${u.id}" data-to="${u.active ? 0 : 1}">${u.active ? 'Отключить' : 'Включить'}</button>` : ''}</td></tr>`).join('')}</tbody></table></div></div>
+  <div class="card"><h2>Добавить сотрудника</h2><div class="row"><div><label>Имя</label><input id="uN"></div><div><label>Логин</label><input id="uL"></div><div><label>Пароль (мин. 8)</label><input id="uP" type="password"></div>
+  <div><label>Роль</label><select id="uR"><option value="employee">Сотрудник</option><option value="owner">Владелец</option></select></div></div><p><button class="btn" id="uAdd">Создать</button></p></div>`;
+  $('#uAdd').onclick = async () => { try { await api('/api/users', 'POST', { name: $('#uN').value, login: $('#uL').value, password: $('#uP').value, role: $('#uR').value }); toast('Создан'); vTeam(); } catch (e) { toast(e.message); } };
+  document.querySelectorAll('[data-pw]').forEach((b) => (b.onclick = async () => { const pw = prompt('Новый пароль (мин. 8 символов):'); if (pw) try { await api('/api/users/' + b.dataset.pw, 'PUT', { password: pw }); toast('Пароль изменён'); } catch (e) { toast(e.message); } }));
+  document.querySelectorAll('[data-act]').forEach((b) => (b.onclick = async () => { try { await api('/api/users/' + b.dataset.act, 'PUT', { active: b.dataset.to === '1' }); vTeam(); } catch (e) { toast(e.message); } }));
+}
+
+// ================= Настройки / Журнал =================
+async function vSettings() {
+  const { settings: s } = await api('/api/settings');
+  const f = (k, l, h = '', t = 'text') => `<label>${l}</label><input data-k="${k}" type="${t}" value="${esc(s[k])}">${h ? `<div class="hint">${h}</div>` : ''}`;
+  $('#view').innerHTML = `<div class="card"><h2>Настройки платформы</h2>
+  <div class="row"><div>${f('timezone', 'Часовой пояс платформы', 'IANA, например Asia/Bishkek')}</div><div>${f('digest_hour', 'Час утренней сводки (0–23)', '', 'number')}</div></div>
+  <div class="row"><div>${f('max_budget_change_pct', 'Макс. изменение бюджета за раз, %', 'Защита от ошибочных команд. 0 — без лимита', 'number')}</div><div>${f('model', 'Модель Claude')}</div><div>${f('history_limit', 'Память диалога (сообщений)', '', 'number')}</div></div>
+  <p><button class="btn" id="sv">Сохранить</button></p></div>
+  <div class="card"><h2>Что настраивается в .env</h2><p class="hint">ANTHROPIC_API_KEY, TELEGRAM_BOT_TOKEN, META_APP_ID / META_APP_SECRET (для проверки срока токенов и обмена на 60 дней), APP_SECRET (ключ шифрования токенов).</p></div>`;
+  $('#sv').onclick = async () => { const b = {}; document.querySelectorAll('[data-k]').forEach((e) => (b[e.dataset.k] = e.value)); try { await api('/api/settings', 'PUT', b); toast('Сохранено'); } catch (e) { toast(e.message); } };
+}
+async function vLog() {
+  const { rows } = await api('/api/audit');
+  $('#view').innerHTML = `<div class="card tbl"><h2>Журнал действий</h2><table><thead><tr><th>Время</th><th>Кто</th><th>Событие</th><th>Детали</th></tr></thead><tbody>${rows.map((r) => `<tr><td class="hint">${new Date(r.ts).toLocaleString('ru')}</td><td>${esc(r.login || '—')}</td><td>${esc(r.action)}</td><td class="hint" style="word-break:break-all">${esc((r.detail || '').slice(0, 260))}</td></tr>`).join('')}</tbody></table></div>`;
+}
+boot();
+</script>
+</body>
+</html>

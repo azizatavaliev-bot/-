@@ -1,0 +1,10 @@
+services:
+  adops:
+    build: .
+    restart: always
+    env_file: .env
+    environment: { DATA_DIR: /data }
+    volumes: [ "adops-data:/data" ]     # БД + ключ шифрования (если не задан APP_SECRET)
+    ports: [ "127.0.0.1:3000:3000" ]    # наружу — через HTTPS-прокси (Caddy/nginx)
+volumes:
+  adops-data:
