@@ -113,7 +113,7 @@ p,li{text-wrap:pretty}
 
 /* прогресс и навигация */
 #prog{position:fixed;left:0;top:0;height:4px;background:var(--yellow);width:0;transition:width .6s var(--ease);z-index:5}
-.navb{position:fixed;top:0;bottom:0;width:7vw;z-index:4;background:none;border:0;cursor:pointer;opacity:0}
+.navb{position:fixed;top:10%;bottom:22%;width:7vw;z-index:4;background:none;border:0;cursor:pointer;opacity:0}
 .navb:focus-visible{opacity:1;outline:3px solid var(--yellow);outline-offset:-6px}
 #prev{left:0}#next{right:0}
 
@@ -389,6 +389,10 @@ p,li{text-wrap:pretty}
 .chips{top:760px;width:700px;font-size:24px;gap:12px}
 .ctl.l{width:700px}
 @media (max-width:900px){#viewport{padding:0 16px}}
+@media (pointer:coarse){.navb{width:24vw}}
+#rot{display:none;position:fixed;inset:0;z-index:20;background:#0A1120;color:#F4F1EA;text-align:center;align-items:center;justify-content:center;flex-direction:column;gap:22px;padding:32px;font-family:var(--font);font-size:20px;font-weight:700;line-height:1.4}
+#rot b{font-size:64px;display:block;transform:rotate(90deg)}
+@media (orientation:portrait) and (max-width:900px){#rot{display:flex}}
 @media (prefers-reduced-motion:reduce){
   .rv,.rv-x,.rv-s{transform:none!important;transition:opacity .3s!important}
   .hint i{animation:none}
@@ -401,11 +405,13 @@ p,li{text-wrap:pretty}
 <canvas id="gl" aria-hidden="true"></canvas>
 <div id="viewport"><main id="stage" aria-live="polite"></main></div>
 <div id="prog"></div>
+<div id="rot"><b>⟳</b>Поверните телефон горизонтально<span style="font-weight:500;font-size:16px;opacity:.7">Листайте свайпом или касанием справа и слева</span></div>
 <button class="navb" id="prev" aria-label="Предыдущий слайд"></button>
 <button class="navb" id="next" aria-label="Следующий слайд"></button>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+window.addEventListener('error',function(e){try{var d=document.getElementById('errbox');if(!d){d=document.createElement('div');d.id='errbox';d.style.cssText='position:fixed;left:8px;right:8px;bottom:8px;z-index:99;background:#7a1d25;color:#fff;font:12px/1.3 sans-serif;padding:8px 10px;border-radius:8px';document.body.appendChild(d)}d.textContent='Ошибка: '+(e.message||e)+' '+(e.lineno||'')}catch(_){}});
 (function(){
 'use strict';
 var CAPTURE=/[?&]capture/.test(location.search);if(CAPTURE)document.body.classList.add('cap-mode');
@@ -985,12 +991,13 @@ inits.wheel=function(){};
 
 /* ================= 3D ================= */
 var FRAMEONLY=/[?&]frameonly/.test(location.search);
-var GL=(function(){
+function GL0(){
   var api={setSlide:function(){},scrubKey:function(){return false},scrubWheel:function(){return false},toggle:function(){},renderAt:function(){},captureTour:function(){},info:function(){return {}}};
   if(!window.THREE){return api}
+  var LITE=Math.min(screen.width||innerWidth,screen.height||innerHeight)<800||(matchMedia&&matchMedia('(pointer:coarse)').matches),TEX=LITE?1024:2048;
   var canvas=document.getElementById('gl'),renderer;
   try{renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true,preserveDrawingBuffer:CAPTURE})}catch(e){return api}
-  renderer.setPixelRatio(FRAMEONLY?1:Math.min(devicePixelRatio||1,2));
+  renderer.setPixelRatio(FRAMEONLY?1:Math.min(devicePixelRatio||1,LITE?1.5:2));
   var scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(36,1,.5,2600);
   scene.fog=new THREE.Fog(0x61656d,170,760);
   var hemi=new THREE.HemisphereLight(0xe8ecf2,0x4b4f58,.95);scene.add(hemi);
@@ -1198,10 +1205,10 @@ var GL=(function(){
   box(1.8,2.6,2,M.edge,-31,1.3,-7);box(2,.12,2.2,M.yel,-31,2.66,-7);
   var arm=box(5,.12,.12,M.yel,-31,2.3,-5.2);arm.rotation.z=.9;
   /* ---------- город ---------- */
-  var CELL=56,NB=6,AA=(2*NB+1)*CELL,mmMat,snowM;
+  var CELL=56,NB=LITE?4:6,AA=(2*NB+1)*CELL,mmMat,snowM;
   (function(){
-    var K=2048/AA,cn=document.createElement('canvas');cn.width=cn.height=2048;var x=cn.getContext('2d');
-    x.fillStyle='#2a2e35';x.fillRect(0,0,2048,2048);
+    var K=TEX/AA,cn=document.createElement('canvas');cn.width=cn.height=TEX;var x=cn.getContext('2d');
+    x.fillStyle='#2a2e35';x.fillRect(0,0,TEX,TEX);
     var parks={};
     for(var i=-NB;i<=NB;i++)for(var j=-NB;j<=NB;j++){
       var bx=(i*CELL+AA/2-22)*K,bz=(j*CELL+AA/2-22)*K,sz=44*K,pk=!(i===0&&j===0)&&Math.abs(i)+Math.abs(j)>2&&rnd()<.11;parks[i+','+j]=pk;
@@ -1209,7 +1216,7 @@ var GL=(function(){
     }
     x.fillStyle='rgba(232,236,242,.5)';
     for(var k=-NB-1;k<=NB;k++){var c=(k*CELL+CELL/2+AA/2)*K;for(var d=0;d<AA;d+=9){x.fillRect(c-.3*K,d*K,.6*K,4.5*K);x.fillRect(d*K,c-.3*K,4.5*K,.6*K)}}
-    var tx=new THREE.CanvasTexture(cn);tx.anisotropy=8;
+    var tx=new THREE.CanvasTexture(cn);tx.anisotropy=LITE?2:8;
     var gp=new THREE.Mesh(new THREE.PlaneGeometry(AA,AA),new THREE.MeshLambertMaterial({map:tx}));gp.rotation.x=-Math.PI/2;gp.position.y=-.52;scene.add(gp);
     var gnd=new THREE.Mesh(new THREE.PlaneGeometry(2600,2600),M.ground);gnd.rotation.x=-Math.PI/2;gnd.position.y=-.58;scene.add(gnd);
     /* проспект к въезду и площадка */
@@ -1264,7 +1271,7 @@ var GL=(function(){
     }
   })();
   /* ---------- транспорт ---------- */
-  var NT=210,traffic=new CarSet(NT),tinfo=[];
+  var NT=LITE?110:210,traffic=new CarSet(NT),tinfo=[];
   for(var n2=0;n2<NT;n2++){
     var av=n2<14,axis=av?0:(rnd()<.5?0:1),line=0,dir=av?-1:(rnd()<.5?-1:1);
     do{line=Math.floor(rnd()*(2*NB+2))-NB-1}while(!av&&axis===1&&Math.abs((line+.5)*CELL)<30);
@@ -1441,7 +1448,8 @@ var GL=(function(){
   scene.traverse(function(o){o.frustumCulled=false});
   if(!CAPTURE)requestAnimationFrame(frame);
   return api;
-})();
+}
+var GL;try{GL=GL0()}catch(err){try{console.error(err)}catch(_){}GL={setSlide:function(){},scrubKey:function(){return false},scrubWheel:function(){return false},toggle:function(){},renderAt:function(){},captureTour:function(){},info:function(){return {}}}}
 
 window.__GL=GL;window.__show=show;window.__N=N;
 
