@@ -1,0 +1,21 @@
+# Render Blueprint: New → Blueprint → выбрать репозиторий. Нужен платный план (диск для SQLite).
+services:
+  - type: web
+    name: adops-platform
+    runtime: docker
+    rootDir: platform
+    plan: starter
+    healthCheckPath: /
+    disk:
+      name: adops-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - { key: DATA_DIR, value: /data }
+      - { key: OWNER_LOGIN, value: owner }
+      - { key: OWNER_PASSWORD, sync: false }
+      - { key: APP_SECRET, generateValue: true }
+      - { key: ANTHROPIC_API_KEY, sync: false }
+      - { key: TELEGRAM_BOT_TOKEN, sync: false }
+      - { key: META_APP_ID, sync: false }
+      - { key: META_APP_SECRET, sync: false }
