@@ -1033,6 +1033,17 @@ function GL0(){
     };
   }
   [M.slab,M.steel,M.dark,M.chain,M.motor,M.yel,M.edge].forEach(dissolve);
+  var cityU={value:1e6};
+  var CV='\nvec4 cwp=vec4(transformed,1.0);\n#ifdef USE_INSTANCING\ncwp=instanceMatrix*cwp;\n#endif\ncwp=modelMatrix*cwp;vCW=cwp.xyz;';
+  var CF='\nfloat ch=fract(sin(dot(floor(vCW/2.5),vec3(12.9898,78.233,37.719)))*43758.5453);float cq=uCity-(vCW.x-ch*45.0);if(cq<0.0)discard;float cedge=1.0-smoothstep(0.0,9.0,cq);';
+  function cityPatch(sh){
+    sh.uniforms.uCity=cityU;
+    sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vCW;').replace('#include <begin_vertex>','#include <begin_vertex>'+CV);
+    sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vCW;uniform float uCity;').replace('#include <clipping_planes_fragment>','#include <clipping_planes_fragment>'+CF).replace('#include <dithering_fragment>','#include <dithering_fragment>\ngl_FragColor.rgb=mix(gl_FragColor.rgb,vec3(1.0,.72,0.0),cedge*.85);');
+  }
+  function cityD(m){m.onBeforeCompile=function(sh){cityPatch(sh)};return m}
+  function cityCars(set){[set.b,set.h,set.t].forEach(function(m){m.material=cityD(m.material.clone())})}
+  [M.ground,M.road,M.yel2].forEach(cityD);
   var rnd=(function(){var s=7;return function(){s=(s*16807)%2147483647;return (s-1)/2147483646}})();
   function box(w,h,d,m,x,y,z,p){var b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);b.position.set(x,y,z);(p||scene).add(b);return b}
   var wrap=function(a){return a-Math.PI*2*Math.floor((a+Math.PI)/(Math.PI*2))};
@@ -1233,7 +1244,7 @@ function GL0(){
     x.fillStyle='rgba(232,236,242,.5)';
     for(var k=-NB-1;k<=NB;k++){var c=(k*CELL+CELL/2+AA/2)*K;for(var d=0;d<AA;d+=9){x.fillRect(c-.3*K,d*K,.6*K,4.5*K);x.fillRect(d*K,c-.3*K,4.5*K,.6*K)}}
     var tx=new THREE.CanvasTexture(cn);tx.anisotropy=LITE?2:8;
-    var gp=new THREE.Mesh(new THREE.PlaneGeometry(AA,AA),new THREE.MeshLambertMaterial({map:tx}));gp.rotation.x=-Math.PI/2;gp.position.y=-.52;scene.add(gp);
+    var gp=new THREE.Mesh(new THREE.PlaneGeometry(AA,AA),cityD(new THREE.MeshLambertMaterial({map:tx})));gp.rotation.x=-Math.PI/2;gp.position.y=-.52;scene.add(gp);
     var gnd=new THREE.Mesh(new THREE.PlaneGeometry(2600,2600),M.ground);gnd.rotation.x=-Math.PI/2;gnd.position.y=-.58;scene.add(gnd);
     /* проспект к посту загрузки и площадка */
     box(300,.06,14,M.road,-158,-.48,0);
@@ -1259,7 +1270,7 @@ function GL0(){
       sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vWP;varying vec3 vNW;').replace('#include <begin_vertex>','#include <begin_vertex>\nvec4 wpp=vec4(transformed,1.0);\n#ifdef USE_INSTANCING\nwpp=instanceMatrix*wpp;\n#endif\nwpp=modelMatrix*wpp;vWP=wpp.xyz;vNW=normalize(mat3(modelMatrix)*normal);');
       sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vWP;varying vec3 vNW;uniform float uNight;').replace('#include <color_fragment>','#include <color_fragment>\nfloat fy=fract(vWP.y/3.4),fu=fract((vWP.x+vWP.z)/3.1);float win=step(.2,fu)*step(fu,.8)*step(.3,fy)*step(fy,.76)*step(.6,1.0-abs(vNW.y))*step(1.5,vWP.y);float hsh=fract(sin(dot(floor(vec2((vWP.x+vWP.z)/3.1,vWP.y/3.4))+floor(vWP.xz*.07),vec2(12.9898,78.233)))*43758.5453);float litW=win*step(.52,hsh);diffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*.42+vec3(.03,.05,.08),win);').replace('#include <dithering_fragment>','#include <dithering_fragment>\ngl_FragColor.rgb+=litW*vec3(1.0,.78,.42)*uNight*.95;');
     };
-    var bm=new THREE.InstancedMesh(bg,bmat,items.length),cc=new THREE.Color(),m4=new THREE.Matrix4();
+    var _bb=bmat.onBeforeCompile;bmat.onBeforeCompile=function(sh){_bb(sh);cityPatch(sh)};var bm=new THREE.InstancedMesh(bg,bmat,items.length),cc=new THREE.Color(),m4=new THREE.Matrix4();
     items.forEach(function(it,n){m4.makeScale(it[2],it[3],it[4]);m4.setPosition(it[0],-.5,it[1]);bm.setMatrixAt(n,m4);cc.setHex(it[5]);cc.multiplyScalar(.82+rnd()*.3);bm.setColorAt(n,cc)});
     scene.add(bm);
     var tg=new THREE.ConeGeometry(1.8,6,6);tg.translate(0,3.2,0);var tp=[];
@@ -1273,7 +1284,7 @@ function GL0(){
         tp.push([tx2,tz2,.55+rnd()*.5]);
       }
     }
-    var tm=new THREE.InstancedMesh(tg,new THREE.MeshLambertMaterial({color:0xffffff}),tp.length),greens=[0x5f7f66,0x6b8a6d,0x4f6f58,0x7a9677];
+    var tm=new THREE.InstancedMesh(tg,cityD(new THREE.MeshLambertMaterial({color:0xffffff})),tp.length),greens=[0x5f7f66,0x6b8a6d,0x4f6f58,0x7a9677];
     tp.forEach(function(q,n){m4.makeScale(q[2],q[2],q[2]);m4.setPosition(q[0],-.5,q[1]);tm.setMatrixAt(n,m4);cc.setHex(greens[n%4]);tm.setColorAt(n,cc)});
     scene.add(tm);
     mmMat=new THREE.MeshBasicMaterial({color:0x6e737c,fog:false});snowM=new THREE.MeshBasicMaterial({color:0x7b808a,fog:false});
@@ -1285,9 +1296,9 @@ function GL0(){
   })();
   /* машины на площадке */
   var surf=new CarSet(8);var sm=new THREE.Matrix4();
-  [[-22,-11.5,0],[-17,-11.5,0],[-12,-11.5,0],[13,11.5,Math.PI],[18,11.5,Math.PI],[23,11.5,Math.PI],[14,-11.5,0],[-20,11.5,Math.PI]].forEach(function(p,i){put(surf,i,p[0],0,p[1],p[2],0,1);tc.setHex(PAL[(i*3+1)%PAL.length]);surf.b.setColorAt(i,tc)});surf.flush();
+  [[-22,-11.5,0],[-17,-11.5,0],[-12,-11.5,0],[13,11.5,Math.PI],[18,11.5,Math.PI],[23,11.5,Math.PI],[14,-11.5,0],[-20,11.5,Math.PI]].forEach(function(p,i){put(surf,i,p[0],0,p[1],p[2],0,1);tc.setHex(PAL[(i*3+1)%PAL.length]);surf.b.setColorAt(i,tc)});surf.flush();cityCars(surf);
   /* ---------- транспорт ---------- */
-  var NT=LITE?110:210,traffic=new CarSet(NT),tinfo=[];
+  var NT=LITE?110:210,traffic=new CarSet(NT),tinfo=[];cityCars(traffic);
   for(var n2=0;n2<NT;n2++){
     var av=n2<14,axis=av?0:(rnd()<.5?0:1),line=0,dir=av?-1:(rnd()<.5?-1:1);
     do{line=Math.floor(rnd()*(2*NB+2))-NB-1}while(!av&&axis===1&&Math.abs((line+.5)*CELL)<30);
@@ -1301,7 +1312,7 @@ function GL0(){
     }
     traffic.flush();
   }
-  var NJ=36,jam=new CarSet(NJ),QS=6.4,INTRO=CARS.filter(function(c){return c.mode==='intro'});
+  var NJ=36,jam=new CarSet(NJ),QS=6.4,INTRO=CARS.filter(function(c){return c.mode==='intro'});cityCars(jam);
   for(var q2=0;q2<NJ;q2++){tc.setHex(PAL[Math.floor(rnd()*PAL.length)]);jam.b.setColorAt(q2,tc)}
   function smQ(x){x=clamp(x,0,1);return x*x*(3-2*x)}
   function qShift(tau,upTo){var s=0;INTRO.forEach(function(a){if(upTo===undefined||a.q<upTo)s+=smQ((tau-a.tS)/1.4)});return s}
@@ -1310,7 +1321,7 @@ function GL0(){
     for(var q=0;q<NJ;q++){var qi=q+INTRO.length,x=-22-QS*qi+QS*sh+.2*Math.sin(time*.8+qi*1.7);put(jam,q,x,0,-3,Math.PI/2,0,on?1:.0001)}
     jam.flush();
   }
-  var amb=new CarSet(CARS.length);CARS.forEach(function(a,i){tc.setHex(a.color);amb.b.setColorAt(i,tc)});
+  var amb=new CarSet(CARS.length);cityCars(amb);CARS.forEach(function(a,i){tc.setHex(a.color);amb.b.setColorAt(i,tc)});
   function updAmb(mode,tau){
     CARS.forEach(function(a,i){
       var vis=false,x=0,y=0,z=0,yaw=Math.PI/2,pit=0;
@@ -1391,7 +1402,7 @@ function GL0(){
   addEventListener('resize',resize);resize();
   var dayFog=[.38,.40,.43],nightFog=[.075,.085,.105];
   function pose(mode,tau,time){
-    var n=state.night;nightU.value=n;
+    var n=state.night;nightU.value=n;var cf=clamp(tau/3.4,0,1);cityU.value=mode==='intro'?-240+700*(1-Math.pow(1-cf,1.6)):1e6;
     buildU.value=mode==='intro'?clamp((tau-3)/3,0,1)*1.02:(mode==='tour'?clamp((tau-.2)/2.4,0,1)*1.02:1.02);
     updTraffic(time);updJam(tau,mode==='intro',time);updAmb(mode,tau);updTower(mode,tau);
     var o=camera(mode,tau,time);
