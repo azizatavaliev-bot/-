@@ -1117,12 +1117,12 @@ function GL0(){
   }
   var CARS=[
     {id:'hero',mode:'tour',color:0xffb600,t0:1.8,startX:-70,wait:null,ts:1},
-    {id:'tA',mode:'tour',color:0xe8e9ec,t0:8.4,startX:-50,wait:-10,ts:1},
-    {id:'tB',mode:'tour',color:0x2f3a52,t0:10.6,startX:-50,wait:-19,ts:1},
-    {id:'i0',mode:'intro',color:0xd5d9de,q:0,dep:5.0,startX:-22,wait:null,ts:1.5},
-    {id:'i1',mode:'intro',color:0x23272d,q:1,dep:5.2,startX:-22,wait:null,ts:1.5},
-    {id:'i2',mode:'intro',color:0x9c353b,q:2,dep:5.4,startX:-22,wait:null,ts:1.5},
-    {id:'i3',mode:'intro',color:0xf4f5f6,q:3,dep:5.6,startX:-22,wait:null,ts:1.5}
+    {id:'tA',mode:'tour',color:0xe8e9ec,t0:8.4,startX:-50,wait:-10,ts:1.7},
+    {id:'tB',mode:'tour',color:0x2f3a52,t0:10.6,startX:-50,wait:-19,ts:1.7},
+    {id:'i0',mode:'intro',color:0xd5d9de,q:0,dep:5.0,startX:-22,wait:null,ts:3.2},
+    {id:'i1',mode:'intro',color:0x23272d,q:1,dep:5.2,startX:-22,wait:null,ts:3.2},
+    {id:'i2',mode:'intro',color:0x9c353b,q:2,dep:5.4,startX:-22,wait:null,ts:3.2},
+    {id:'i3',mode:'intro',color:0xf4f5f6,q:3,dep:5.6,startX:-22,wait:null,ts:3.2}
   ];
   CARS.forEach(function(c){
     if(c.wait===null){c.r=routeLoad(0,routeApproach(c.startX,-10));c.r.finish(9.5)}
@@ -1134,8 +1134,8 @@ function GL0(){
     var list=CARS.filter(function(c){return c.mode===mode}),P={rots:[],loads:[]},prev=-1e9;
     list.forEach(function(c,i){
       var ts=c.ts,T,arr;
-      if(c.wait===null){var Tr=c.r.T/ts;c.tS=Math.max(c.dep!==undefined?c.dep:c.t0,prev-Tr+.05);arr=c.tS+Tr}
-      else{var T1=c.r1.T/ts,T2=c.r2.T/ts,tw=c.t0+T1;c.tW=tw;c.t2=Math.max(tw,prev-T2+.05);arr=c.t2+T2}
+      if(c.wait===null){var Tr=c.r.T/ts;c.tS=Math.max(c.dep!==undefined?c.dep:c.t0,prev+.3);arr=c.tS+Tr}
+      else{var T1=c.r1.T/ts,T2=c.r2.T/ts,tw=c.t0+T1;c.tW=tw;c.t2=Math.max(tw,prev+.3);arr=c.t2+T2}
       c.arr=arr;c.pallet=(PITCHN-i)%PITCHN;
       var r0=arr+.35,r1=r0+rotDur;P.rots.push({t0:r0,t1:r1});prev=r1;P.loads.push({p:c.pallet,c:c.color,t:arr,id:c.id});
     });
