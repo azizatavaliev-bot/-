@@ -426,9 +426,9 @@ var easeBack=function(x){var c1=1.4,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.
 var D={
   jams:[{m:'Июль',v:197},{m:'Август',v:256},{m:'Сентябрь',v:324}],
   mode:[{n:'Личный автомобиль',v:43,c:'#FFB600'},{n:'Общественный транспорт',v:36,c:'#2EC4B6'},{n:'Прочие способы',v:21,c:'#44577A'}],
-  quality:[{n:'Мобильное приложение',v:126},{n:'Шлагбаум',v:82},{n:'Пандусы',v:78},{n:'Сейсмостойкость',v:57},{n:'Охрана',v:51},{n:'Тарифы',v:50}],
+  quality:[{n:'Роторная башня',v:126},{n:'Мобильное приложение',v:88},{n:'Шлагбаум',v:66},{n:'Тарифы',v:60},{n:'Сейсмостойкий каркас',v:57},{n:'Охрана',v:51}],
   budget:[{n:'Строительство',v:150},{n:'Проект и экспертиза',v:9},{n:'Оборудование въезда',v:7},{n:'Благоустройство',v:6},{n:'ПО и приложение',v:4},{n:'Охрана и свет',v:3},{n:'Исследования и запуск',v:3},{n:'Резерв 10%',v:18.2}],
-  radar:{axes:['Места','Въезд и выезд','Пешеходы','Цифровизация','Тарифы','Сейсмика','Экономика'],now:[4,4.5,2.5,1,3,4,4.5],goal:[7.5,8,6.5,8.5,6,8.5,6.5]}
+  radar:{axes:['Места','Въезд и выезд','Пешеходы','Цифровизация','Тарифы','Сейсмика','Экономика'],now:[4,4.5,2.5,1,3,4,4.5],goal:[6,7.5,6.5,8.5,6,7.5,7.5]}
 };
 var fmt=function(n,d){return n.toLocaleString('ru-RU',{minimumFractionDigits:d||0,maximumFractionDigits:d||0})};
 
@@ -494,8 +494,8 @@ add('t-clear',
  '<div class="scrim l"></div><div class="scrim t" style="height:200px"></div><div class="scrim b" style="height:340px"></div>'+
  '<div class="topnav rv"><span>КГТУ им. И. Раззакова</span><span>Высшая школа логистики</span></div>'+
  '<div class="cover-txt"><div class="kick rv-x">Проект · 2026</div>'+
- '<h1 class="rv" style="--d:1">Многоуровневые парковки в&nbsp;Бишкеке</h1>'+
- '<p class="sub rv" style="--d:3">Пилотный паркинг на 200 мест: партнёрство города и инвесторов</p>'+
+ '<h1 class="rv" style="--d:1">Роторные парковки в&nbsp;Бишкеке</h1>'+
+ '<p class="sub rv" style="--d:3">MVP: металлическая роторная башня на 10 мест — партнёрство города и инвесторов</p>'+
  '<p class="who rv" style="--d:5">Маматбеков Мухамбет · Мейманбеков Элхан<br>Казымбеков Исхак · Мелисбеков Алишер<br><span>Проверил: Тойгонбаев Максат</span></p></div>'+
  '<div class="hint rv" style="--d:7"><i></i>Листайте стрелками</div>',
  {gl:{mode:'intro',shift:.2,night:0},noacts:1});
@@ -548,15 +548,15 @@ add('t-paper',
  head('03 · Политика города','Генплан-2050 уже включает перехватывающие и&nbsp;платные парковки')+
  '<div class="body"><div class="grid" style="grid-template-columns:repeat(5,1fr);gap:20px">'+
  [['Транспортно-пересадочные узлы','Пересадка с личного авто на общественный транспорт',1],['Выделенные полосы','Ускоренные виды общественного транспорта',0],['Перехватывающие и платные парковки','В центре города. Здесь работает наш пилот',1],['Обход 89 км','Транзит мимо центра, разгрузка дорог',0],['Новая железная дорога','Вывод грузового транзита, пассажирское сообщение',0]].map(function(c,i){
-  return '<div class="card rv'+(c[2]?' dk':'')+'" style="--d:'+(i+3)+';min-height:500px;display:flex;flex-direction:column;justify-content:space-between;'+(c[2]?'box-shadow:0 0 0 6px var(--yellow)':'')+'"><div><h3 style="font-size:28px">'+c[0]+'</h3><p style="font-size:22px">'+c[1]+'</p></div>'+(c[2]?'<span class="tag y" style="align-self:flex-start">Наш пилот</span>':'<span></span>')+'</div>'}).join('')+
- '</div><p class="lead rv" style="--d:9;margin-top:44px;max-width:1500px">Проект постановления о Генплане до 2050 года одобрен Кабмином 27 апреля 2026 года. Пилот на 200 мест становится первым практическим шагом по этим пунктам.</p></div>'+
+  return '<div class="card rv'+(c[2]?' dk':'')+'" style="--d:'+(i+3)+';min-height:430px;display:flex;flex-direction:column;justify-content:space-between;'+(c[2]?'box-shadow:0 0 0 6px var(--yellow)':'')+'"><div><h3 style="font-size:28px">'+c[0]+'</h3><p style="font-size:22px">'+c[1]+'</p></div>'+(c[2]?'<span class="tag y" style="align-self:flex-start">Наш пилот</span>':'<span></span>')+'</div>'}).join('')+
+ '</div><p class="lead rv" style="--d:9;margin-top:44px;max-width:1500px">Проект постановления о Генплане до 2050 года одобрен Кабмином 27 апреля 2026 года. В Бишкеке уже работает первая роторная парковка на 10 мест (апрель 2025): масштабируем проверенную технологию.</p></div>'+
  '<div class="src"><b>Источник:</b> economist.kg: материалы от 15.10.2025, 27.10.2025 и 27.04.2026.</div>'+foot());
 
 /* 7 дерево проблем */
 add('t-navy',
  head('04 · Анализ','Дерево проблем')+
  treeBody({can:['Хаос во дворах, на газонах и тротуарах','Пробки: 205+ часов заторов за квартал','Паркинги могут остаться невостребованными'],
-  root:['Быстрый рост автопарка, 100 тыс.+ въездов в день','Мало паркингов: парковки в застройке меняли на ТЦ','Неудобные въезды, нет тарифной политики, сейсмика'],
+  root:['Быстрый рост автопарка: 100 тыс.+ въездов в день, нет тарифной политики','Мало паркингов: парковки в застройке меняли на ТЦ','Бетонный паркинг дорог: ~1 млн сом на место, стройка 12–18 мес.'],
   sign:'Нехватка парковочных мест',l1:'Следствия · крона',l2:'Причины · корни'})+
  '<div class="src"><b>Источник:</b> данные проекта.</div>'+foot());
 
@@ -564,49 +564,49 @@ add('t-navy',
 add('t-paper',
  head('04 · Анализ','Дерево целей')+
  treeBody({leaf:'#34B3A0',can:['Меньше нехватка мест','Свободнее дворы и дороги','Ниже заторы'],
-  root:['Оценить опыт паркинга в 7-м мкр','Выбрать места у рынков, офисов, жилья','Учесть сейсмичность','Продумать въезд, тарифы и оплату'],
-  sign:'Сеть многоуровневых парковок',l1:'Результат · крона',l2:'Задачи · корни'})+
+  root:['Запустить MVP: одна башня на 10 мест','Выбрать места у рынков, офисов, жилья','Согласовать площадку, фундамент и подключение','Продумать тарифы и оплату по QR'],
+  sign:'Сеть роторных парковок',l1:'Результат · крона',l2:'Задачи · корни'})+
  '<div class="src"><b>Источник:</b> цели проекта.</div>'+foot());
 
 /* 9 ПРОДУКТ: сцена */
 add('t-clear',
  '<div class="infobg rv-s" style="--d:0"></div>'+
  '<div class="kick rv-x" style="color:var(--yellow)">Продукт</div>'+
- '<h2 class="rv" style="--d:1;color:#fff;max-width:760px;font-size:46px">Многоуровневая парковка</h2>'+
- '<p class="lead rv" style="--d:3;position:absolute;left:120px;top:236px;width:680px;color:#DCE3EE;font-size:26px;margin:0">Здание на 200 мест: машина въезжает с проспекта, поднимается по пандусу и паркуется на своём уровне.</p>'+
+ '<h2 class="rv" style="--d:1;color:#fff;max-width:760px;font-size:46px">Роторная парковка</h2>'+
+ '<p class="lead rv" style="--d:3;position:absolute;left:120px;top:236px;width:680px;color:#DCE3EE;font-size:26px;margin:0">Металлическая башня на 10 мест: машина заезжает на платформу, башня поднимает её наверх и подаёт свободный ярус к въезду.</p>'+
  '<div class="facts">'+
- [['200','мест в здании'],['5','уровней по 40 мест'],['12–18','месяцев строительства'],['200,2','млн сом, бюджет пилота'],['7-й мкр','участок пилота'],['≈ 1','млн сом на одно место']].map(function(f,i){return '<div class="rv" style="--d:'+(i+4)+'"><b>'+f[0]+'</b><span>'+f[1]+'</span></div>'}).join('')+
+ [['10','мест в одной башне'],['11,8 м','высота башни'],['7,5 кВт','мощность привода'],['≈ 3 мес.','от заказа до запуска'],['8,0 млн','сом: MVP, одна башня'],['23,5 млн','сом: пилот, 3 башни']].map(function(f,i){return '<div class="rv" style="--d:'+(i+4)+'"><b>'+f[0]+'</b><span>'+f[1]+'</span></div>'}).join('')+
  '</div>'+
- '<div class="chips">'+['Въезд со шлагбаумом и навигацией','Широкие пандусы между уровнями','Сейсмостойкий каркас, охрана и свет'].map(function(t,i){return '<div class="rv" style="--d:'+(i+10)+'">'+t+'</div>'}).join('')+'</div>'+
- '<div class="hud" id="hud"><small>Уровень</small><b id="hudn">1</b></div>'+
+ '<div class="chips">'+['Металлический каркас вместо бетона','Оплата по QR и мобильное приложение','Охрана, свет и камеры'].map(function(t,i){return '<div class="rv" style="--d:'+(i+10)+'">'+t+'</div>'}).join('')+'</div>'+
+ '<div class="hud" id="hud"><small>Высота, м</small><b id="hudn">0</b></div>'+
  '<div class="ctl l rv" style="--d:9"><button id="pp" aria-label="Пауза или воспроизведение">❚❚</button><input id="scrub" type="range" min="0" max="1000" value="0" aria-label="Положение анимации"><span class="cap num" id="tm">0:00</span></div>',
  {gl:{mode:'tour',shift:.24,night:.85},noacts:1});
 
 /* 10 шесть решений */
 add('t-clear',
  '<div class="scrim l"></div><div class="scrim b" style="height:260px"></div>'+
- '<div class="kick rv-x">05 · Продукт</div><h2 class="rv" style="--d:1;color:#fff;max-width:1060px">Шесть решений в&nbsp;одном здании</h2>'+
+ '<div class="kick rv-x">05 · Продукт</div><h2 class="rv" style="--d:1;color:#fff;max-width:1060px">Шесть решений в&nbsp;одной башне</h2>'+
  '<div class="body" style="right:auto;width:980px"><div class="grid" style="grid-template-columns:1fr 1fr;gap:20px">'+
- [['Широкие пандусы','Места для крупных авто, плавный подъём между уровнями'],['Сейсмостойкость','Геология, сейсмостойкий проект, госэкспертиза'],['Шлагбаум','Быстрый въезд и выезд без очереди'],['Мобильное приложение','Видно свободные места, оплата и навигация'],['Понятные тарифы','Абонементы для жителей, разовый тариф для гостей'],['Охрана и свет','Безопасность людей и автомобилей круглосуточно']].map(function(c,i){
+ [['Металлический каркас','Меньше бетона, быстрый монтаж, проще согласовать'],['Роторный подъём','10 платформ идут по кругу, свободная подаётся к въезду'],['Шлагбаум и QR-оплата','Въезд без очереди, оплата как в действующей роторной парковке'],['Мобильное приложение','Видно свободные места, оплата и навигация'],['Сейсмостойкий каркас','Лёгкая сталь, проект с экспертизой, проверка геологии'],['Охрана и свет','Камеры и освещение круглосуточно']].map(function(c,i){
   return '<div class="card rv" style="--d:'+(i+3)+';padding:28px 32px;background:rgba(255,255,255,.95);color:var(--ink)"><h3 style="font-size:26px">'+c[0]+'</h3><p style="font-size:21px;margin-top:8px;color:var(--ink-mut)">'+c[1]+'</p></div>'}).join('')+
  '</div></div>'+
- '<div class="src" style="width:980px;right:auto;color:#E6E9EF"><b>Концепт:</b> 5 уровней × 40 мест = 200 мест; участок и компоновка уточняются после выбора площадки.</div>'+foot(),
+ '<div class="src" style="width:980px;right:auto;color:#E6E9EF"><b>Концепт:</b> одна башня = 10 мест; MVP — одна башня, пилот — три; площадки уточняются после согласования.</div>'+foot(),
  {gl:{mode:'static',shift:.28,night:.55}});
 
 /* 11 матрица качества */
 add('t-navy',
- head('06 · Качество','Матрица качества: приложение даёт наибольший эффект')+
+ head('06 · Качество','Матрица качества: башня даёт наибольший эффект')+
  '<div class="body"><div style="position:absolute;left:0;top:0;width:640px"><div class="lbl rv" style="position:static;margin-bottom:20px;--d:2">Требования и вес, баллы</div>'+
- [['Достаточно мест',5],['Удобный въезд и выезд',5],['Безопасность здания',5],['Сохранность авто и людей',4],['Доступная цена',4],['Быстрая оплата',3],['Видно свободные места',3]].map(function(r,i){return '<div class="rv" style="--d:'+(i+3)+';display:flex;justify-content:space-between;padding:17px 0;border-bottom:1px solid var(--line-dark);font-size:26px;font-weight:600"><span>'+r[0]+'</span><b class="num" style="color:var(--yellow);font-weight:800">'+r[1]+'</b></div>'}).join('')+'</div>'+
+ [['Достаточно мест',5],['Удобный въезд и выезд',5],['Безопасность конструкции',5],['Сохранность авто и людей',4],['Доступная цена',4],['Быстрая оплата',3],['Видно свободные места',3]].map(function(r,i){return '<div class="rv" style="--d:'+(i+3)+';display:flex;justify-content:space-between;padding:17px 0;border-bottom:1px solid var(--line-dark);font-size:26px;font-weight:600"><span>'+r[0]+'</span><b class="num" style="color:var(--yellow);font-weight:800">'+r[1]+'</b></div>'}).join('')+'</div>'+
  '<div style="position:absolute;left:760px;right:0;top:0"><div class="lbl rv" style="position:static;margin-bottom:20px;--d:2">Итоговый балл решений</div><div class="bars">'+
  D.quality.map(function(q,i){return '<div class="brow" style="grid-template-columns:330px 1fr 90px;--d:'+i+'"><span>'+q.n+'</span><div class="tr"><div class="fl'+(i==0?' y':'')+'" style="--w:'+(q.v/126*100)+';--d:'+i+'"></div></div><b>'+q.v+'</b></div>'}).join('')+'</div></div></div>'+
- '<div class="src"><b>Метод:</b> связь «требование — решение»: 9 сильная, 3 средняя, 1 слабая; сумма по весу. Источник: данные проекта.</div>'+foot());
+ '<div class="src"><b>Метод:</b> связь «требование — решение»: 9 сильная, 3 средняя, 1 слабая; сумма по весу. Матрица пересчитана под роторную башню (оценка авторов).</div>'+foot());
 
 /* 12 стейкхолдеры */
 add('t-paper',
- head('07 · Участники','Кто нужен, чтобы паркинг появился')+
+ head('Участники','Кто нужен, чтобы паркинг появился')+
  '<div class="body"><div class="grid" style="grid-template-columns:repeat(3,1fr);gap:24px">'+
- [['Мэрия Бишкека','Участки без аукциона, согласования, проект указа о парковках','Внешний'],['Инвесторы','Капитал на ~200 млн сом, доля в доходе паркинга','Внешний'],['Госэкспертиза','Сейсмостойкость проекта, заключение','Внешний'],['Жители 7-го мкр','Свободные дворы, абонементы, удобный въезд','Пользователи'],['Рынки и офисы','Якорный спрос в радиусе пешей доступности','Пользователи'],['Оператор и приложение','Эксплуатация, оплата, охрана, навигация','Исполнитель']].map(function(c,i){
+ [['Мэрия Бишкека','Участки без аукциона, согласования, проект указа о парковках','Внешний'],['Инвесторы','Капитал 8–24 млн сом на MVP и пилот, доля в доходе башен','Внешний'],['Поставщик и монтаж','Башня на 10 мест, фундамент, пусконаладка, сервис','Внешний'],['Жители 7-го мкр','Свободные дворы, абонементы, удобный въезд','Пользователи'],['Рынки и офисы','Якорный спрос в радиусе пешей доступности','Пользователи'],['Оператор и приложение','Эксплуатация, оплата по QR, охрана, навигация','Исполнитель']].map(function(c,i){
   return '<div class="card rv" style="--d:'+(i+3)+';min-height:300px;display:flex;flex-direction:column;justify-content:space-between"><div><h3>'+c[0]+'</h3><p style="font-size:23px">'+c[1]+'</p></div><span class="tag'+(i<3?'':' t')+'" style="align-self:flex-start">'+c[2]+'</span></div>'}).join('')+
  '</div></div><div class="src"><b>Примечание:</b> роли предварительные, договорённости с сторонами не заключены.</div>'+foot());
 
@@ -624,7 +624,7 @@ add('t-paper',
  head('07 · Участники','Матрица влияния и интереса')+
  '<div class="body"><div style="position:absolute;left:0;top:40px;width:1100px;height:540px"><div class="imx">'+
  '<div class="q" style="left:0;top:0">Удовлетворять</div><div class="q hot" style="left:50%;top:0">Тесно взаимодействовать</div><div class="q" style="left:0;top:50%">Наблюдать</div><div class="q" style="left:50%;top:50%">Информировать</div>'+
- [['Мэрия Бишкека',88,14,1],['Инвесторы',76,28,1],['Госэкспертиза',34,24,0],['Оператор',62,64,0],['Рынки и офисы',56,78,0],['Жители 7-го мкр',90,90,0]].map(function(d,i){return '<div class="dot'+(d[3]?' y':'')+' rv-s" style="--d:'+(i+4)+';left:'+d[1]+'%;top:'+d[2]+'%;'+(d[1]>70?'flex-direction:row-reverse;transform:translate(calc(-100% + 14px),-14px)':'')+'">'+d[0]+'</div>'}).join('')+
+ [['Мэрия Бишкека',88,14,1],['Инвесторы',76,28,1],['Поставщик башни',34,26,0],['Оператор',62,64,0],['Рынки и офисы',56,78,0],['Жители 7-го мкр',90,90,0]].map(function(d,i){return '<div class="dot'+(d[3]?' y':'')+' rv-s" style="--d:'+(i+4)+';left:'+d[1]+'%;top:'+d[2]+'%;'+(d[1]>70?'flex-direction:row-reverse;transform:translate(calc(-100% + 14px),-14px)':'')+'">'+d[0]+'</div>'}).join('')+
  '</div><div class="ax" style="left:0;bottom:-40px">Интерес низкий →</div><div class="ax" style="right:0;bottom:-40px">Интерес высокий</div><div class="ax" style="left:0;top:-40px">↑ Влияние высокое</div></div>'+
  '<div style="position:absolute;left:1220px;right:0;top:20px"><p class="lead rv" style="--d:8;font-size:28px">Мэрия и инвесторы решают, будет ли паркинг. Им нужны регулярные встречи и расчёты.</p><p class="lead rv" style="--d:9;font-size:28px;margin-top:26px">Жители и рынки решают, будет ли он полон. Их мнение проверяем опросом жителей.</p></div></div>'+
  '<div class="src"><b>Оценка</b> предварительная, экспертная.</div>'+foot());
@@ -633,11 +633,11 @@ add('t-paper',
 add('t-paper',
  head('Стратегия','SWOT-анализ: четыре стороны проекта')+
  wheelBody({hub:'SWOT',lab:'Листайте: колесо повернётся к следующей стороне',items:[
-  {l:'S',c:'#2EC4B6',html:'<h3><i>S</i>Сильные стороны</h3><ul><li>Поддержка мэрии, участки без аукциона</li><li>Партнёрство города и инвесторов</li><li>Есть пилот: паркинг в 7-м мкр</li></ul>'},
-  {l:'W',c:'#E63946',html:'<h3><i>W</i>Слабые стороны</h3><ul><li>~200 млн сом на 200 мест</li><li>Строительство 12–18 месяцев</li><li>Сложные согласования</li></ul>'},
-  {l:'O',c:'#FFB600',html:'<h3><i>O</i>Возможности</h3><ul><li>Дефицит мест = стабильный спрос</li><li>Проект указа о парковках</li><li>Масштабирование на другие районы</li></ul>'},
-  {l:'T',c:'#7B8BA5',html:'<h3><i>T</i>Угрозы</h3><ul><li>Бесплатные дворы конкурируют</li><li>Сейсмические риски</li><li>Сбои оплаты, недоверие жителей</li></ul>'}]})+
- '<div class="src"><b>Источник:</b> данные проекта.</div>'+foot(),
+  {l:'S',c:'#2EC4B6',html:'<h3><i>S</i>Сильные стороны</h3><ul><li>Низкий порог входа: MVP ≈ 8 млн сом</li><li>Поддержка мэрии, участки без аукциона</li><li>Технология уже работает в Бишкеке</li></ul>'},
+  {l:'W',c:'#E63946',html:'<h3><i>W</i>Слабые стороны</h3><ul><li>Тариф 25 сом/час даёт окупаемость ≈ 12 лет</li><li>Оборудование импортное, нужен сервис</li><li>10 мест в башне: небольшой масштаб</li></ul>'},
+  {l:'O',c:'#FFB600',html:'<h3><i>O</i>Возможности</h3><ul><li>Модульность: добавляем башни по мере спроса</li><li>Проект указа о парковках</li><li>Тиражирование на рынки и дворы</li></ul>'},
+  {l:'T',c:'#7B8BA5',html:'<h3><i>T</i>Угрозы</h3><ul><li>Бесплатные дворы конкурируют</li><li>Сбои механики и электричества</li><li>Рост курса: оборудование дорожает</li></ul>'}]})+
+ '<div class="src"><b>Источник:</b> данные проекта, пересчитано под роторную башню.</div>'+foot(),
  {steps:4,init:'wheel'});
 
 /* 16 радар */
@@ -645,54 +645,54 @@ add('t-paper',
  head('Стратегия','Что изменит пилот: семь осей')+
  '<div class="body"><svg class="radar2" id="radar" viewBox="0 0 880 760" style="position:absolute;left:-40px;top:-24px;width:900px;height:690px" role="img" aria-label="Радар: сейчас и после пилота"></svg>'+
  '<div style="position:absolute;left:900px;top:0;right:0">'+
- '<div class="rv" style="--d:3;display:flex;align-items:baseline;gap:22px"><span class="big" style="font-size:120px"><span data-to="4" data-dec="1">0</span></span><span style="font-size:27px;line-height:1.3;font-weight:600;max-width:420px">балла в среднем: рост по семи осям из 10</span></div>'+
+ '<div class="rv" style="--d:3;display:flex;align-items:baseline;gap:22px"><span class="big" style="font-size:120px"><span data-to="3.7" data-dec="1">0</span></span><span style="font-size:27px;line-height:1.3;font-weight:600;max-width:420px">балла в среднем: рост по семи осям из 10</span></div>'+
  '<div style="margin-top:22px" id="drows"></div>'+
  '<div class="rv" style="--d:14;display:flex;gap:26px;margin-top:18px;font-size:21px;font-weight:600"><span style="display:flex;gap:10px;align-items:center"><i style="width:22px;height:22px;border-radius:50%;background:var(--red)"></i>Сейчас: дворы и стихийная парковка</span><span style="display:flex;gap:10px;align-items:center"><i style="width:22px;height:22px;border-radius:7px;background:var(--teal)"></i>Цель</span></div></div></div>'+
- '<div class="src"><b>Источник:</b> экспертные оценки команды, шкала 0–10; значения считаны с исходной диаграммы с точностью 0,5.</div>'+foot(),
+ '<div class="src"><b>Источник:</b> экспертные оценки команды, шкала 0–10; значения считаны с исходной диаграммы; цели пересчитаны под роторную башню.</div>'+foot(),
  {init:'radar'});
 
 /* 17 стратегия: дорога */
 add('t-paper',
- head('Стратегия','Шесть этапов за три года')+
- '<div class="body" style="top:270px;bottom:118px"><div class="roadwrap" id="roadwrap"><svg viewBox="0 0 1680 600" id="roadsvg" aria-hidden="true"></svg><div id="stopbox"></div><div class="yb"><i id="yfill"></i></div><span class="yl" style="left:0">Год 1</span><span class="yl" style="left:560px">Год 2</span><span class="yl" style="left:1120px">Год 3</span></div></div>'+
- '<div class="src"><b>План ориентировочный.</b> Строительство 12–18 месяцев: сроки уточняются после выбора участка.</div>'+foot(),
+ head('Стратегия','Шесть этапов за 15 месяцев')+
+ '<div class="body" style="top:270px;bottom:118px"><div class="roadwrap" id="roadwrap"><svg viewBox="0 0 1680 600" id="roadsvg" aria-hidden="true"></svg><div id="stopbox"></div><div class="yb"><i id="yfill"></i></div><span class="yl" style="left:0">Старт</span><span class="yl" style="left:672px">Мес. 6</span><span class="yl" style="left:1344px">Мес. 12</span><span class="yl" style="right:0">Мес. 15</span></div></div>'+
+ '<div class="src"><b>План ориентировочный.</b> От заказа до запуска башни около 3 месяцев, как у действующей роторной парковки в Бишкеке.</div>'+foot(),
  {init:'road'});
 
 /* 18 бюджет */
 add('t-paper',
- head('Финансы','Бюджет пилота: 200,2 млн сом')+
- wheelBody({hub:'₿',hubLabels:['Σ','С','Т','П'],lab:'Листайте: колесо покажет следующую часть бюджета',items:[
-  {l:'Σ',c:'#FFB600',html:'<div style="font-size:20px;letter-spacing:.14em;font-weight:700;text-transform:uppercase;opacity:.7">Итого</div><div class="bigw"><span data-to="200.2" data-dec="1">0</span><small>млн сом</small></div><p style="font-size:30px;line-height:1.4;font-weight:500;margin-top:20px">Паркинг на 200 мест в 7-м микрорайоне.<br>≈ 1 млн сом на одно место. Строительство — 75% бюджета.</p>'},
-  {l:'С',c:'#FFB600',html:'<div style="font-size:20px;letter-spacing:.14em;font-weight:700;text-transform:uppercase;opacity:.7">Строительство</div><div class="bigw">150,0<small>млн сом</small></div><div class="brow" style="grid-template-columns:1fr 100px;margin-top:26px"><div class="tr" style="height:40px"><div class="fl y" style="--w:75"></div></div><b>75%</b></div><p style="font-size:28px;line-height:1.4;font-weight:500;margin-top:22px">Основная часть расходов: каркас, пандусы, сейсмостойкие конструкции.</p>'},
-  {l:'Т',c:'#2EC4B6',html:'<div style="font-size:20px;letter-spacing:.14em;font-weight:700;text-transform:uppercase;opacity:.7">Технологии и въезд · 14,0</div>'+[['Оборудование въезда',7],['ПО и приложение',4],['Охрана и свет',3]].map(function(b){return '<div class="brow" style="margin-top:24px"><span>'+b[0]+'</span><div class="tr"><div class="fl" style="--w:'+(b[1]/7*100)+'"></div></div><b>'+fmt(b[1],1)+'</b></div>'}).join('')+'<p style="font-size:26px;line-height:1.4;font-weight:500;margin-top:30px;opacity:.8">Шлагбаум, навигация, приложение и охрана: то, что делает паркинг удобным.</p>'},
-  {l:'П',c:'#7B8BA5',html:'<div style="font-size:20px;letter-spacing:.14em;font-weight:700;text-transform:uppercase;opacity:.7">Подготовка и резерв · 36,2</div>'+[['Проект и экспертиза',9],['Благоустройство',6],['Исследования и запуск',3],['Резерв 10%',18.2]].map(function(b){return '<div class="brow" style="margin-top:16px"><span>'+b[0]+'</span><div class="tr"><div class="fl" style="--w:'+(b[1]/18.2*100)+'"></div></div><b>'+fmt(b[1],1)+'</b></div>'}).join('')}]})+
- '<div class="src"><b>Единицы:</b> млн сом. 150,0 + 14,0 + 36,2 = 200,2. Источник: данные проекта.</div>'+foot(),
+ head('Финансы','Бюджет: MVP 8,0 млн, пилот 23,5 млн сом')+
+ wheelBody({hub:'₿',lab:'Листайте: колесо покажет следующую часть бюджета',items:[
+  {l:'Σ',c:'#FFB600',html:'<div style="font-size:20px;letter-spacing:.14em;font-weight:700;text-transform:uppercase;opacity:.7">Пилот: три башни</div><div class="bigw"><span data-to="23.5" data-dec="1">0</span><small>млн сом</small></div><p style="font-size:29px;line-height:1.4;font-weight:500;margin-top:20px">30 мест в трёх башнях, ≈ 0,78 млн сом на место. В 8,5 раза дешевле бетонного паркинга на 200 мест (200,2 млн сом).</p>'},
+  {l:'1',c:'#FFB600',html:'<div style="font-size:20px;letter-spacing:.14em;font-weight:700;text-transform:uppercase;opacity:.7">MVP · одна башня на 10 мест · 8,0 млн</div>'+[['Роторная башня (оборудование)',4.3],['Доставка и таможня',0.7],['Фундамент и площадка',0.8],['Монтаж, электро, охрана',0.85],['Оплата QR, приложение, проект',0.6],['Резерв 10%',0.73]].map(function(b){return '<div class="brow" style="margin-top:15px"><span>'+b[0]+'</span><div class="tr"><div class="fl'+(b[1]===4.3?' y':'')+'" style="--w:'+(b[1]/4.3*100)+'"></div></div><b>'+fmt(b[1],2)+'</b></div>'}).join('')},
+  {l:'2',c:'#2EC4B6',html:'<div style="font-size:20px;letter-spacing:.14em;font-weight:700;text-transform:uppercase;opacity:.7">Башни 2 и 3 после MVP · 15,5 млн</div>'+[['Две башни (оборудование, монтаж)',13.3],['Платёжная система, расширение',0.2],['Проект и согласования',0.3],['Запуск и обучение',0.3],['Резерв 10%',1.4]].map(function(b){return '<div class="brow" style="margin-top:17px"><span>'+b[0]+'</span><div class="tr"><div class="fl" style="--w:'+Math.max(b[1]/13.3*100,3)+'"></div></div><b>'+fmt(b[1],1)+'</b></div>'}).join('')+'<p style="font-size:24px;line-height:1.4;font-weight:500;margin-top:22px;opacity:.8">Новые башни ставим, когда MVP подтвердит спрос.</p>'},
+  {l:'≈',c:'#7B8BA5',html:'<div style="font-size:20px;letter-spacing:.14em;font-weight:700;text-transform:uppercase;opacity:.7">Сравнение, млн сом</div>'+[['Бетонный паркинг, 200 мест',200.2],['Пилот: 3 башни, 30 мест',23.5],['MVP: 1 башня, 10 мест',8.0]].map(function(b,i){return '<div class="brow" style="margin-top:26px;grid-template-columns:330px 1fr 110px"><span>'+b[0]+'</span><div class="tr" style="height:38px"><div class="fl'+(i===0?'':' y')+'" style="--w:'+Math.max(b[1]/200.2*100,2.5)+'"></div></div><b>'+fmt(b[1],1)+'</b></div>'}).join('')+'<p style="font-size:26px;line-height:1.4;font-weight:600;margin-top:30px">Цена входа в 25 раз ниже, запуск за ≈ 3 месяца.</p>'}]})+
+ '<div class="src"><b>Единицы:</b> млн сом. Оценка: оборудование по ценам производителей (≈ $4,5–6 тыс. за место, FOB) при курсе ≈ 87 сом/$; уточняется коммерческими предложениями.</div>'+foot(),
  {steps:4,init:'wheel'});
 
 /* 19 экономика */
 add('t-navy',
- head('09 · Финансы','Один тариф не окупит здание — нужен микс')+
+ head('Финансы','При 25 сом/час башня окупается ≈ 12 лет: нужен микс')+
  '<div class="body"><div class="pay">'+
- [[7,18700,623,100],[10,13100,436,70],[15,8700,291,47]].map(function(p,i){return '<div class="c rv" style="--d:'+(i+3)+'"><div class="y">Окупаемость за '+p[0]+' лет</div><div class="v">'+fmt(p[1])+'</div><div class="d">сом в месяц за место ≈ '+p[2]+' сом в сутки</div><div class="meter"><i style="--w:'+p[3]+';--d:'+i+'"></i></div></div>'}).join('')+
- '</div><div style="margin-top:44px;display:grid;grid-template-columns:1.2fr 1fr;gap:56px"><p class="lead rv" style="--d:7;font-size:29px">Чем выше тариф, тем меньше водителей. Поэтому в модель добавляем абонементы для жителей, коммерческие площади, рекламу и участие города.</p><p class="cap rv" style="--d:8;font-size:21px">Допущения расчёта: бюджет 200,2 млн сом, заполняемость 85%, эксплуатационные расходы 25% выручки, без дисконтирования. Тарифы проверяем опросом спроса.</p></div></div>'+
- '<div class="src"><b>Расчёт:</b> тариф = 200,2 млн ÷ срок ÷ 0,75 ÷ (200 мест × 12 мес. × 0,85).</div>'+foot());
+ [[5,61,586,100],[7,43,416,71],[10,30,292,50]].map(function(p,i){return '<div class="c rv" style="--d:'+(i+3)+'"><div class="y">Окупаемость MVP за '+p[0]+' лет</div><div class="v">'+fmt(p[1])+'</div><div class="d">сом в час за место ≈ '+p[2]+' сом в сутки</div><div class="meter"><i style="--w:'+p[3]+';--d:'+i+'"></i></div></div>'}).join('')+
+ '</div><div style="margin-top:44px;display:grid;grid-template-columns:1.2fr 1fr;gap:56px"><p class="lead rv" style="--d:7;font-size:29px">Действующая роторная парковка в Бишкеке берёт 25 сом в час. Чтобы окупить MVP быстрее, добавляем абонементы для жителей, рекламу на каркасе и тариф 40–50 сом в центре.</p><p class="cap rv" style="--d:8;font-size:21px">Допущения: MVP 8,0 млн сом, 10 мест, работа 12 ч в сутки, загрузка 80%, расходы 25% выручки, без дисконтирования. Тарифы проверяем опросом спроса.</p></div></div>'+
+ '<div class="src"><b>Расчёт:</b> тариф = 8,0 млн ÷ срок ÷ 0,75 ÷ (10 мест × 365 дн. × 12 ч × 0,8). При 25 сом/час: 8,0 ÷ 0,657 млн в год ≈ 12 лет.</div>'+foot());
 
 /* 20 риски */
 add('t-paper',
  head('Риски','Главные риски и ответы')+
- wheelBody({hub:'R',hubLabels:['1','2','3','4'],lab:'Листайте: колесо покажет следующий риск',items:[
-  {l:'1',c:'#E63946',html:'<h3><i style="color:#fff">1</i>Низкая востребованность</h3><div class="ans"><b>Ответ</b>Разумные тарифы, абонементы для жителей, участок у рынков и офисов</div>'},
-  {l:'2',c:'#E63946',html:'<h3><i style="color:#fff">2</i>Неудобный въезд</h3><div class="ans"><b>Ответ</b>Широкие пандусы, навигация, места для крупных авто</div>'},
-  {l:'3',c:'#E63946',html:'<h3><i style="color:#fff">3</i>Сейсмика</h3><div class="ans"><b>Ответ</b>Сейсмостойкий проект, геология, госэкспертиза</div>'},
-  {l:'4',c:'#E63946',html:'<h3><i style="color:#fff">4</i>Нехватка денег</h3><div class="ans"><b>Ответ</b>Партнёрство с инвесторами, резерв 10%, поэтапная стройка</div>'}]})+
- '<div class="src"><b>Источник:</b> данные проекта.</div>'+foot(),
+ wheelBody({hub:'R',lab:'Листайте: колесо покажет следующий риск',items:[
+  {l:'1',c:'#E63946',html:'<h3><i style="color:#fff">1</i>Низкая востребованность</h3><div class="ans"><b>Ответ</b>MVP на 10 мест проверяет спрос до масштабирования; абонементы для жителей, площадка у рынков и офисов</div>'},
+  {l:'2',c:'#E63946',html:'<h3><i style="color:#fff">2</i>Сбой механики и электричества</h3><div class="ans"><b>Ответ</b>Сервисный договор с поставщиком, запасные части, резервное питание на подъём и выдачу машин</div>'},
+  {l:'3',c:'#E63946',html:'<h3><i style="color:#fff">3</i>Долгая окупаемость</h3><div class="ans"><b>Ответ</b>Микс тарифов: абонементы, реклама на каркасе, тариф 40–50 сом/час в центре; рост по башням</div>'},
+  {l:'4',c:'#E63946',html:'<h3><i style="color:#fff">4</i>Рост цены оборудования</h3><div class="ans"><b>Ответ</b>Коммерческие предложения от 2–3 поставщиков, фиксация цены в договоре, резерв 10%</div>'}]})+
+ '<div class="src"><b>Источник:</b> данные проекта, пересчитано под роторную башню.</div>'+foot(),
  {steps:4,init:'wheel'});
 
 /* 21 KPI */
 add('t-navy',
  head('10 · Результат','Как поймём, что пилот сработал')+
  '<div class="body"><div class="kpi">'+
- [['≥ 80%','Заполняемость','через 6 месяцев после открытия'],['≤ 1 мин','Въезд и оплата','от шлагбаума до свободного места'],['≥ 70%','Цифровая оплата','доля оплат через приложение'],['Меньше','Стихийной парковки','опрос жителей 7-го мкр до и после']].map(function(k,i){
+ [['≥ 80%','Заполняемость','через 6 месяцев после открытия'],['≤ 2 мин','Подача машины','от оплаты по QR до выдачи'],['≥ 70%','Цифровая оплата','доля оплат через приложение'],['Меньше','Стихийной парковки','опрос жителей 7-го мкр до и после']].map(function(k,i){
   return '<div class="card rv" style="--d:'+(i+3)+'"><div class="big">'+k[0]+'</div><div><h3>'+k[1]+'</h3><p>'+k[2]+'</p></div></div>'}).join('')+
  '</div></div><div class="src"><b>Целевые значения предлагаются командой</b> и утверждаются совместно с мэрией до запуска.</div>'+foot());
 
@@ -700,9 +700,9 @@ add('t-navy',
 add('t-clear',
  '<div class="scrim b" style="height:260px"></div>'+
  '<div class="plaque rv-s" style="--d:1"><div class="kick" style="position:static;margin-bottom:22px;color:var(--yellow)">Итог</div>'+
- '<h1>Пилот на 200 мест — первый шаг к&nbsp;сети паркингов</h1>'+
- '<p class="sub">Партнёрство мэрии и инвесторов, сейсмостойкость, цифровая оплата и разумные тарифы. Успех пилота можно тиражировать по городу.</p>'+
- '<div class="st"><div><b>200</b><span>мест</span></div><div><b>200,2</b><span>млн сом</span></div><div><b>12–18</b><span>месяцев</span></div></div>'+
+ '<h1>MVP на 10 мест — первый шаг к&nbsp;сети роторных парковок</h1>'+
+ '<p class="sub">Металлическая башня, цена входа 8 млн сом вместо 200, запуск за ≈ 3 месяца. Успех MVP можно тиражировать: пилот из трёх башен стоит 23,5 млн сом.</p>'+
+ '<div class="st"><div><b>10</b><span>мест в MVP</span></div><div><b>8,0</b><span>млн сом, MVP</span></div><div><b>23,5</b><span>млн сом, пилот</span></div></div>'+
  '<p class="thx">Спасибо за внимание</p></div>'+foot(),
  {gl:{mode:'static',shift:.26,night:0}});
 
@@ -713,9 +713,10 @@ add('t-paper',
  '<p><b>Заторы, часы в пробках</b>2ГИС: 777 часов за июль–сентябрь 2024 (197 / 256 / 324), 10-балльные пробки в декабре 2024. 24.kg, Akchabar.</p>'+
  '<p><b>Транспорт и скорость</b>Разработчики Генплана-2050: скорость в центре вдвое ниже, превышение нормативов времени в пути на 63%, доли 43% и 36%. economist.kg, 15.10.2025.</p>'+
  '<p><b>Автопарк</b>Более 400 тыс. зарегистрированных авто и 100–200 тыс. въездов в день: economist.kg, 24.12.2024. Около 300 авто на 1000 жителей: 24.kg, 19.11.2025.</p>'+
- '<p><b>Генплан-2050</b>Обход 89 км, ТПУ, перехватывающие и платные парковки, новая железная дорога: economist.kg, 27.10.2025. Проект постановления одобрен Кабмином 27.04.2026.</p>'+
- '<p><b>Данные проекта</b>Население, 205 ч заторов за I кв. 2026, бюджет 200,2 млн сом, SWOT, матрица качества, оценки радара: исходная презентация команды.</p>'+
- '<p><b>Расчёты, добавленные в презентацию</b>Тарифы окупаемости, сроки этапов, участники и матрица влияния, целевые KPI, схема монocентричности. Это модели и допущения, не официальные данные.</p>'+
+ '<p><b>Генплан-2050</b>Обход 89 км, ТПУ, перехватывающие и платные парковки: economist.kg, 27.10.2025. Проект постановления одобрен Кабмином 27.04.2026.</p>'+
+ '<p><b>Роторная парковка в Бишкеке</b>Первая в городе парковка на 10 мест запущена в апреле 2025, тариф 25 сом в час, оплата по QR; закупка согласована в январе 2025: 24.kg, economist.kg, Kaktus.media.</p>'+
+ '<p><b>Цены оборудования</b>Предложения производителей роторных башен на 10 мест: ≈ $4,5–6 тыс. за место (FOB), высота 11,8 м, привод 7,5 кВт. Курс ≈ 87 сом/$ принят как допущение.</p>'+
+ '<p><b>Расчёты, добавленные в презентацию</b>Смета MVP и пилота, тарифы окупаемости, сроки этапов, участники, матрица качества и влияния, целевые KPI, схемы. Это модели и допущения, не официальные данные.</p>'+
  '</div></div>'+foot());
 
 /* ================= ДВИЖОК СЛАЙДОВ ================= */
@@ -952,8 +953,8 @@ inits.road=function(root){
     svgEl(car,'rect',{x:-30,y:-16,width:60,height:32,rx:9,fill:'#FFB600',stroke:'#0E1726','stroke-width':3});
     svgEl(car,'rect',{x:2,y:-11,width:17,height:22,rx:4,fill:'#0E1726'});svgEl(car,'rect',{x:-22,y:-11,width:12,height:22,rx:3,fill:'#0E1726',opacity:.55});
     svgEl(car,'rect',{x:28,y:-12,width:4,height:8,rx:2,fill:'#fff'});svgEl(car,'rect',{x:28,y:4,width:4,height:8,rx:2,fill:'#fff'});
-    var P=[['1','Анализ','Районы, опыт 7-го мкр, опрос','мес. 1–3'],['2','Участки','Мэрия, транспорт, инвесторы','мес. 2–6'],['3','Проект','Сейсмика, въезды, навигация','мес. 5–10'],['4','Стройка','Контроль сроков и безопасности','мес. 10–27'],['5','Запуск','Тарифы, приложение, номера','мес. 28–30'],['6','Масштаб','Оценка и другие районы','мес. 31–36']];
-    var F=[.11,.27,.43,.59,.75,.91],M=[3,6,10,27,30,36];
+    var P=[['1','Анализ','Районы, опыт действующей парковки, опрос','мес. 1–2'],['2','Участки','Мэрия, транспорт, инвесторы','мес. 1–3'],['3','Заказ и проект','Поставщик, проект, согласования','мес. 2–5'],['4','Монтаж','Фундамент, башня, электричество','мес. 5–8'],['5','Запуск MVP','Тарифы, оплата по QR, оператор','мес. 8–9'],['6','Масштаб','Башни 2 и 3 после оценки MVP','мес. 10–15']];
+    var F=[.11,.27,.43,.59,.75,.91],M=[2,3,5,8,9,15];
     var box=root.querySelector('#stopbox');
     svg._st=P.map(function(p,i){
       var pt=path.getPointAtLength(L*F[i]),up=i%2===0,el=document.createElement('div');
@@ -981,7 +982,7 @@ inits.road=function(root){
     place(f);
     if(i<6&&k>=TT*.55){st[i].el.classList.add('s')}
     if(i>0)st[i-1].el.classList.add('s');
-    var mm=i<6?(i===0?0:st[i-1].m)+((st[i].m-(i===0?0:st[i-1].m))*(k<TT?easeIO(k/TT):1)):36;fill.style.width=Math.min(100,mm/36*100)+'%';
+    var mm=i<6?(i===0?0:st[i-1].m)+((st[i].m-(i===0?0:st[i-1].m))*(k<TT?easeIO(k/TT):1)):15;fill.style.width=Math.min(100,mm/15*100)+'%';
     raf=requestAnimationFrame(loop);
   };
   raf=requestAnimationFrame(loop);
@@ -1005,18 +1006,16 @@ function GL0(){
   var inner=new THREE.PointLight(0xffd28a,0,46,1.2);scene.add(inner);
   var hl=new THREE.PointLight(0xfff0c0,0,18,1.3);scene.add(hl);
   var nightU={value:0};
-  var gradTex=(function(){var c=document.createElement('canvas');c.width=4;c.height=512;var x=c.getContext('2d'),g=x.createLinearGradient(0,0,0,512);g.addColorStop(0,'#04060a');g.addColorStop(.55,'#10141b');g.addColorStop(1,'#262b34');x.fillStyle=g;x.fillRect(0,0,4,512);return new THREE.CanvasTexture(c)})();
-
   var M={
     slab:new THREE.MeshLambertMaterial({color:0x2f343c}),
-    edge:new THREE.MeshLambertMaterial({color:0x444b56}),
-    col:new THREE.MeshLambertMaterial({color:0x4b525e}),
+    steel:new THREE.MeshLambertMaterial({color:0x5b7aa0}),
+    dark:new THREE.MeshLambertMaterial({color:0x252a32}),
+    chain:new THREE.MeshLambertMaterial({color:0x1a1d23}),
+    motor:new THREE.MeshLambertMaterial({color:0xd98a2b}),
     yel:new THREE.MeshBasicMaterial({color:0xffb600}),
-    strip:new THREE.MeshBasicMaterial({color:0xffe6a8}),
-    line:new THREE.MeshBasicMaterial({color:0xdfe4ec}),
     ground:new THREE.MeshLambertMaterial({color:0x5d6169}),
     road:new THREE.MeshLambertMaterial({color:0x23272d}),
-    ramp:new THREE.MeshLambertMaterial({color:0x2a2f38})
+    edge:new THREE.MeshLambertMaterial({color:0x444b56})
   };
   M.yel2=new THREE.MeshBasicMaterial({color:0xffb600});
   var buildU={value:1.02};
@@ -1024,16 +1023,15 @@ function GL0(){
     m.onBeforeCompile=function(sh){
       sh.uniforms.uBuild=buildU;
       sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vBW;').replace('#include <begin_vertex>','#include <begin_vertex>\nvec4 bwp=vec4(transformed,1.0);\n#ifdef USE_INSTANCING\nbwp=instanceMatrix*bwp;\n#endif\nbwp=modelMatrix*bwp;vBW=bwp.xyz;');
-      sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vBW;uniform float uBuild;').replace('#include <clipping_planes_fragment>','#include <clipping_planes_fragment>\nfloat bh=fract(sin(dot(floor(vBW*.55),vec3(12.9898,78.233,37.719)))*43758.5453);float bv=bh*.45+(1.0-clamp(vBW.y/19.0,0.0,1.0))*.55;if(bv>uBuild)discard;float bedge=1.0-smoothstep(0.0,.07,uBuild-bv);').replace('#include <dithering_fragment>','#include <dithering_fragment>\ngl_FragColor.rgb=mix(gl_FragColor.rgb,vec3(1.0,.72,0.0),bedge*.9*step(uBuild,1.0));');
+      sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vBW;uniform float uBuild;').replace('#include <clipping_planes_fragment>','#include <clipping_planes_fragment>\nfloat bh=fract(sin(dot(floor(vBW*.8),vec3(12.9898,78.233,37.719)))*43758.5453);float bv=bh*.45+(1.0-clamp(vBW.y/13.0,0.0,1.0))*.55;if(bv>uBuild)discard;float bedge=1.0-smoothstep(0.0,.07,uBuild-bv);').replace('#include <dithering_fragment>','#include <dithering_fragment>\ngl_FragColor.rgb=mix(gl_FragColor.rgb,vec3(1.0,.72,0.0),bedge*.9*step(uBuild,1.0));');
     };
   }
-  [M.slab,M.edge,M.col,M.yel,M.strip,M.line,M.ramp].forEach(dissolve);
-  var H=3.6,NL=5,HZ=15,EXT=[[-33,33],[-33,11],[-11,33],[-33,11],[-11,33]];
+  [M.slab,M.steel,M.dark,M.chain,M.motor,M.yel,M.edge].forEach(dissolve);
   var rnd=(function(){var s=7;return function(){s=(s*16807)%2147483647;return (s-1)/2147483646}})();
   function box(w,h,d,m,x,y,z,p){var b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);b.position.set(x,y,z);(p||scene).add(b);return b}
   var wrap=function(a){return a-Math.PI*2*Math.floor((a+Math.PI)/(Math.PI*2))};
 
-  /* ---------- реалистичная машина (объединённые боксы с цветом вершин) ---------- */
+  /* ---------- машина ---------- */
   function mergeBoxes(parts){
     var n=parts.length,pos=new Float32Array(n*72),nor=new Float32Array(n*72),col=new Float32Array(n*72),idx=new Uint16Array(n*36);
     var tmp=new THREE.BoxGeometry(1,1,1),tp=tmp.attributes.position.array,tn=tmp.attributes.normal.array,ti=tmp.index.array;
@@ -1067,7 +1065,7 @@ function GL0(){
   function CarSet(n,parent,parked){
     var mb=matBody,mh=matHead,mt=matTail;if(parked){mb=matBody.clone();mh=matHead.clone();mt=matTail.clone();dissolve(mb);dissolve(mh);dissolve(mt)}
     this.n=n;this.b=new THREE.InstancedMesh(carBody,mb,n);this.h=new THREE.InstancedMesh(carHead,mh,n);this.t=new THREE.InstancedMesh(carTail,mt,n);
-    var P=parent||scene,s=this;[this.b,this.h,this.t].forEach(function(m){m.frustumCulled=false;P.add(m)});
+    var P=parent||scene;[this.b,this.h,this.t].forEach(function(m){m.frustumCulled=false;P.add(m)});
     var z=new THREE.Matrix4().makeScale(.0001,.0001,.0001);for(var i=0;i<n;i++){this.b.setMatrixAt(i,z);this.h.setMatrixAt(i,z);this.t.setMatrixAt(i,z);this.b.setColorAt(i,new THREE.Color(0xffffff))}
   }
   CarSet.prototype.set=function(i,m){this.b.setMatrixAt(i,m);this.h.setMatrixAt(i,m);this.t.setMatrixAt(i,m)};
@@ -1077,23 +1075,10 @@ function GL0(){
   var PAL=[0xf4f5f6,0xd5d9de,0x2b2e34,0x14161a,0x8d949e,0x35507a,0x7b2a30,0xc7b79a,0x4a5662,0xe8e9ec,0x6d7480];
   var tc=new THREE.Color();
 
-  /* ---------- сценарии машин ---------- */
-  var RES={};function rk(l,r,k){return l+','+r+','+k}
-  var AMB=[
-    {id:'hero',mode:'tour',t0:1.8,tgt:{level:1,row:1,k:7},color:0xffb600,startX:-44},
-    {id:'t1',mode:'tour',t0:4.2,tgt:{level:0,row:-1,k:9},color:0xe8e9ec,startX:-44},
-    {id:'t2',mode:'tour',t0:5.8,tgt:{level:1,row:1,k:4},color:0x2f3a52,startX:-44},
-    {id:'i0',mode:'intro',q:0,dep:6.0,tgt:{level:0,row:-1,k:6},color:0xd5d9de,startX:-52},
-    {id:'i1',mode:'intro',q:1,dep:7.0,tgt:{level:1,row:1,k:6},color:0x23272d,startX:-52},
-    {id:'i2',mode:'intro',q:2,dep:8.0,tgt:{level:2,row:-1,k:4},color:0x9c353b,startX:-52},
-    {id:'i3',mode:'intro',q:3,dep:9.2,tgt:{level:1,row:1,k:2},color:0xf4f5f6,startX:-52}
-  ];
-  AMB.forEach(function(a){RES[rk(a.tgt.level,a.tgt.row,a.tgt.k)]=1;a.ts=a.mode==='tour'?1:1.5});
-
+  /* ---------- маршруты ---------- */
   function Route(){this.p=[];this.c=[]}
   Route.prototype.add=function(x,y,z){var n=this.p.length;if(n){var q=this.p[n-1],l=Math.hypot(x-q[0],y-q[1],z-q[2]);if(l<1e-3)return;this.c.push(this.c[n-1]+l)}else this.c.push(0);this.p.push([x,y,z])};
   function lineTo(r,x,z,y){var q=r.p[r.p.length-1],l=Math.hypot(x-q[0],z-q[2]),n=Math.max(1,Math.ceil(l/.5)),x0=q[0],y0=q[1],z0=q[2];for(var i=1;i<=n;i++){var f=i/n;r.add(x0+(x-x0)*f,y0+(y-y0)*f,z0+(z-z0)*f)}}
-  function arc(r,cx,cz,rad,a0,a1,y){var n=Math.max(8,Math.ceil(Math.abs(a1-a0)*rad/.35));for(var i=1;i<=n;i++){var a=a0+(a1-a0)*i/n;r.add(cx+rad*Math.cos(a),y,cz+rad*Math.sin(a))}}
   Route.prototype.finish=function(vmax){
     var n=this.p.length,i,yaw=[],pit=[],c=this.c,v=[];
     for(i=0;i<n;i++){var j=Math.min(i,n-2),a=this.p[j],b=this.p[j+1];yaw.push(Math.atan2(b[0]-a[0],b[2]-a[2]));pit.push(Math.atan2(b[1]-a[1],Math.hypot(b[0]-a[0],b[2]-a[2])))}
@@ -1103,7 +1088,7 @@ function GL0(){
     this.yaw=ys;this.pit=ps;
     for(i=0;i<n;i++){var kk=0;if(i>1&&i<n-2){kk=Math.abs(yaw[i+2]-yaw[i-2])/(c[i+2]-c[i-2]+1e-6)}v[i]=kk>.004?Math.min(vmax,Math.sqrt(2.4/kk)):vmax}
     v[0]=.4;v[n-1]=0;
-    for(i=1;i<n;i++){var ds=c[i]-c[i-1];v[i]=Math.min(v[i],Math.sqrt(v[i-1]*v[i-1]+2*2.4*ds))}
+    for(i=1;i<n;i++){var ds=c[i]-c[i-1];v[i]=Math.min(v[i],Math.sqrt(v[i-1]*v[i-1]+2*2.6*ds))}
     for(i=n-2;i>=0;i--){var ds2=c[i+1]-c[i];v[i]=Math.min(v[i],Math.sqrt(v[i+1]*v[i+1]+2*3.2*ds2))}
     var t=[0];for(i=1;i<n;i++)t.push(t[i-1]+2*(c[i]-c[i-1])/(v[i-1]+v[i]+.05));
     this.t=t;this.T=t[n-1];this.L=c[n-1];
@@ -1118,77 +1103,103 @@ function GL0(){
     var i=bs(this.c,s),f=(s-this.c[i])/(this.c[i+1]-this.c[i]||1),p=this.p[i],q=this.p[i+1];
     o.x=p[0]+(q[0]-p[0])*f;o.y=p[1]+(q[1]-p[1])*f;o.z=p[2]+(q[2]-p[2])*f;o.yaw=this.yaw[i]+(this.yaw[i+1]-this.yaw[i])*f;o.pitch=this.pit[i]+(this.pit[i+1]-this.pit[i])*f;return o;
   };
-  function makeRoute(T,startX){
-    var r=new Route(),lvl=0,y=0;r.add(startX,0,-3);
-    while(lvl<T.level){
-      if(lvl%2===0){lineTo(r,30,-3,y);arc(r,30,0,3,-Math.PI/2,Math.PI/2,y);lineTo(r,27,3,y);lineTo(r,11,3,y+H)}
-      else{lineTo(r,-30,3,y);arc(r,-30,0,3,Math.PI/2,Math.PI*1.5,y);lineTo(r,-27,-3,y);lineTo(r,-11,-3,y+H)}
-      y+=H;lvl++;
-    }
-    var xc=-11+1.1+2.2*T.k;
-    if(T.row<0){var x0=xc-3;lineTo(r,x0,-3,y);arc(r,x0,-6,3,Math.PI/2,0,y);lineTo(r,xc,-8.1,y)}
-    else{var x1=xc+3;lineTo(r,x1,3,y);arc(r,x1,6,3,-Math.PI/2,-Math.PI,y);lineTo(r,xc,8.1,y)}
-    r.finish(9.5);return r;
+  /* заезд с полосы z=-3 к посту загрузки (z=0); wx — точка ожидания (S-образный съезд перед ней) */
+  var YB=.35;
+  function routeApproach(startX,wx){
+    var r=new Route();r.add(startX,0,-3);
+    lineTo(r,wx-9,-3,0);
+    for(var i=1;i<=16;i++){var f=i/16,ss=f*f*(3-2*f);r.add(wx-9+8*f,0,-3*(1-ss))}
+    lineTo(r,wx,0,0);return r;
   }
-  AMB.forEach(function(a){a.route=makeRoute(a.tgt,a.startX);a.fin=a.route.at(a.route.L,{x:0,y:0,z:0,yaw:0,pitch:0});a.fin={x:a.fin.x,y:a.fin.y,z:a.fin.z,yaw:a.fin.yaw}});
-  var HERO=AMB[0],HERO_T0=HERO.t0,T_PARK=HERO_T0+HERO.route.T/HERO.ts,EX0=T_PARK+1,EX1=EX0+4.6,DURT=Math.ceil(EX1+2),DURI=14;
+  function routeLoad(fromX,r){ /* от fromX по оси к платформе */
+    if(!r){r=new Route();r.add(fromX,0,0)}
+    lineTo(r,-6.5,0,0);lineTo(r,-2.6,0,YB);lineTo(r,0,0,YB);return r;
+  }
+  var CARS=[
+    {id:'hero',mode:'tour',color:0xffb600,t0:1.8,startX:-70,wait:null,ts:1},
+    {id:'tA',mode:'tour',color:0xe8e9ec,t0:8.4,startX:-50,wait:-10,ts:1},
+    {id:'tB',mode:'tour',color:0x2f3a52,t0:10.6,startX:-50,wait:-19,ts:1},
+    {id:'i0',mode:'intro',color:0xd5d9de,q:0,dep:5.0,startX:-22,wait:null,ts:1.5},
+    {id:'i1',mode:'intro',color:0x23272d,q:1,dep:5.2,startX:-22,wait:null,ts:1.5},
+    {id:'i2',mode:'intro',color:0x9c353b,q:2,dep:5.4,startX:-22,wait:null,ts:1.5},
+    {id:'i3',mode:'intro',color:0xf4f5f6,q:3,dep:5.6,startX:-22,wait:null,ts:1.5}
+  ];
+  CARS.forEach(function(c){
+    if(c.wait===null){c.r=routeLoad(0,routeApproach(c.startX,-10));c.r.finish(9.5)}
+    else{c.r1=routeApproach(c.startX,c.wait);c.r1.finish(9.5);c.r2=routeLoad(c.wait);c.r2.finish(9.5)}
+  });
+  /* план: загрузка машин, повороты башни */
+  var PITCHN=10;
+  function buildPlan(mode,rotDur,extra){
+    var list=CARS.filter(function(c){return c.mode===mode}),P={rots:[],loads:[]},prev=-1e9;
+    list.forEach(function(c,i){
+      var ts=c.ts,T,arr;
+      if(c.wait===null){var Tr=c.r.T/ts;c.tS=Math.max(c.dep!==undefined?c.dep:c.t0,prev-Tr+.05);arr=c.tS+Tr}
+      else{var T1=c.r1.T/ts,T2=c.r2.T/ts,tw=c.t0+T1;c.tW=tw;c.t2=Math.max(tw,prev-T2+.05);arr=c.t2+T2}
+      c.arr=arr;c.pallet=(PITCHN-i)%PITCHN;
+      var r0=arr+.35,r1=r0+rotDur;P.rots.push({t0:r0,t1:r1});prev=r1;P.loads.push({p:c.pallet,c:c.color,t:arr,id:c.id});
+    });
+    for(var k=0;k<extra;k++){var a=prev+.1,b=a+rotDur+.25;P.rots.push({t0:a,t1:b});prev=b}
+    P.end=prev;return P;
+  }
+  var PLAN={tour:buildPlan('tour',1.1,2),intro:buildPlan('intro',.8,1)};
+  var HERO=CARS[0],HERO_T0=HERO.t0,T_LOAD=HERO.arr,TEND=PLAN.tour.end;
+  var DURT=Math.ceil(TEND+3.5),DURI=Math.ceil(PLAN.intro.end+2.5);
+  var STATIC_LOADS=PLAN.tour.loads.concat([{p:7,c:PAL[3],t:0,id:'s7'}]);
+  var STATIC_N=PLAN.tour.rots.length;
+  function rotN(mode,tau){
+    if(mode==='static')return STATIC_N;
+    var n=0,R=PLAN[mode].rots;for(var i=0;i<R.length;i++){var x=clamp((tau-R[i].t0)/(R[i].t1-R[i].t0),0,1);n+=x*x*(3-2*x)}return n;
+  }
 
-  /* ---------- здание ---------- */
-  var building=new THREE.Group();scene.add(building);
-  var levels=[];
-  var lineG=new THREE.BoxGeometry(.08,.03,4.4),dashG=new THREE.BoxGeometry(1.4,.03,.18);
-  var m4=new THREE.Matrix4();
-  function endPar(g,x,gl,gh){ /* поперечный парапет с проёмом для пандуса */
-    if(gl===null){box(.25,.9,2*HZ,M.edge,x,.45,0,g);box(.29,.07,2*HZ,M.yel,x,.935,0,g);return}
-    var a=-HZ,b=gl,c=gh,d=HZ;
-    box(.25,.9,b-a,M.edge,x,.45,(a+b)/2,g);box(.29,.07,b-a,M.yel,x,.935,(a+b)/2,g);
-    box(.25,.9,d-c,M.edge,x,.45,(c+d)/2,g);box(.29,.07,d-c,M.yel,x,.935,(c+d)/2,g);
+  /* ---------- роторная башня ---------- */
+  var TR=1.6,LV=6.1,QA=Math.PI*TR/2,PER=2*QA*1+Math.PI*TR+2*LV,PITCH=PER/10,FH=11.76;
+  PER=4*QA/1+0;PER=2*QA+Math.PI*TR+2*LV;PITCH=PER/10;
+  function loopPt(u,o){
+    u=((u%PER)+PER)%PER;
+    var c1=YB+TR-.0,t;
+    if(u<QA){t=-Math.PI/2+u/TR;o[0]=TR*Math.cos(t);o[1]=YB+TR+TR*Math.sin(t)}
+    else if(u<QA+LV){o[0]=TR;o[1]=YB+TR+(u-QA)}
+    else if(u<QA+LV+Math.PI*TR){t=(u-QA-LV)/TR;o[0]=TR*Math.cos(t);o[1]=YB+TR+LV+TR*Math.sin(t)}
+    else if(u<QA+2*LV+Math.PI*TR){o[0]=-TR;o[1]=YB+TR+LV-(u-QA-LV-Math.PI*TR)}
+    else{t=Math.PI+(u-(QA+2*LV+Math.PI*TR))/TR;o[0]=TR*Math.cos(t);o[1]=YB+TR+TR*Math.sin(t)}
+    return o;
   }
-  for(var i=0;i<NL;i++){
-    (function(i){
-      var g=new THREE.Group(),xmin=EXT[i][0],xmax=EXT[i][1],len=xmax-xmin,cx=(xmin+xmax)/2;
-      box(len,.5,2*HZ,M.slab,cx,-.25,0,g);
-      box(len,.9,.25,M.edge,cx,.45,HZ-.12,g);box(len,.9,.25,M.edge,cx,.45,-HZ+.12,g);
-      box(len,.07,.29,M.yel,cx,.935,HZ-.12,g);box(len,.07,.29,M.yel,cx,.935,-HZ+.12,g);
-      /* торцы: проёмы под пандус */
-      if(i===0){endPar(g,xmax-.12,null)}
-      else{
-        var eastOpen=(xmax===11),westOpen=(xmin===-11);
-        if(xmax===33)endPar(g,xmax-.12,null);else endPar(g,xmax-.12,.3,5.7);
-        if(xmin===-33)endPar(g,xmin+.12,null);else endPar(g,xmin+.12,-5.7,-.3);
-      }
-      /* колонны */
-      if(i>0)[-33,-22,-11,0,11,22,33].forEach(function(x){
-        if(x<xmin+.3||x>xmax-.3)x=x<xmin+.3?xmin+.35:xmax-.35;
-        [-14.6,-10.2,10.2,14.6].forEach(function(z){
-          var j,found=-1;for(j=i-1;j>=0;j--){if(x>=EXT[j][0]-.1&&x<=EXT[j][1]+.1){found=j;break}}
-          if(found<0)return;var L=(i-found)*H-.5;box(.7,L,.7,M.col,x,-.5-L/2,z,g)});
-      });
-      /* световые линии на потолке */
-      if(i>0){[-3,0,3].forEach(function(z){box(len-2,.05,.16,M.strip,cx,-.53,z,g)});[-22,-11,0,11,22].forEach(function(x){if(x>xmin+1&&x<xmax-1)box(.16,.05,2*HZ-2,M.strip,x,-.53,0,g)})}
-      /* пандус на следующий уровень */
-      if(i<NL-1){
-        var east=(i%2===0),ang=Math.atan(H/16),bx=east?19:-19,bz=east?3:-3,rot=east?-ang:ang;
-        var bed=box(16.3,.4,5.4,M.ramp,bx,H/2-.2,bz,g);bed.rotation.z=rot;
-        [bz-2.6,bz+2.6].forEach(function(z){var st=box(16.3,.07,.22,M.yel,bx,H/2+.02,z,g);st.rotation.z=rot});
-        /* опорные стойки под пандусом */
-        [-4,0,4].forEach(function(dx){var xx=bx+dx*(east?1:1),h=(east?(27-xx):(xx+27))/16*H;if(h>.4){box(.4,h,.4,M.col,xx,h/2-.4,bz+(dx%8?2.4:-2.4),g)}});
-      }
-      /* разметка */
-      var nd=Math.floor(len/3),dash=new THREE.InstancedMesh(dashG,M.yel,nd);
-      for(var d=0;d<nd;d++){m4.makeTranslation(xmin+2+d*3,.02,0);dash.setMatrixAt(d,m4)}g.add(dash);
-      var rows=[-12.3,-8.1,8.1,12.3],ln=new THREE.InstancedMesh(lineG,M.line,44),li=0;
-      rows.forEach(function(z){for(var k=0;k<=10;k++){m4.makeTranslation(-11+k*2.2,.02,z);ln.setMatrixAt(li++,m4)}});g.add(ln);
-      /* припаркованные машины */
-      var cg=new THREE.Group();g.add(cg);
-      var set=new CarSet(40,cg,true),ci=0;
-      rows.forEach(function(z){for(var k=0;k<10;k++){
-        var near=Math.abs(z)<9,resv=near&&RES[rk(i,z<0?-1:1,k)],pres=!resv&&rnd()>.08;
-        put(set,ci,-11+1.1+k*2.2,0,z,z>0?0:Math.PI,0,pres?1:.0001);tc.setHex(PAL[Math.floor(rnd()*PAL.length)]);set.b.setColorAt(ci,tc);ci++}});
-      set.flush();
-      building.add(g);levels.push({g:g,cg:cg});
-    })(i);
-  }
+  var tower=new THREE.Group();scene.add(tower);
+  box(7.6,.3,7.8,M.slab,0,-.15,0,tower);
+  /* каркас: 4 стойки, балки и раскосы */
+  [[-3.15,-3.35],[3.15,-3.35],[-3.15,3.35],[3.15,3.35]].forEach(function(p){box(.42,FH,.42,M.steel,p[0],FH/2,p[1],tower)});
+  [.2,2.95,5.7,8.45,11.1,FH-.12].forEach(function(y){
+    [-3.15,3.15].forEach(function(x){box(.26,.26,6.8,M.steel,x,y,0,tower)});
+    [-3.35,3.35].forEach(function(z){box(6.3,.26,.26,M.steel,0,y,z,tower)});
+  });
+  [[.2,2.95],[2.95,5.7],[5.7,8.45],[8.45,11.1]].forEach(function(b,i){
+    var dy=b[1]-b[0],L=Math.hypot(6.7,dy),ang=Math.atan2(dy,6.7);
+    [-3.15,3.15].forEach(function(x){var d=box(.18,.18,L,M.steel,x,(b[0]+b[1])/2,0,tower);d.rotation.x=(i%2?1:-1)*ang});
+  });
+  /* перила и боковые проёмы жёлтые */
+  [-3.35,3.35].forEach(function(z){[-3.15,3.15].forEach(function(x){box(.12,.12,.12,M.yel,x,FH+.1,z,tower)})});
+  box(1.9,1.15,2.2,M.motor,0,FH+.55,0,tower);
+  /* пандус на платформу */
+  var ramp=box(4.2,.12,2.7,M.dark,-4.5,YB/2-.04,0,tower);ramp.rotation.z=Math.atan2(YB,3.9);
+  box(.5,.5,.5,M.yel,-7.1,.25,-1.75,tower);box(.5,.5,.5,M.yel,-7.1,.25,1.75,tower);
+  /* цепи */
+  (function(){
+    var NS=56,g=new THREE.BoxGeometry(.11,.11,1),inst=new THREE.InstancedMesh(g,M.chain,NS*2),m=new THREE.Matrix4(),q=new THREE.Quaternion(),e=new THREE.Euler(),pa=[0,0],pb=[0,0],v=new THREE.Vector3(),sc=new THREE.Vector3();
+    var k=0;[-2.8,2.8].forEach(function(x){for(var i=0;i<NS;i++){
+      loopPt(i/NS*PER,pa);loopPt((i+1)/NS*PER,pb);
+      var dz=pb[0]-pa[0],dy=pb[1]-pa[1],L=Math.hypot(dz,dy)||.01;
+      e.set(-Math.atan2(dy,dz===0?1e-6:dz),0,0);if(dz<0)e.set(-Math.atan2(-dy,-dz),0,0);
+      q.setFromEuler(e);v.set(x,(pa[1]+pb[1])/2,(pa[0]+pb[0])/2);sc.set(1,1,L*1.02);m.compose(v,q,sc);inst.setMatrixAt(k++,m);
+    }});
+    inst.frustumCulled=false;dissolve(inst.material);tower.add(inst);
+  })();
+  /* платформы */
+  var palG=mergeBoxes([[5.1,.14,2.3,0,-.07,0,.13,.15,.19],[5.1,.05,.1,0,.02,1.17,1,.71,0],[5.1,.05,.1,0,.02,-1.17,1,.71,0],[.12,.55,2.3,2.58,.2,0,.34,.4,.47],[.12,.55,2.3,-2.58,.2,0,.34,.4,.47],[.3,.12,.12,2.7,.32,0,.1,.11,.14],[.3,.12,.12,-2.7,.32,0,.1,.11,.14]]);
+  var palMat=new THREE.MeshLambertMaterial({vertexColors:true});dissolve(palMat);
+  var pals=new THREE.InstancedMesh(palG,palMat,10);pals.frustumCulled=false;scene.add(pals);
+  var pcars=new CarSet(10,undefined,true);
+  var palCol=[];for(var pk=0;pk<10;pk++){palCol.push(PAL[Math.floor(rnd()*PAL.length)])}
   /* знак P */
   (function(){
     var c=document.createElement('canvas');c.width=c.height=256;var x=c.getContext('2d');
@@ -1196,14 +1207,13 @@ function GL0(){
     x.fillStyle='#0E1726';x.font='800 190px Montserrat,Arial,sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('P',128,138)};drawP();
     var t=new THREE.CanvasTexture(c);t.anisotropy=4;
     if(document.fonts&&document.fonts.load)document.fonts.load('800 190px Montserrat','P').then(function(){drawP();t.needsUpdate=true});
-    var mat=new THREE.MeshBasicMaterial({map:t,transparent:true}),top=(NL-1)*H;dissolve(mat);
-    var sg=new THREE.Group();sg.position.set(-8,top+4.6,HZ-1.5);
-    var s1=new THREE.Mesh(new THREE.PlaneGeometry(6.4,6.4),mat);s1.position.z=.1;var s2=s1.clone();s2.position.z=-.1;s2.rotation.y=Math.PI;sg.add(s1,s2);building.add(sg);
-    box(.35,3.2,.35,M.col,-8,top+1.6,HZ-1.5);
+    var mat=new THREE.MeshBasicMaterial({map:t,transparent:true});dissolve(mat);
+    var s1=new THREE.Mesh(new THREE.PlaneGeometry(3.4,3.4),mat);s1.position.set(-3.55,FH-1.2,0);s1.rotation.y=-Math.PI/2;
+    var s2=new THREE.Mesh(new THREE.PlaneGeometry(3.4,3.4),mat);s2.position.set(-3.5,FH-1.2,0);s2.rotation.y=Math.PI/2;tower.add(s1,s2);
   })();
-  /* КПП на въезде */
-  box(1.8,2.6,2,M.edge,-31,1.3,-7);box(2,.12,2.2,M.yel,-31,2.66,-7);
-  var arm=box(5,.12,.12,M.yel,-31,2.3,-5.2);arm.rotation.z=.9;
+  /* КПП, стойка оплаты */
+  box(1.7,2.5,1.9,M.edge,-11,1.25,-6.5);box(1.9,.12,2.1,M.yel,-11,2.56,-6.5);
+  var arm=box(4.6,.12,.12,M.yel,-11,2.0,-4.2);arm.rotation.z=.9;
   /* ---------- город ---------- */
   var CELL=56,NB=LITE?4:6,AA=(2*NB+1)*CELL,mmMat,snowM;
   (function(){
@@ -1219,11 +1229,10 @@ function GL0(){
     var tx=new THREE.CanvasTexture(cn);tx.anisotropy=LITE?2:8;
     var gp=new THREE.Mesh(new THREE.PlaneGeometry(AA,AA),new THREE.MeshLambertMaterial({map:tx}));gp.rotation.x=-Math.PI/2;gp.position.y=-.52;scene.add(gp);
     var gnd=new THREE.Mesh(new THREE.PlaneGeometry(2600,2600),M.ground);gnd.rotation.x=-Math.PI/2;gnd.position.y=-.58;scene.add(gnd);
-    /* проспект к въезду и площадка */
-    box(300,.06,14,M.road,-184,-.48,0);
-    for(var r=0;r<30;r++)box(4,.07,.35,M.yel2,-330+r*10,-.45,0);
-    box(76,.06,40,M.road,0,-.48,0);
-    /* здания */
+    /* проспект к посту загрузки и площадка */
+    box(300,.06,14,M.road,-158,-.48,0);
+    for(var r=0;r<30;r++)box(4,.07,.35,M.yel2,-300+r*10,-.45,0);
+    box(30,.06,26,M.road,0,-.48,0);
     var bg=new THREE.BoxGeometry(1,1,1);bg.translate(0,.5,0);
     var pal=[0x8e939c,0x9d958a,0x7a808b,0xa8a398,0x717887,0xb3aea3,0x858a93,0x9aa0aa],items=[];
     for(var i2=-NB;i2<=NB;i2++)for(var j2=-NB;j2<=NB;j2++){
@@ -1232,7 +1241,7 @@ function GL0(){
       for(var a=0;a<3;a++)for(var b=0;b<3;b++){
         var cx=i2*CELL+(a-1)*14.7,cz=j2*CELL+(b-1)*14.7;
         if(cx<-34&&((cx>-120&&Math.abs(cz)<36)||Math.abs(cz)<14.5))continue;
-        if(Math.abs(cx)<42&&Math.abs(cz)<24)continue;
+        if(Math.abs(cx)<36&&Math.abs(cz)<22)continue;
         var w=8+rnd()*4.5,d2=8+rnd()*4.5,h=5+rnd()*6+(dd<3?0:rnd()*(cap-10));
         if(dd>3.5&&rnd()<.05)h+=16;h=Math.min(h,cap+(h>cap+8?16:0));
         items.push([cx+(rnd()-.5)*2,cz+(rnd()-.5)*2,w,h,d2,pal[Math.floor(rnd()*pal.length)]]);
@@ -1244,10 +1253,9 @@ function GL0(){
       sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vWP;varying vec3 vNW;').replace('#include <begin_vertex>','#include <begin_vertex>\nvec4 wpp=vec4(transformed,1.0);\n#ifdef USE_INSTANCING\nwpp=instanceMatrix*wpp;\n#endif\nwpp=modelMatrix*wpp;vWP=wpp.xyz;vNW=normalize(mat3(modelMatrix)*normal);');
       sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vWP;varying vec3 vNW;uniform float uNight;').replace('#include <color_fragment>','#include <color_fragment>\nfloat fy=fract(vWP.y/3.4),fu=fract((vWP.x+vWP.z)/3.1);float win=step(.2,fu)*step(fu,.8)*step(.3,fy)*step(fy,.76)*step(.6,1.0-abs(vNW.y))*step(1.5,vWP.y);float hsh=fract(sin(dot(floor(vec2((vWP.x+vWP.z)/3.1,vWP.y/3.4))+floor(vWP.xz*.07),vec2(12.9898,78.233)))*43758.5453);float litW=win*step(.52,hsh);diffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*.42+vec3(.03,.05,.08),win);').replace('#include <dithering_fragment>','#include <dithering_fragment>\ngl_FragColor.rgb+=litW*vec3(1.0,.78,.42)*uNight*.95;');
     };
-    var bm=new THREE.InstancedMesh(bg,bmat,items.length),cc=new THREE.Color();
+    var bm=new THREE.InstancedMesh(bg,bmat,items.length),cc=new THREE.Color(),m4=new THREE.Matrix4();
     items.forEach(function(it,n){m4.makeScale(it[2],it[3],it[4]);m4.setPosition(it[0],-.5,it[1]);bm.setMatrixAt(n,m4);cc.setHex(it[5]);cc.multiplyScalar(.82+rnd()*.3);bm.setColorAt(n,cc)});
     scene.add(bm);
-    /* деревья */
     var tg=new THREE.ConeGeometry(1.8,6,6);tg.translate(0,3.2,0);var tp=[];
     for(var i3=-NB;i3<=NB;i3++)for(var j3=-NB;j3<=NB;j3++){
       var nT=parks[i3+','+j3]?46:12;
@@ -1255,14 +1263,13 @@ function GL0(){
         var tx2,tz2;
         if(parks[i3+','+j3]){tx2=i3*CELL+(rnd()-.5)*40;tz2=j3*CELL+(rnd()-.5)*40}
         else{var sd=Math.floor(rnd()*4),t=(rnd()-.5)*44;tx2=sd<2?i3*CELL+t:i3*CELL+(sd===2?-24:24);tz2=sd<2?j3*CELL+(sd===0?-24:24):j3*CELL+t}
-        if(tx2<-34&&((tx2>-120&&Math.abs(tz2)<36)||Math.abs(tz2)<14))continue;if(Math.abs(tx2)<42&&Math.abs(tz2)<24)continue;
+        if(tx2<-34&&((tx2>-120&&Math.abs(tz2)<36)||Math.abs(tz2)<14))continue;if(Math.abs(tx2)<36&&Math.abs(tz2)<22)continue;
         tp.push([tx2,tz2,.55+rnd()*.5]);
       }
     }
     var tm=new THREE.InstancedMesh(tg,new THREE.MeshLambertMaterial({color:0xffffff}),tp.length),greens=[0x5f7f66,0x6b8a6d,0x4f6f58,0x7a9677];
     tp.forEach(function(q,n){m4.makeScale(q[2],q[2],q[2]);m4.setPosition(q[0],-.5,q[1]);tm.setMatrixAt(n,m4);cc.setHex(greens[n%4]);tm.setColorAt(n,cc)});
     scene.add(tm);
-    /* горы */
     mmMat=new THREE.MeshBasicMaterial({color:0x6e737c,fog:false});snowM=new THREE.MeshBasicMaterial({color:0x7b808a,fog:false});
     for(var q=0;q<26;q++){
       var mx=-1300+q*104+(rnd()-.5)*40,mh=190+rnd()*170,mr=mh*(.9+rnd()*.5),mz=-1050-rnd()*120,mc=new THREE.Mesh(new THREE.ConeGeometry(mr,mh,5),mmMat);
@@ -1270,6 +1277,9 @@ function GL0(){
       var sc=new THREE.Mesh(new THREE.ConeGeometry(mr*.32,mh*.32,5),snowM);sc.position.set(mx,mh*.84-.5,mz);sc.rotation.y=mc.rotation.y;scene.add(sc);
     }
   })();
+  /* машины на площадке */
+  var surf=new CarSet(8);var sm=new THREE.Matrix4();
+  [[-22,-11.5,0],[-17,-11.5,0],[-12,-11.5,0],[13,11.5,Math.PI],[18,11.5,Math.PI],[23,11.5,Math.PI],[14,-11.5,0],[-20,11.5,Math.PI]].forEach(function(p,i){put(surf,i,p[0],0,p[1],p[2],0,1);tc.setHex(PAL[(i*3+1)%PAL.length]);surf.b.setColorAt(i,tc)});surf.flush();
   /* ---------- транспорт ---------- */
   var NT=LITE?110:210,traffic=new CarSet(NT),tinfo=[];
   for(var n2=0;n2<NT;n2++){
@@ -1278,39 +1288,55 @@ function GL0(){
     tinfo.push({ax:axis,c:av?0:(line+.5)*CELL,dir:dir,off:av?3:dir*2.9,sp:av?9+rnd()*4:6+rnd()*8,s0:rnd()*AA,lo:-AA/2,hi:av?-35:AA/2});
     tc.setHex(PAL[Math.floor(rnd()*PAL.length)]);traffic.b.setColorAt(n2,tc);
   }
-  function updTraffic(t,on){
+  function updTraffic(t){
     for(var n=0;n<NT;n++){
-      var c=tinfo[n],len=c.hi-c.lo,pos=c.lo+(((c.s0+c.dir*c.sp*t)%len)+len)%len,f=on?Math.min(1,(pos-c.lo)/8,(c.hi-pos)/8):0;
+      var c=tinfo[n],len=c.hi-c.lo,pos=c.lo+(((c.s0+c.dir*c.sp*t)%len)+len)%len,f=Math.min(1,(pos-c.lo)/8,(c.hi-pos)/8);
       if(c.ax===0)put(traffic,n,pos,0,c.c+c.off,c.dir>0?Math.PI/2:-Math.PI/2,0,Math.max(.0001,f));else put(traffic,n,c.c+c.off,0,pos,c.dir>0?0:Math.PI,0,Math.max(.0001,f));
     }
     traffic.flush();
   }
-  var NJ=36,jam=new CarSet(NJ),QS=6.4;
+  var NJ=36,jam=new CarSet(NJ),QS=6.4,INTRO=CARS.filter(function(c){return c.mode==='intro'});
   for(var q2=0;q2<NJ;q2++){tc.setHex(PAL[Math.floor(rnd()*PAL.length)]);jam.b.setColorAt(q2,tc)}
-  var intro=AMB.filter(function(a){return a.mode==='intro'});
   function smQ(x){x=clamp(x,0,1);return x*x*(3-2*x)}
-  function queueShift(tau){var s=0;intro.forEach(function(a){s+=smQ((tau-a.dep)/1.5)});return s}
+  function qShift(tau,upTo){var s=0;INTRO.forEach(function(a){if(upTo===undefined||a.q<upTo)s+=smQ((tau-a.tS)/1.4)});return s}
   function updJam(tau,on,time){
-    var sh=queueShift(tau);
-    for(var q=0;q<NJ;q++){
-      var qi=q+intro.length,x=-52-QS*qi+QS*sh+.22*Math.sin(time*.8+qi*1.7);
-      put(jam,q,x,0,-3,Math.PI/2,0,on?1:.0001);
-    }
+    var sh=qShift(tau);
+    for(var q=0;q<NJ;q++){var qi=q+INTRO.length,x=-22-QS*qi+QS*sh+.2*Math.sin(time*.8+qi*1.7);put(jam,q,x,0,-3,Math.PI/2,0,on?1:.0001)}
     jam.flush();
   }
-  var amb=new CarSet(AMB.length);AMB.forEach(function(a,i){tc.setHex(a.color);amb.b.setColorAt(i,tc)});
+  var amb=new CarSet(CARS.length);CARS.forEach(function(a,i){tc.setHex(a.color);amb.b.setColorAt(i,tc)});
   function updAmb(mode,tau){
-    AMB.forEach(function(a,i){
-      var vis=false,x=0,y=0,z=0,yaw=0,pit=0,R=a.route;
-      if(mode==='static'){vis=true;x=a.fin.x;y=a.fin.y;z=a.fin.z;yaw=a.fin.yaw}
-      else if(a.mode===mode){
-        if(mode==='intro'&&tau<a.dep){vis=true;x=-52-QS*a.q+QS*Math.min(a.q,queueShift(tau)*1)+0;
-          var sh=0;intro.forEach(function(b){if(b.q<a.q)sh+=smQ((tau-b.dep)/1.5)});x=-52-QS*a.q+QS*sh;z=-3;yaw=Math.PI/2}
-        else{var t=tau-(mode==='intro'?a.dep:a.t0);if(t>=0){vis=true;var o=R.at(R.sAt(t*a.ts));x=o.x;y=o.y;z=o.z;yaw=o.yaw;pit=o.pitch}}
+    CARS.forEach(function(a,i){
+      var vis=false,x=0,y=0,z=0,yaw=Math.PI/2,pit=0;
+      if(a.mode===mode&&mode!=='static'){
+        if(a.wait===null){
+          if(tau<a.tS){if(mode==='intro'){vis=true;x=-22-QS*a.q+QS*qShift(tau,a.q);z=-3}}
+          else if(tau<a.arr){vis=true;var o=a.r.at(a.r.sAt((tau-a.tS)*a.ts));x=o.x;y=o.y;z=o.z;yaw=o.yaw;pit=o.pitch}
+        }else{
+          if(tau>=a.t0&&tau<a.arr){vis=true;var o2;
+            if(tau<a.t2)o2=a.r1.at(a.r1.sAt((tau-a.t0)*a.ts));else o2=a.r2.at(a.r2.sAt((tau-a.t2)*a.ts));
+            x=o2.x;y=o2.y;z=o2.z;yaw=o2.yaw;pit=o2.pitch}
+        }
       }
       put(amb,i,x,y,z,yaw,pit,vis?1:.0001);
     });
     amb.flush();
+  }
+  /* платформы и машины на них */
+  var _p=[0,0];
+  function updTower(mode,tau){
+    var n=rotN(mode,tau),loads=mode==='static'?STATIC_LOADS:PLAN[mode].loads,m4=new THREE.Matrix4();
+    for(var k=0;k<10;k++){
+      loopPt(k*PITCH+n*PITCH,_p);
+      m4.makeTranslation(0,_p[1],_p[0]);pals.setMatrixAt(k,m4);
+      var occ=false,col=palCol[k];
+      if(k>=1&&k<=6)occ=true;
+      else for(var i=0;i<loads.length;i++){if(loads[i].p===k&&tau>=loads[i].t){occ=true;col=loads[i].c}}
+      if(mode==='static'){for(var j=0;j<loads.length;j++)if(loads[j].p===k){occ=true;col=loads[j].c}}
+      tc.setHex(col);pcars.b.setColorAt(k,tc);
+      put(pcars,k,0,_p[1]+.02,_p[0],Math.PI/2,0,occ?1:.0001);
+    }
+    pals.instanceMatrix.needsUpdate=true;pcars.flush();
   }
   /* ---------- камера ---------- */
   function crArr(KT,P,t,o){
@@ -1321,22 +1347,20 @@ function GL0(){
   }
   function l3(a,b,w){return [a[0]+(b[0]-a[0])*w,a[1]+(b[1]-a[1])*w,a[2]+(b[2]-a[2])*w]}
   function bz3(P0,P1,P2,P3,t){var u=1-t,o=[];for(var c=0;c<3;c++)o.push(u*u*u*P0[c]+3*u*u*t*P1[c]+3*u*t*t*P2[c]+t*t*t*P3[c]);return o}
-  var KTI=[0,3,6,9,13],KPI=[[-300,42,-30],[-175,30,-22],[-96,30,48],[12,34,104],[62,34,104]],KLI=[[-100,0,-3],[-60,0,0],[0,6,0],[0,8,0],[0,8,0]];
-  var KTo=[0,1.5,2.4],KPo=[[70,38,108],[-20,26,68],[-72,12,24]],KLo=[[0,10,0],[0,6,0],[-44,1.5,-3]];
-  var FINAL_S={p:[62,34,104],t:[0,8,0],fov:36},FINAL_T={p:[-82,46,100],t:[0,8,0],fov:54};
-  var ca=[0,0,0],cb=[0,0,0];
+  var KTI=[0,3,6,9,DURI-1],KPI=[[-210,40,-22],[-120,26,-16],[-58,15,20],[-40,12,30],[-34,12,34]],KLI=[[-80,0,-3],[-50,2,-3],[-6,5,0],[0,5.5,0],[0,5.5,0]];
+  var KTo=[0,1.5,2.4],KPo=[[44,20,52],[-14,14,30],[-86,6,-10]],KLo=[[0,6,0],[-30,3,-3],[-60,1.5,-3]];
+  var FINAL_S={p:[-34,12,34],t:[0,5.5,0],fov:36},VIEW1={p:[-23,7.5,20],t:[-1,5,0],fov:42};
   function chase(t,P,T){
-    var R=HERO.route,s=R.sAt(Math.max(0,t)*HERO.ts),fe=sstep(R.L-26,R.L-8,s),bk=11.5+7*fe,back=R.at(s-bk,{}),ah=R.at(s+9*(1-sstep(R.L-16,R.L,s)),{}),car=R.at(s,{}),y0=R.at(Math.max(0,s-bk),{}).yaw,y1=R.at(s+1,{}).yaw;
-    var dy=wrap(y1-y0),lat=clamp(-dy*2.6,-3.2,3.2);
+    var R=HERO.r,s=R.sAt(Math.max(0,t)),fe=sstep(R.L-26,R.L-6,s),bk=11.5+6*fe,back=R.at(s-bk,{}),ah=R.at(s+9*(1-sstep(R.L-14,R.L,s)),{}),car=R.at(s,{}),y0=R.at(Math.max(0,s-bk),{}).yaw,y1=R.at(s+1,{}).yaw;
+    var dy=wrap(y1-y0),lat=clamp(-dy*2.6,-3.2,3.2)-2.2;
     P[0]=back.x+Math.cos(car.yaw)*lat;P[1]=back.y+2.9;P[2]=back.z-Math.sin(car.yaw)*lat;
-    T[0]=ah.x;T[1]=ah.y+.2;T[2]=ah.z;
+    T[0]=ah.x;T[1]=ah.y+.3;T[2]=ah.z;
     return car;
   }
-  var PE0=[0,0,0],TE0=[0,0,0];chase(EX0-HERO_T0,PE0,TE0);
-  var PE1=[30,5.4,7],PE2=[48,13,46];
+  var EX0=T_LOAD+.3,EX1=EX0+2.6,FIN0=DURT-4.5,PE0=[0,0,0],TE0=[0,0,0];chase(EX0-HERO_T0,PE0,TE0);
   var out={p:[0,0,0],t:[0,0,0],fov:36};
   function camera(mode,tau,time){
-    var o=out,fin;
+    var o=out,fin=false;
     if(mode==='intro'){
       crArr(KTI,KPI,Math.min(tau,KTI[4]),o.p);crArr(KTI,KLI,Math.min(tau,KTI[4]),o.t);o.fov=36;fin=tau>=KTI[4];
     }else if(mode==='tour'){
@@ -1345,64 +1369,50 @@ function GL0(){
         chase(Math.max(0,tau-HERO_T0),pc,tcc);
         if(tau<2.4){crArr(KTo,KPo,tau,o.p);crArr(KTo,KLo,tau,o.t);var w=sstep(.7,2.4,tau);o.p=l3(o.p,pc,w);o.t=l3(o.t,tcc,w);o.fov=lerp(38,56,w)}
         else{o.p=pc;o.t=tcc;o.fov=56}
-      }else if(tau<EX1){var e=easeIO((tau-EX0)/(EX1-EX0));o.p=bz3(PE0,PE1,PE2,FINAL_S.p,e);o.t=bz3(TE0,[6,5,6],[0,8,0],FINAL_S.t,e);o.fov=lerp(56,36,e)}
-      else{o.p=FINAL_S.p.slice();o.t=FINAL_S.t.slice();o.fov=36;fin=true}
+      }else if(tau<EX1){var e=easeIO((tau-EX0)/(EX1-EX0));o.p=bz3(PE0,[PE0[0]+6,PE0[1]+2,PE0[2]+8],[VIEW1.p[0]-6,VIEW1.p[1]-1,VIEW1.p[2]-4],VIEW1.p,e);o.t=l3(TE0,VIEW1.t,e);o.fov=lerp(56,VIEW1.fov,e)}
+      else if(tau<FIN0){var sw=(tau-EX1)*.035;o.p=[VIEW1.p[0]*Math.cos(sw)+VIEW1.p[2]*Math.sin(sw)*0,VIEW1.p[1]+Math.sin((tau-EX1)*.4)*.3,VIEW1.p[2]+sw*18];o.t=VIEW1.t.slice();o.fov=VIEW1.fov}
+      else if(tau<DURT-.5){var e2=easeIO((tau-FIN0)/(DURT-.5-FIN0)),sw2=(FIN0-EX1)*.035;o.p=l3([VIEW1.p[0],VIEW1.p[1],VIEW1.p[2]+sw2*18],FINAL_S.p,e2);o.t=l3(VIEW1.t,FINAL_S.t,e2);o.fov=lerp(VIEW1.fov,FINAL_S.fov,e2)}
+      else{o.p=FINAL_S.p.slice();o.t=FINAL_S.t.slice();o.fov=FINAL_S.fov;fin=true}
     }else{o.p=FINAL_S.p.slice();o.t=FINAL_S.t.slice();o.fov=36;fin=true}
-    if(fin){var ph=Math.sin(time*.2)*.16,cs=Math.cos(ph),sn=Math.sin(ph);var x=o.p[0]*cs+o.p[2]*sn,z=-o.p[0]*sn+o.p[2]*cs;o.p[0]=x;o.p[2]=z;o.p[1]+=Math.sin(time*.3)*1.2}
+    if(fin){var ph=Math.sin(time*.2)*.14,cs=Math.cos(ph),sn=Math.sin(ph);var x=o.p[0]*cs+o.p[2]*sn,z=-o.p[0]*sn+o.p[2]*cs;o.p[0]=x;o.p[2]=z;o.p[1]+=Math.sin(time*.3)*.8}
     return o;
   }
   /* ---------- состояние и кадр ---------- */
-  var state={mode:'static',tau:1000,play:false,vis:false,shift:0,tshift:0,night:0,tnight:0,frame:false,dir:0};
+  var state={mode:'static',tau:1000,play:false,vis:false,shift:0,tshift:0,night:0,tnight:0,frame:false};
   var hudEl=document.getElementById('hud'),hudn=document.getElementById('hudn'),scrub=document.getElementById('scrub'),tmEl=document.getElementById('tm'),ppBtn=document.getElementById('pp');
   function dur(){return state.mode==='intro'?DURI:DURT}
-  var frameRect=null;
-  function readFrame(){
-    if(!state.frame){frameRect=null;return}
-    var fe=document.querySelector('.slide.on .pframe');if(!fe){frameRect=null;return}
-    var r=fe.getBoundingClientRect();frameRect={x:r.left,y:r.top,w:r.width,h:r.height};
-  }
   function resize(){renderer.setSize(innerWidth,innerHeight,false)}
   addEventListener('resize',resize);resize();
   var dayFog=[.38,.40,.43],nightFog=[.075,.085,.105];
   function pose(mode,tau,time){
     var n=state.night;nightU.value=n;
-    buildU.value=mode==='intro'?clamp((tau-4)/4,0,1)*1.02:(mode==='tour'?clamp((tau-.2)/2.4,0,1)*1.02:1.02);
-    levels.forEach(function(L,i){L.g.position.set(0,i*H,0);L.g.rotation.y=0;L.cg.scale.y=1;L.cg.visible=true;L.g.visible=true});
-    updTraffic(time,mode!=='tour'||true);
-    updJam(tau,mode==='intro',time);
-    updAmb(mode,tau);
+    buildU.value=mode==='intro'?clamp((tau-3)/3,0,1)*1.02:(mode==='tour'?clamp((tau-.2)/2.4,0,1)*1.02:1.02);
+    updTraffic(time);updJam(tau,mode==='intro',time);updAmb(mode,tau);updTower(mode,tau);
     var o=camera(mode,tau,time);
     cam.position.set(o.p[0],o.p[1],o.p[2]);cam.lookAt(o.t[0],o.t[1],o.t[2]);
     if(Math.abs(cam.fov-o.fov)>.01){cam.fov=o.fov}
     scene.fog.near=lerp(170,110,n);scene.fog.far=lerp(760,520,n);
     scene.fog.color.setRGB(lerp(dayFog[0],nightFog[0],n),lerp(dayFog[1],nightFog[1],n),lerp(dayFog[2],nightFog[2],n));
-    hemi.intensity=lerp(.95,.55,n);sun.intensity=lerp(.9,.32,n);
+    hemi.intensity=lerp(.95,.6,n);sun.intensity=lerp(.9,.4,n);
     if(mmMat)mmMat.color.setRGB(lerp(.43,.04,n),lerp(.45,.05,n),lerp(.49,.07,n));if(snowM)snowM.color.setRGB(lerp(.48,.08,n),lerp(.5,.09,n),lerp(.54,.11,n));
-    /* свет внутри здания и фары героя */
-    var ix=Math.max(Math.abs(o.p[0])-33,Math.abs(o.p[2])-15,0),insideF=clamp(1-ix/9,0,1)*(o.p[1]<18?1:0);
-    inner.intensity=n*insideF*1.6;inner.position.set(o.p[0],o.p[1]+.5,o.p[2]);
-    if(mode==='tour'&&tau>=HERO_T0&&tau<EX0+2){var hp=HERO.route.at(HERO.route.sAt((tau-HERO_T0)*HERO.ts),{});hl.intensity=n*(hp.x>-36?1.5:.7);hl.position.set(hp.x+Math.sin(hp.yaw)*3.2,hp.y+.9,hp.z+Math.cos(hp.yaw)*3.2)}else hl.intensity=0;
-    /* HUD */
-    if(hudEl&&mode==='tour'){var on=tau>HERO_T0+.5&&tau<EX1,lv=Math.round(HERO.route.at(HERO.route.sAt((tau-HERO_T0)*HERO.ts),{}).y/H)+1;hudEl.classList.toggle('a',on);if(on)hudn.textContent=lv}
+    inner.intensity=0;
+    /* свет от башни и фары героя */
+    hl.intensity=0;
+    if(mode==='tour'&&tau>=HERO_T0&&tau<T_LOAD){var hp=HERO.r.at(HERO.r.sAt(tau-HERO_T0),{});hl.intensity=n*1.3;hl.position.set(hp.x+Math.sin(hp.yaw)*3.2,hp.y+.9,hp.z+Math.cos(hp.yaw)*3.2)}
+    else if(n>.3){hl.intensity=n*1.1;hl.position.set(-6,7,3)}
+    /* HUD: высота платформы героя */
+    if(hudEl&&mode==='tour'){var on=tau>T_LOAD&&tau<DURT-1;hudEl.classList.toggle('a',on);if(on){loopPt(rotN('tour',tau)*PITCH,_p);hudn.textContent=Math.max(0,Math.round(_p[1]))}}
     else if(hudEl)hudEl.classList.remove('a');
   }
   function render(time){
-    readFrame();
     var W=innerWidth,Hh=innerHeight;
     pose(state.mode,state.tau,time);
-    scene.background=(state.frame||FRAMEONLY)?gradTex:null;
-    if(FRAMEONLY){renderer.setScissorTest(false);renderer.setViewport(0,0,W,Hh);cam.aspect=W/Hh;cam.clearViewOffset();cam.updateProjectionMatrix();renderer.render(scene,cam);return}
-    if(frameRect){
-      renderer.setScissorTest(false);renderer.setViewport(0,0,W,Hh);renderer.clear();
-      var fx=frameRect.x,fy=Hh-frameRect.y-frameRect.h;
-      renderer.setScissorTest(true);renderer.setScissor(fx,fy,frameRect.w,frameRect.h);renderer.setViewport(fx,fy,frameRect.w,frameRect.h);
-      cam.aspect=frameRect.w/frameRect.h;cam.clearViewOffset();cam.updateProjectionMatrix();renderer.render(scene,cam);
-    }else{
-      var sr=document.getElementById('stage').getBoundingClientRect(),sx=sr.left,sy=Hh-sr.bottom,sw=sr.width,sh=sr.height;
-      renderer.setScissorTest(false);renderer.setViewport(0,0,W,Hh);renderer.clear();
-      renderer.setScissorTest(true);renderer.setScissor(sx,sy,sw,sh);renderer.setViewport(sx,sy,sw,sh);
-      cam.aspect=sw/sh;if(Math.abs(state.shift)>.002)cam.setViewOffset(sw,sh,-state.shift*sw,0,sw,sh);else cam.clearViewOffset();cam.updateProjectionMatrix();renderer.render(scene,cam);
-    }
+    scene.background=null;
+    var sr=document.getElementById('stage').getBoundingClientRect(),sx=sr.left,sy=Hh-sr.bottom,sw=sr.width,sh=sr.height;
+    if(FRAMEONLY){sx=0;sy=0;sw=W;sh=Hh}
+    renderer.setScissorTest(false);renderer.setViewport(0,0,W,Hh);renderer.clear();
+    renderer.setScissorTest(true);renderer.setScissor(sx,sy,sw,sh);renderer.setViewport(sx,sy,sw,sh);
+    cam.aspect=sw/sh;if(Math.abs(state.shift)>.002&&!FRAMEONLY)cam.setViewOffset(sw,sh,-state.shift*sw,0,sw,sh);else cam.clearViewOffset();cam.updateProjectionMatrix();renderer.render(scene,cam);
   }
   var last=performance.now(),clock=0;
   function syncUI(){
@@ -1423,7 +1433,7 @@ function GL0(){
   api.setSlide=function(cfg,n,prev){
     if(!cfg){state.vis=false;canvas.classList.remove('show');return}
     var had=slides[prev]&&slides[prev].opt.gl;
-    state.vis=true;canvas.classList.add('show');state.mode=cfg.mode;state.frame=!!cfg.frame;state.tshift=cfg.shift||0;state.tnight=cfg.night||0;
+    state.vis=true;canvas.classList.add('show');state.mode=cfg.mode;state.tshift=cfg.shift||0;state.tnight=cfg.night||0;
     if(!had){state.shift=state.tshift;state.night=state.tnight}
     if(cfg.mode==='static'){state.tau=1000;state.play=false}
     else{state.tau=0;state.play=!matchMedia('(prefers-reduced-motion:reduce)').matches;if(!state.play)state.tau=dur()}
@@ -1432,7 +1442,7 @@ function GL0(){
   api.toggle=function(){if(state.mode!=='static'&&ppBtn)ppBtn.click()};
   api.scrubKey=function(d){
     if(!state.vis||state.mode==='static')return false;
-    var D=dur(),marks=state.mode==='intro'?[D]:[T_PARK+.4,EX1+.3,D];
+    var D=dur(),marks=state.mode==='intro'?[D]:[T_LOAD+.6,FIN0,D];
     if(d>0&&state.tau<D-.4){var nx=marks.find(function(m){return m>state.tau+.8});state.tau=nx===undefined?D:nx;state.play=true;syncUI();return true}
     if(d<0&&state.tau>.6&&state.mode==='tour'){var pv=[0].concat(marks).reverse().find(function(m){return m<state.tau-1.2});state.tau=pv===undefined?0:pv;state.play=true;syncUI();return true}
     return false;
@@ -1442,9 +1452,9 @@ function GL0(){
     if(dy>0&&state.tau>=D-.05)return false;if(dy<0&&state.tau<=.05)return false;
     state.play=false;state.tau=clamp(state.tau+dy/70,0,D);syncUI();return true;
   };
-  api.renderAt=function(mode,tau,time,opts){opts=opts||{};state.mode=mode;state.tau=tau;state.night=opts.night!==undefined?opts.night:state.night;state.tnight=state.night;if(opts.frame!==undefined)state.frame=opts.frame;if(opts.shift!==undefined){state.shift=opts.shift;state.tshift=opts.shift}state.vis=true;render(time===undefined?tau:time)};
-  api.captureTour=function(tau){state.mode='tour';state.night=1;state.tnight=1;state.shift=0;state.vis=true;state.tau=tau;render(tau)};
-  api.info=function(){return {DURT:DURT,DURI:DURI,T_PARK:T_PARK,EX0:EX0,EX1:EX1,heroT:HERO.route.T,heroL:HERO.route.L}};
+  api.renderAt=function(mode,tau,time,opts){opts=opts||{};state.mode=mode;state.tau=tau;state.night=opts.night!==undefined?opts.night:state.night;state.tnight=state.night;if(opts.shift!==undefined){state.shift=opts.shift;state.tshift=opts.shift}state.vis=true;render(time===undefined?tau:time)};
+  api.captureTour=function(tau){state.mode='tour';state.night=.85;state.tnight=.85;state.shift=0;state.vis=true;state.tau=tau;render(tau)};
+  api.info=function(){return {DURT:DURT,DURI:DURI,T_LOAD:T_LOAD,TEND:TEND,heroT:HERO.r.T,loadsTour:PLAN.tour.loads.map(function(l){return l.id+':'+l.t.toFixed(1)}),rotsTour:PLAN.tour.rots.map(function(r){return r.t0.toFixed(1)+'-'+r.t1.toFixed(1)}),loadsIntro:PLAN.intro.loads.map(function(l){return l.id+':'+l.t.toFixed(1)}),pitch:PITCH,per:PER}};
   scene.traverse(function(o){o.frustumCulled=false});
   if(!CAPTURE)requestAnimationFrame(frame);
   return api;
