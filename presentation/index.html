@@ -1396,8 +1396,8 @@ function GL0(){
   addEventListener('resize',resize);resize();
   var dayFog=[.38,.40,.43],nightFog=[.075,.085,.105];
   function pose(mode,tau,time){
-    var n=state.night;nightU.value=n;var cf=clamp(tau/3.4,0,1);cityU.value=mode==='intro'?-240+700*(1-Math.pow(1-cf,1.6)):1e6;
-    buildU.value=mode==='intro'?clamp((tau-3)/3,0,1)*1.02:(mode==='tour'?clamp((tau-.2)/2.4,0,1)*1.02:1.02);
+    var n=state.night;nightU.value=n;var _cx=[0,0,0];crArr(KTI,KPI,Math.min(tau,KTI[4]),_cx);cityU.value=mode==='intro'?_cx[0]+60+430*sstep(3.2,6.2,tau):1e6;
+    buildU.value=mode==='intro'?clamp((tau-4.2)/2.6,0,1)*1.02:(mode==='tour'?clamp((tau-.2)/2.4,0,1)*1.02:1.02);
     updTraffic(time);updJam(tau,mode==='intro',time);updAmb(mode,tau);updTower(mode,tau);
     var o=camera(mode,tau,time);
     cam.position.set(o.p[0],o.p[1],o.p[2]);cam.lookAt(o.t[0],o.t[1],o.t[2]);
