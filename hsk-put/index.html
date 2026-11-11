@@ -3244,7 +3244,7 @@ const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).tri
 
 /* тетрадная разлиновка: клетка 田字格 и строка пиньинь (четыре линии, три промежутка) */
 function paperCell(x,x0,y0,s,o={}){x.save();x.lineWidth=Math.max(1,s/60);x.strokeStyle=o.line||cssv('--line');x.setLineDash([]);x.strokeRect(x0+.5,y0+.5,s-1,s-1);
-  x.setLineDash([s/16,s/14]);x.beginPath();x.moveTo(x0+s/2,y0+3);x.lineTo(x0+s/2,y0+s-3);x.moveTo(x0+3,y0+s/2);x.lineTo(x0+s-3,y0+s/2);x.stroke();x.restore()}
+  x.setLineDash([s/16,s/14]);x.beginPath();x.moveTo(x0+s/2,y0+3);x.lineTo(x0+s/2,y0+s-3);x.moveTo(x0+3,y0+s/2);x.lineTo(x0+s-3,y0+s/2);if(o.mi){x.moveTo(x0+3,y0+3);x.lineTo(x0+s-3,y0+s-3);x.moveTo(x0+s-3,y0+3);x.lineTo(x0+3,y0+s-3)}x.stroke();x.restore()}
 function paperPy(x,x0,y0,w,h,o={}){x.save();x.strokeStyle=o.line||cssv('--line');x.lineWidth=Math.max(1,h/28);x.setLineDash([]);
   for(let k=0;k<4;k++){const y=y0+h*.1+k*(h*.8/3);x.setLineDash(k===1||k===2?[h/10,h/14]:[]);x.beginPath();x.moveTo(x0,y);x.lineTo(x0+w,y);x.stroke()}x.restore()}
 function paperGlyph(x,ch,cx,cy,s,col,alpha){x.save();x.globalAlpha=alpha;x.fillStyle=col;x.font=`500 ${s*.74}px "Noto Sans SC","PingFang SC","Microsoft YaHei","WenQuanYi Zen Hei",sans-serif`;x.textAlign='center';x.textBaseline='middle';x.fillText(ch,cx,cy+s*.03);x.restore()}
@@ -3265,7 +3265,7 @@ function animPlay(cv,ch,onDone){
   const dur=P.map(s=>Math.max(380,Math.min(900,len(s)*3.1))),gap=200,total=dur.reduce((a,d)=>a+d+gap,0);
   const ink=cssv('--ink'),acc=cssv('--accent'),seal=cssv('--seal'),t0=performance.now();
   function frame(now){if(tok!==ANIM.tok)return;const t=now-t0;x.clearRect(0,0,W,W);
-    paperCell(x,0,0,W);paperGlyph(x,ch,W/2,W/2,W,cssv('--muted'),.12);
+    paperCell(x,0,0,W,{mi:true});paperGlyph(x,ch,W/2,W/2,W,cssv('--muted'),.12);
     let acc_t=0;P.forEach((s,i)=>{const st=acc_t,en=st+dur[i];acc_t=en+gap;
       if(t>=en){animStroke(x,s,1,W,ink)}else if(t>st){animStroke(x,s,(t-st)/dur[i],W,acc)}
       if(t>=st-120){x.save();const r=W*.035,a=Math.min(1,(t-st+120)/200);x.globalAlpha=a;x.fillStyle=seal;x.beginPath();x.arc(s[0][0]-r*1.15,s[0][1]-r*1.15,r,0,7);x.fill();x.fillStyle='#fff';x.font=`600 ${r*1.3}px "Golos Text",sans-serif`;x.textAlign='center';x.textBaseline='middle';x.fillText(String(i+1),s[0][0]-r*1.15,s[0][1]-r*1.15+1);x.restore()}});
@@ -3302,7 +3302,7 @@ let WBP=null;
 function mountWB(ch){const cv=$('#wb');if(!cv)return;const d=wbDims();padInk=false;
   const guide=x=>{const ink=cssv('--ink'),line=cssv('--line'),seal=cssv('--seal');
     for(let r=0;r<d.rows;r++){const y0=r*(d.cell+d.ph);paperPy(x,0,y0,d.W,d.ph,{line});
-      for(let c=0;c<d.cols;c++)paperCell(x,c*d.cell,y0+d.ph,d.cell,{line:r===0&&c===0?seal:line});
+      for(let c=0;c<d.cols;c++)paperCell(x,c*d.cell,y0+d.ph,d.cell,{line:r===0&&c===0?seal:line,mi:true});
       if(r===0&&ch){paperPyText(x,ch.py,d.cell/2,y0,d.ph,ink);
         [.9,.3,.22,.15].forEach((a,c)=>paperGlyph(x,ch.c,c*d.cell+d.cell/2,y0+d.ph+d.cell/2,d.cell,ink,a))}}};
   WBP=mkPad(cv,{w:d.W,h:d.H,pw:W.tool==='brush'?7.5:4.2,strokes:[],ink:()=>cssv('--ink'),tool:()=>W.tool,guide,onStart:()=>{padInk=true}});
@@ -3382,7 +3382,7 @@ function bdMount(){
   BD.pad=mkPad(cv,{w:W_,h:H_,pw:6,strokes:BD.strokes,ink:()=>sf.ink,tool:()=>BD.tool,
     guide:ctx=>{const g=bdGeo();if(!g)return;ctx.save();
       for(let r=0;r<g.rows;r++){const y0=g.oy+r*g.rh;if(g.ph)paperPy(ctx,g.ox,y0,g.cols*g.cell,g.ph,{line:sf.guide});
-        for(let c=0;c<g.cols;c++){const x0=g.ox+c*g.cell,k=r*g.cols+c;paperCell(ctx,x0,y0+g.ph,g.cell,{line:sf.guide});
+        for(let c=0;c<g.cols;c++){const x0=g.ox+c*g.cell,k=r*g.cols+c;paperCell(ctx,x0,y0+g.ph,g.cell,{line:sf.guide,mi:true});
           const T=BD.task;if(T&&k<T.chars.length){const cx=x0+g.cell/2,cy=y0+g.ph+g.cell/2;
             if(BD.reveal)paperGlyph(ctx,T.chars[k],cx,cy,g.cell,sf.ink,.26);
             if(BD.hint&&g.ph){const it=CHM[T.chars[k]];if(it)paperPyText(ctx,it.py,cx,y0,g.ph,sf.ink)}
@@ -3419,7 +3419,7 @@ function prResHTML(){if(!PR.res)return`<p class="muted">Здесь появит�
   if(!PR.res.length)return`<p class="muted">Ничего не нарисовано.</p>`;
   return`<div class="cands">${PR.res.map((r,i)=>{const it=CHM[r.c],py=it?it.py:'',t=sylTone(py||'');return`<button class="cand${i===0?' top':''}" data-a="pranimate" data-c="${esc(r.c)}" title="Нажми: как писать этот знак"><span class="hz t${t}">${esc(r.c)}</span><span><b class="py t${t}">${esc(py)}</b><small>${esc(it?charMean(r.c):'')}</small></span></button>`}).join('')}</div><p class="muted" style="font-size:12px">Нажми на знак, чтобы увидеть порядок черт.</p>`}
 function prMount(){const cv=$('#sq');if(!cv)return;
-  PR.pad=mkPad(cv,{w:600,h:600,pw:14,strokes:PR.strokes,ink:()=>cssv('--ink'),guide:x=>{const l=cssv('--line');paperCell(x,0,0,600,{line:l});if(PR.grid){x.save();x.strokeStyle=l;x.lineWidth=2;x.setLineDash([10,10]);x.beginPath();x.moveTo(0,0);x.lineTo(600,600);x.moveTo(600,0);x.lineTo(0,600);x.stroke();x.restore()}}});recReady()}
+  PR.pad=mkPad(cv,{w:600,h:600,pw:14,strokes:PR.strokes,ink:()=>cssv('--ink'),guide:x=>{paperCell(x,0,0,600,{line:cssv('--line'),mi:PR.grid})}});recReady()}
 async function prRecognize(){await recReady();PR.res=PR.strokes.length?recMatch(PR.strokes,5):[];if(view==='prac'&&$('#prres'))$('#prres').innerHTML=prResHTML()}
 /* ---------- «Мои слова»: выбор слов и тесты по ним ---------- */
 const PK={lvl:0,q:'',unit:'',n:10,dir:'hz'};
