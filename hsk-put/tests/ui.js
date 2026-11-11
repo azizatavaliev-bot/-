@@ -20,6 +20,16 @@ const rect=(page,sel)=>page.evaluate(s=>{const r=document.querySelector(s).getBo
 for(const [w,h] of [[1280,900],[390,844]]){const p=await b.newPage({viewport:{width:w,height:h}});p.on('pageerror',e=>errs.push(w+': '+e.message));
   await p.goto(URL);await p.waitForTimeout(500);
   const noX=async(m)=>{const sw=await p.evaluate(()=>document.documentElement.scrollWidth);ok(sw<=w,'нет горизонтального скролла: '+m+' @'+w)};
+  // --- телефон и быстрый тест
+  await p.evaluate("go('quick')");await p.waitForTimeout(300);
+  const tbd=await p.evaluate(()=>getComputedStyle(document.querySelector('#tabbar')).display);ok(w<=860?tbd==='grid':tbd==='none','нижнее меню: '+tbd+' @'+w);
+  ok(await p.evaluate(()=>!!document.querySelector('meta[name=viewport]')&&document.compatMode==='CSS1Compat'),'есть viewport и стандартный режим вёрстки');
+  await noX('быстрый тест');await p.screenshot({path:`${out}/quick-${w}.png`});
+  await p.click('[data-a=qkstart][data-k=cards]');await p.waitForTimeout(300);ok(await p.evaluate(()=>TS&&TS.queue.length>0&&view==='stest'),'быстрый тест стартует одним нажатием @'+w);
+  await p.screenshot({path:`${out}/quick-card-${w}.png`});
+  if(w<=860){await p.evaluate("go('quick')");await p.click('#tabbar [data-a=more]');await p.waitForTimeout(200);ok(await p.evaluate(()=>!document.querySelector('#more').hidden),'меню «Ещё» открывается');await p.screenshot({path:`${out}/more-${w}.png`});await p.click('.moresheet [data-v=dict]');await p.waitForTimeout(250);ok(await p.evaluate(()=>view==='dict'&&document.querySelector('#more').hidden),'переход из «Ещё»')}
+  await p.evaluate("TU.msgs=[];go('tutor')");await p.fill('#tuin','10 карточек из урока 3 НСК 1');await p.click('.tuform button');await p.waitForTimeout(500);
+  ok(await p.evaluate(()=>view==='stest'&&TS.queue.length===10&&TS.wids.length===10),'репетитор собрал тест сам, без сервера @'+w);
   // --- тетрадь для прописи
   await p.evaluate("W.mode='trace';W.set=false;go('write')");await p.waitForTimeout(300);
   let box=await rect(p,'#wb');await draw(p,'一',{x:box.x,y:box.y,w:box.w/(w<560?4:6),h:box.h/2});
@@ -66,8 +76,8 @@ for(const [w,h] of [[1280,900],[390,844]]){const p=await b.newPage({viewport:{wi
   const hc=await p.evaluate(()=>tsCur().c),hpy=await p.evaluate(()=>tsCur().py);box=await rect(p,'#sq');await draw(p,hc,box);await p.fill('#tspy',hpy);await p.click('[data-a=tshcheck]');await p.waitForTimeout(300);
   ok(await p.evaluate(()=>TS.res[0]&&TS.res[0].ok),'тест «прописать»: знак '+hc+' + пиньинь засчитаны');await p.screenshot({path:`${out}/test-hand-${w}.png`});await noX('тест');
   // --- репетитор с подставным сервером
-  await p.evaluate("go('tutor')");await p.waitForTimeout(300);await p.fill('#tuin','сделай тест');await p.click('.tuform button');await p.waitForTimeout(600);
-  ok(await p.evaluate(()=>!!document.querySelector('[data-a=tutest]')),'репетитор: пришёл тест с кнопкой запуска @'+w);ok(lastUpstream&&lastUpstream.headers['x-api-key']==='test-key'&&/Контекст ученика/.test(lastUpstream.body.system)&&lastUpstream.body.system.includes('selected')&&lastUpstream.body.messages.at(-1).content==='сделай тест','сервер передал ключ, контекст и вопрос в Claude');await p.screenshot({path:`${out}/tutor-${w}.png`});await noX('репетитор');
+  await p.evaluate("go('tutor')");await p.waitForTimeout(300);await p.fill('#tuin','объясни разницу между 的 и 得');await p.click('.tuform button');await p.waitForTimeout(600);
+  ok(await p.evaluate(()=>!!document.querySelector('[data-a=tutest]')),'репетитор: пришёл тест с кнопкой запуска @'+w);ok(lastUpstream&&lastUpstream.headers['x-api-key']==='test-key'&&/Контекст ученика/.test(lastUpstream.body.system)&&lastUpstream.body.system.includes('selected')&&lastUpstream.body.messages.at(-1).content==='объясни разницу между 的 и 得','сервер передал ключ, контекст и вопрос в Claude');await p.screenshot({path:`${out}/tutor-${w}.png`});await noX('репетитор');
   await p.click('[data-a=tutest]');await p.waitForTimeout(300);ok(await p.evaluate(()=>TS&&TS.ai&&TS.queue.length>=4),'тест репетитора запускается: '+await p.evaluate(()=>TS.queue.length)+' заданий');
   await p.close()}
 console.log(errs.length?errs:'ошибок в консоли нет');process.exitCode=fails.length||errs.length?1:0;await b.close();servers.forEach(x=>x.close());process.exit(process.exitCode||0)})();

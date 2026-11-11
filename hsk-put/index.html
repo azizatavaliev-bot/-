@@ -1,3 +1,12 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1D6A5A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="HSK Путь">
 <title>HSK Путь</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -443,7 +452,42 @@ section.row{flex-direction:row}
 .tuform textarea{min-height:0;flex:1;resize:vertical}
 .tuset summary{cursor:pointer}
 .tumats{display:flex;flex-direction:column;margin:8px 0}
+
+/* ===== телефон: нижнее меню, крупные кнопки ===== */
+#tabbar{display:none}
+#more{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.45);display:flex;align-items:flex-end}
+#more[hidden]{display:none}
+.moresheet{background:var(--bg);width:100%;max-height:84vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.moresheet button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 6px;border:1px solid var(--line);background:var(--surface);border-radius:12px;cursor:pointer;font-size:13px;min-height:72px;min-width:0}
+.moresheet button .g{font:600 22px var(--f-hz)}
+.moresheet button[aria-current=page]{border-color:var(--accent);background:var(--accent-soft)}
+.quickcard{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-color:var(--accent);background:var(--accent-soft)}
+.qk{display:flex;flex-direction:column;gap:12px}
+.qkchips{display:flex;gap:8px;flex-wrap:wrap}
+.qkchip{border:1px solid var(--line);background:var(--surface);border-radius:20px;padding:9px 14px;cursor:pointer;font-size:14px;font-weight:500;min-height:40px}
+.qkchip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.kinds.big .kind{padding:16px}
+.kinds.big .kind b{font-size:17px}
+@media(max-width:860px){
+  .side{display:none}
+  .app{grid-template-columns:1fr}
+  #tabbar{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding:4px max(4px,env(safe-area-inset-right,0px)) calc(4px + env(safe-area-inset-bottom,0px)) max(4px,env(safe-area-inset-left,0px))}
+  #tabbar button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;background:transparent;color:var(--muted);font-size:11px;min-height:54px;padding:4px 2px;border-radius:10px;cursor:pointer;min-width:0}
+  #tabbar button .g{font:600 20px/1 var(--f-hz)}
+  #tabbar button[aria-current=page]{color:var(--accent);background:var(--accent-soft)}
+  main{padding-block:16px calc(88px + env(safe-area-inset-bottom,0px))}
+  #toast{bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+  .btn{min-height:46px}
+  .btn.sm{min-height:42px;padding:10px 14px}
+  .seg button{min-height:42px;padding:10px 14px}
+  input,select,textarea{font-size:16px}
+  .pkrow{padding-block:12px}
+  .opt{min-height:52px}
+  .tok{padding:12px 14px}
+}
 </style>
+</head>
+<body>
 
 <div class="app">
   <aside class="side">
@@ -460,6 +504,8 @@ section.row{flex-direction:row}
   <main id="main"></main>
 </div>
 <div id="toast" hidden></div>
+<nav id="tabbar" aria-label="Основное меню"></nav>
+<div id="more" data-a="moreclose" hidden></div>
 <div id="xpop" hidden aria-live="polite"></div>
 
 <script>
@@ -13864,12 +13910,12 @@ function sayAll(arr,r){try{speechSynthesis.cancel();arr.forEach(t=>speechSynthes
 const voiceBanner=()=>(voiceChecked&&!zhVoice)?`<div class="banner">Не найден китайский голос в системе, поэтому озвучка может молчать. iPhone: Настройки → Универсальный доступ → Устное содержимое → Голоса → Китайский. Android: Настройки → Синтез речи → установить китайский. Windows: Параметры → Время и язык → Речь → добавить китайский.</div>`:'';
 
 /* ================= НАВИГАЦИЯ ================= */
-const NAV=[['today','今','Сегодня'],['goals','标','Цели'],['sprint','冲','Спринт 300'],['path','路','Путь'],['chars','字','Иероглифы'],['review','复','Повторение'],['ai','聊','Практика'],['games','玩','Игры'],['test','考','Тест'],['live','活','Живой'],['tones','声','Тоны'],['signs','部','Знаки'],['pick','选','Мои слова'],['write','写','Письмо'],['prac','练','Тренировка'],['board','板','Доска'],['tutor','师','Репетитор'],['grammar','法','Грамматика'],['dict','词','Библиотека'],['method','方','Метод']];
+const NAV=[['quick','测','Тест'],['today','今','Сегодня'],['goals','标','Цели'],['sprint','冲','Спринт 300'],['path','路','Путь'],['chars','字','Иероглифы'],['review','复','Повторение'],['ai','聊','Практика'],['games','玩','Игры'],['test','考','Тест уровня'],['live','活','Живой'],['tones','声','Тоны'],['signs','部','Знаки'],['pick','选','Мои слова'],['write','写','Письмо'],['prac','练','Тренировка'],['board','板','Доска'],['tutor','师','Репетитор'],['grammar','法','Грамматика'],['dict','词','Библиотека'],['method','方','Метод']];
 const NAVZH={today:'今天',path:'路',live:'说话',review:'复习',games:'游戏',ai:'聊天',test:'考试',tones:'声调',chars:'汉字',write:'写',grammar:'语法',dict:'图书馆',method:'方法'};
 const knownHz=hz=>{const w=WORDS.find(x=>x.hz===hz&&x.lvl>0&&!x.sent);const c=w&&S.srs[w.id];return c&&(c.reps>=1||c.iv>=1)?w:null};
 let view='today',V={};
 function go(v,p={}){if(gsTimer){clearInterval(gsTimer);gsTimer=null;GS={state:'idle'}}if(v!=='lesson'&&LS.dlg){LS.dlg=null;LS.inLesson=false;LS.mode='read'}view=v;V=p;if(v==='review')startReview();render();window.scrollTo(0,0)}
-function renderNav(){const cur=view==='lesson'?(L&&L.kind==='chars'?'chars':L&&L.kind==='test'?'test':L&&L.lvl===7?'signs':'path'):view;$('#nav').innerHTML=NAV.map(([k,g,t])=>{const w=knownHz(NAVZH[k]);return`<button data-a="go" data-v="${k}" ${cur===k?'aria-current="page"':''} title="${t}"><span class="g">${g}</span>${w?`<span class="nzh"><span class="hz">${esc(w.hz)}</span><small>${esc(pyText(w.py))}</small></span>`:t}</button>`}).join('')}
+function renderNav(){const cur=view==='lesson'?(L&&L.kind==='chars'?'chars':L&&L.kind==='test'?'test':L&&L.lvl===7?'signs':'path'):view;$('#nav').innerHTML=NAV.map(([k,g,t])=>{const w=knownHz(NAVZH[k]);return`<button data-a="go" data-v="${k}" ${cur===k?'aria-current="page"':''} title="${t}"><span class="g">${g}</span>${w?`<span class="nzh"><span class="hz">${esc(w.hz)}</span><small>${esc(pyText(w.py))}</small></span>`:t}</button>`}).join('');renderTabbar(cur)}
 function render(){renderNav();const r=views[view]();$('#main').innerHTML=typeof r==='string'?r:r.html;if(r&&r.mount)r.mount()}
 
 /* ================= ЭКРАНЫ ================= */
@@ -18159,7 +18205,7 @@ async function prRecognize(){await recReady();PR.res=PR.strokes.length?recMatch(
 const PK={std:'book',lvl:1,q:'',unit:'',n:10,dir:'hz'};
 const pickWords=()=>WORDS.filter(w=>w.lvl>0&&!w.gr&&!w.chr&&!w.sent&&w.hz&&w.py&&w.ru);
 const lvLabel=l=>l===7?'7–9':String(l);
-const bookVolOf=std=>std==='book'?1:/^book[2-9]$/.test(std)?+std[4]:0;
+const bookVolOf=std=>std==='book'?1:/^book[1-9]$/.test(std)?+std[4]:0;
 const bookVol=()=>bookVolOf(PK.std);
 const stdWords=()=>bookVol()?BOOKW.filter(w=>w.vol===bookVol()):PK.std==='h3'?BANKW:pickWords();
 const allWords=()=>pickWords().concat(BANKW,BOOKW);
@@ -18204,6 +18250,7 @@ function sentFor(w){ // предложение: пример из учебник
   if(!out.length)return null;const s=out[Math.floor(Math.random()*out.length)];const toks=s.toks.filter(t=>!SPR_P.has(t));
   const py=toks.map(t=>{const x=sprWord(t);return x?pyText(x.py):pyOf(t)}).join(' ');return{toks,ru:s.ru,py,p:s.toks.filter(t=>SPR_P.has(t)).pop()||'。',wid:w.id}}
 function itemsFor(kind,ws){const pool=allWords(),out=[];
+  if(kind==='quiz')ws.forEach(w=>out.push(quizItem(w,pool)));
   if(kind==='cards'||kind==='mix')ws.forEach(w=>out.push({t:'card',w}));
   if(kind==='wr'||kind==='mix')ws.forEach(w=>out.push({t:'wr',w,...meaningOpts(w,ws.length>=4?ws.concat(pool):pool)}));
   if(kind==='bd'||kind==='mix'){const seen=new Set();ws.forEach(w=>{const s=sentFor(w);if(s&&!seen.has(s.toks.join(''))){seen.add(s.toks.join(''));out.push({t:'bd',...s})}})}
@@ -18221,7 +18268,7 @@ function tsNext(){TS.i++;TS.st={};if(TS.i>=TS.queue.length)tsFinish();else rende
 function tsFinish(){TS.done=true;const ok=TS.res.filter(r=>r.ok).length,n=TS.res.length,pct=n?Math.round(100*ok/n):0;
   const now=Date.now();S.tlog=S.tlog||[];S.tlog.unshift({t:now,k:TS.kind,n,ok,ai:TS.ai,title:TS.title,ids:TS.wids.slice(0,40)});S.tlog=S.tlog.slice(0,60);
   if(!TS.ai){S.selp=S.selp||{};const by={};TS.res.forEach(r=>{if(!r.id)return;(by[r.id+'|'+r.t]=by[r.id+'|'+r.t]||[]).push(r.ok)});
-    Object.keys(by).forEach(k=>{const[id,t]=k.split('|'),kind={card:'cards',wr:'wr',bd:'bd',hand:'hand'}[t];if(!kind)return;S.selp[id]=S.selp[id]||{};S.selp[id][kind]={ok:by[k].every(Boolean),t:now}})}
+    Object.keys(by).forEach(k=>{const[id,t]=k.split('|'),kind={card:'cards',wr:'wr',bd:'bd',hand:'hand',quiz:'quiz'}[t];if(!kind)return;S.selp[id]=S.selp[id]||{};S.selp[id][kind]={ok:by[k].every(Boolean),t:now}})}
   addXP(ok*2,`Тест пройден: ${ok} из ${n}`);S.stats.type=(S.stats.type||0)+0;save();render()}
 views.stest=()=>{if(!TS)return pickGo();
   if(TS.done)return tsSummary();
@@ -18349,6 +18396,7 @@ function tuQueue(test){const q=[];(test.items||[]).forEach((it,k)=>{if(!it)retur
   else if(ty==='write'&&it.hz){const w={id:'ai:'+it.hz,hz:it.hz,py:it.py||'',ru:it.ru||''},cs=[...it.hz].filter(c=>isHan(c)&&medOf(c));
     if(cs.length)cs.forEach(c=>q.push({t:'hand',c,w,py:charPyOf(c,w)}));else q.push({t:'card',w})}});return q}
 async function tuSend(text){text=String(text||'').trim();if(!text||TU.busy)return;tuLoad();
+  const sp=tuLocal(text);if(sp){tuRunLocal(text,sp);return}
   TU.msgs.push({role:'user',content:text});TU.busy=true;TU.err='';TU.draft='';tuSave();if(view==='tutor')render();
   try{const body={messages:TU.msgs.slice(-16).map(m=>({role:m.role,content:m.role==='assistant'?(m.raw||m.say||''):m.content})),ctx:tutorCtx()};
     const r=await fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json','x-access-code':TU.code||''},body:JSON.stringify(body)});
@@ -18361,8 +18409,8 @@ const TU_ERR={no_key:'На сервере не задан ключ ИИ. В на
 views.tutor=()=>{tuLoad();if(TU.draft==null)TU.draft='';
   const lessons=[];BOOK.forEach(l=>{if(l.words.length)lessons.push(['book'+l.vol,l.n,l.zh+' — '+l.ru])});[1,2,3,4,5,6].forEach(l=>(UNITS[l]||[]).forEach((u,i)=>lessons.push([l,i+1,u.t])));
   const quick=[['Карточки по моим словам',`Сделай тест в виде карточек из моих выбранных слов. Заданий: ${TU.n}.`],['Квиз по моим словам',`Сделай квиз с вариантами ответов по моим выбранным словам. Заданий: ${TU.n}.`],['Составление предложений',`Дай задания на составление предложений из моих выбранных слов. Заданий: ${TU.n}.`],['Прописать знаки',`Сделай тест на письмо иероглифов по моим выбранным словам. Слов: ${Math.min(TU.n,12)}.`],['Разбор моих ошибок','Посмотри мои результаты тестов и дай тренировку на слабые места.']];
-  const msgs=TU.msgs.map((m,i)=>m.role==='user'?`<div class="tu me">${esc(m.content)}</div>`:`<div class="tu bot">${tuMd(m.say)}${m.test?`<div class="tutest"><b>${esc(m.test.title||'Тест')}</b><span class="muted">${m.test.items.length} заданий</span><button class="btn sm" data-a="tutest" data-i="${i}">Начать тест</button></div>`:''}</div>`).join('');
-  return`<header class="ph"><p class="eyebrow">ИИ</p><h1>Репетитор</h1><p class="lead">Знает твои выбранные слова, пройденные тесты и все уроки приложения. Попроси сделать тест, объяснить грамматику или разобрать ошибки. Количество заданий задаёшь ниже: хоть два, хоть двадцать.</p></header>
+  const msgs=TU.msgs.map((m,i)=>m.role==='user'?`<div class="tu me">${esc(m.content)}</div>`:`<div class="tu bot">${tuMd(m.say)}${m.local?`<div class="tutest"><button class="btn sm" data-a="tulocal" data-i="${i}">Пройти ещё раз</button></div>`:''}${m.test?`<div class="tutest"><b>${esc(m.test.title||'Тест')}</b><span class="muted">${m.test.items.length} заданий</span><button class="btn sm" data-a="tutest" data-i="${i}">Начать тест</button></div>`:''}</div>`).join('');
+  return`<header class="ph"><p class="eyebrow">ИИ</p><h1>Репетитор</h1><p class="lead">Знает твои выбранные слова, пройденные тесты и все уроки приложения. Попроси сделать тест, объяснить грамматику или разобрать ошибки. Тесты по просьбе («10 карточек из урока 3 НСК 1») он собирает сразу, без ожидания. Для объяснений нужен ответ ИИ.</p></header>
   <section class="tuwrap"><div class="tuquick">${quick.map(([t,p],i)=>`<button class="chip btnchip" data-a="tuquick" data-i="${i}">${t}</button>`).join('')}</div>
     <div class="row" style="align-items:flex-end"><label class="tsfield" style="max-width:120px"><span class="muted" style="font-size:12px">Заданий</span><input id="tun" type="number" min="2" max="40" value="${TU.n}"></label>
       <label class="tsfield" style="flex:1;min-width:220px"><span class="muted" style="font-size:12px">Тест из урока</span><select id="tulesson" style="min-width:0;max-width:100%"><option value="">— выбрать урок —</option>${lessons.map(([l,n,t])=>`<option value="${l}|${n}|${esc(t)}">${String(l).startsWith('book')?'Учебник 新HSK教程 '+String(l)[4]+' · урок '+n:'Курс приложения HSK '+l+' · урок '+n}: ${esc(t)}</option>`).join('')}</select></label></div>
@@ -18395,9 +18443,93 @@ document.addEventListener('change',e=>{const t=e.target;if(t.id==='pkunit'){PK.u
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&BD.full&&view==='board'){BD.full=false;render();bdFS()}});
 document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&BD.full&&view==='board'){BD.full=false;render()}else setTimeout(bdFit,60)});
 window.addEventListener('resize',()=>{if(view==='board')setTimeout(bdFit,60)});
+/* ---------- телефон: нижнее меню ---------- */
+const TAB=[['quick','测','Тест'],['pick','选','Слова'],['write','写','Письмо'],['board','板','Доска'],['tutor','师','Репетитор']];
+function renderTabbar(cur){const t=$('#tabbar');if(!t)return;
+  t.innerHTML=TAB.map(([k,g,n])=>`<button data-a="go" data-v="${k}" ${cur===k?'aria-current="page"':''}><span class="g">${g}</span><span>${n}</span></button>`).join('')+`<button data-a="more" ${TAB.some(x=>x[0]===cur)?'':'aria-current="page"'}><span class="g">⋯</span><span>Ещё</span></button>`}
+function moreSheet(){const cur=view;return`<div class="moresheet">${NAV.map(([k,g,t])=>`<button data-a="gomore" data-v="${k}" ${cur===k?'aria-current="page"':''}><span class="g">${g}</span><span>${t}</span></button>`).join('')}</div>`}
+
+/* ---------- быстрый тест: открыт сразу, ничего выбирать заранее не нужно ---------- */
+const QK={src:null,lesson:'',lvl:1,block:'',n:10};
+function srcWords(o){const src=o.src;let ws=[];
+  if(src==='sel')ws=(S.sel||[]).map(id=>WB[id]).filter(Boolean);
+  else if(bookVolOf(src)){const ls=BOOK.filter(l=>l.vol===bookVolOf(src)&&l.words.length),l=o.lesson!==''&&o.lesson!=null?ls.find(x=>x.n===+o.lesson):null;ws=l?l.words:ls.flatMap(x=>x.words)}
+  else if(src==='h3'){ws=BANKW.filter(w=>w.lvl===(+o.lvl||1));if(o.block!==''&&o.block!=null){const i=+o.block;ws=ws.slice(i*20,i*20+20)}}
+  else if(src==='core'){const lv=+o.lvl||1;ws=pickWords().filter(w=>w.lvl===lv);if(o.lesson!==''&&o.lesson!=null&&UNITS[lv]&&UNITS[lv][+o.lesson]){const hz=new Set(UNITS[lv][+o.lesson].words.map(w=>w.hz));ws=ws.filter(w=>hz.has(w.hz))}}
+  else if(src==='srs')ws=Object.keys(S.srs).map(id=>WB[id]).filter(w=>w&&w.lvl>0&&!w.chr&&!w.gr&&!w.sent);
+  const seen=new Set();return ws.filter(w=>{const k=w.hz+'|'+w.ru;if(seen.has(k))return false;seen.add(k);return true})}
+function quizItem(w,pool){const kind=Math.floor(Math.random()*3);let q,opts,right;
+  const others=(f)=>{const seen=new Set([f(w)]),out=[];for(const x of shuffle(pool)){const v=f(x);if(v&&!seen.has(v)&&x.hz!==w.hz){seen.add(v);out.push(v);if(out.length>=3)break}}return out};
+  if(kind===0){q=`Как переводится «${w.hz}»?`;right=w.ru;opts=shuffle([right,...others(x=>x.ru)])}
+  else if(kind===1){q=`Какой знак значит «${w.ru}»?`;right=w.hz;opts=shuffle([right,...others(x=>x.hz)])}
+  else{q=`Как читается «${w.hz}»?`;right=pyText(w.py);opts=shuffle([right,...others(x=>pyText(x.py))])}
+  return{t:'quiz',w,wid:w.id,q,opts,a:opts.indexOf(right),why:`${w.hz} ${pyText(w.py)} — ${w.ru}`}}
+const QKINDS=[['cards','Карточки','Видишь знак, вспоминаешь чтение и перевод'],['quiz','Вопросы','Выбираешь верный ответ из четырёх'],['wr','Письменный','Печатаешь пиньинь и выбираешь перевод'],['bd','Предложения','Собираешь фразу из слов'],['hand','Прописать знаки','Пишешь знаки рукой и печатаешь пиньинь'],['mix','Всё подряд','Карточки, письменный, предложения и письмо']];
+function qkSub(){const src=QK.src,vol=bookVolOf(src);
+  if(vol){const ls=BOOK.filter(l=>l.vol===vol&&l.words.length);return`<label class="tsfield"><span class="muted">Урок</span><select id="qklesson"><option value="">Все уроки учебника</option>${ls.map(l=>`<option value="${l.n}" ${String(QK.lesson)===String(l.n)?'selected':''}>${l.n}. ${esc(l.zh)} — ${esc(l.ru)}</option>`).join('')}</select></label>`}
+  if(src==='h3'){const nb=Math.ceil(BANKW.filter(w=>w.lvl===QK.lvl).length/20);return`<div class="row"><label class="tsfield" style="flex:1;min-width:140px"><span class="muted">Уровень</span><select id="qklvl">${[1,2,3,4,5,6,7].map(l=>`<option value="${l}" ${QK.lvl===l?'selected':''}>HSK ${lvLabel(l)}</option>`).join('')}</select></label><label class="tsfield" style="flex:1;min-width:140px"><span class="muted">Блок из 20 слов</span><select id="qkblock"><option value="">Весь уровень</option>${Array.from({length:nb},(_,i)=>`<option value="${i}" ${String(QK.block)===String(i)?'selected':''}>Блок ${i+1}</option>`).join('')}</select></label></div>`}
+  if(src==='core'){const lv=QK.lvl>2?1:QK.lvl,us=UNITS[lv]||[];return`<div class="row"><label class="tsfield" style="flex:1;min-width:120px"><span class="muted">Уровень</span><select id="qklvl"><option value="1" ${lv===1?'selected':''}>HSK 1</option><option value="2" ${lv===2?'selected':''}>HSK 2</option></select></label><label class="tsfield" style="flex:2;min-width:180px"><span class="muted">Тема</span><select id="qklesson"><option value="">Все темы</option>${us.map((u,i)=>`<option value="${i}" ${String(QK.lesson)===String(i)?'selected':''}>${i+1}. ${esc(u.t)}</option>`).join('')}</select></label></div>`}
+  return''}
+views.quick=()=>{if(!QK.src)QK.src=(S.sel||[]).length>=2?'sel':'book';
+  const srcs=[['sel','Мои слова · '+(S.sel||[]).length],['book','НСК 1'],['book2','НСК 2'],['book3','НСК 3'],['h3','HSK 3.0'],['core','Курс приложения'],['srs','Выученное']];
+  const ws=srcWords({src:QK.src,lesson:QK.lesson,lvl:QK.lvl,block:QK.block}),take=Math.min(QK.n||ws.length,ws.length);
+  return`<header class="ph"><p class="eyebrow">Без подготовки</p><h1>Быстрый тест</h1><p class="lead">Выбери, откуда брать слова, и нажми на вид теста: он начнётся сразу. Ничего заранее отмечать не нужно.</p></header>
+  <section class="card qk"><div class="qkchips" role="group" aria-label="Откуда слова">${srcs.map(([k,t])=>`<button class="qkchip" data-a="qksrc" data-s="${k}" aria-pressed="${QK.src===k}">${esc(t)}</button>`).join('')}</div>${qkSub()}
+    <div class="qkchips" role="group" aria-label="Сколько слов">${[5,10,20,0].map(n=>`<button class="qkchip" data-a="qkn" data-n="${n}" aria-pressed="${QK.n===n}">${n||'все'}</button>`).join('')}</div>
+    <p class="muted" id="qkinfo">${ws.length?`В источнике слов: <b>${ws.length}</b>. В тесте будет ${take}.`:QK.src==='sel'?'Слов пока нет. Отметь их во вкладке «Слова» или выбери другой источник.':QK.src==='srs'?'Выученных слов пока нет: они появятся после уроков и повторения.':'В этом источнике нет слов.'}</p></section>
+  <section><h2>Вид теста</h2><div class="kinds big">${QKINDS.map(([k,t,d])=>`<button class="kind" data-a="qkstart" data-k="${k}" ${ws.length?'':'disabled'}><b>${t}</b><small>${d}</small></button>`).join('')}</div></section>
+  <section class="card row" style="justify-content:space-between"><div style="min-width:0"><b>Нужен особый тест?</b><p class="muted">Напиши репетитору, например: «10 карточек из урока 3 НСК 1». Он соберёт тест сразу.</p></div><button class="btn ghost" data-a="go" data-v="tutor">К репетитору</button></section>`};
+
+/* ---------- репетитор собирает тест по просьбе сам, без сервера ---------- */
+function tuLocal(text){const t=String(text||'').toLowerCase().replace(/ё/g,'е');
+  if(!/(тест|карточ|квиз|викторин|задани|упражнен|экзамен|прописа|составл|проверь|проверк)/.test(t))return null;
+  if(/(объясни|почему|в чем разница|разница между|что значит|расскажи|исправь|разбери)/.test(t)&&!/(тест|карточ|квиз|викторин)/.test(t))return null;
+  let kind='cards';
+  if(/квиз|викторин|вариант|вопрос/.test(t))kind='quiz';
+  else if(/предложен|составл|собер|порядок слов/.test(t))kind='bd';
+  else if(/прописа|письмо знак|писать знак|напис|рукой|иероглиф/.test(t))kind='hand';
+  else if(/письменн/.test(t))kind='wr';
+  else if(/все подряд|все виды|микс|смешан|комплекс/.test(t))kind='mix';
+  const t2=t.replace(/\d+\s*(?:-?(?:го|й|ого|ий|ом|му))?\s*урок[а-яa-z]*/g,' ').replace(/урок[а-яa-z]*\s*(?:№\s*)?\d+/g,' ').replace(/(?:нск|hsk|хск|учебник[а-яa-z]*)\s*\d/g,' ').replace(/уровен[а-яa-z]*\s*\d|уровн[а-яa-z]*\s*\d/g,' ').replace(/блок[а-яa-z]*\s*\d+/g,' ').replace(/3[.,]0/g,' ');
+  const nm=t2.match(/(?:^|\s)(\d{1,2})(?=\s|$|[.,!?])/);let n=nm&&+nm[1]>=2&&+nm[1]<=40?+nm[1]:TU.n;
+  const lm=t.match(/(\d+)\s*(?:-?(?:го|й|ого|ий|ом|му))?\s*урок/)||t.match(/урок[а-яa-z]*\s*(?:№\s*)?(\d+)/),lesson=lm?lm[1]:'';
+  let spec={kind,n,src:null,lesson:'',lvl:1,block:'',label:''};
+  if(/3[.,]0/.test(t)||/уров/.test(t)&&!/(нск|учебник)/.test(t)&&/(hsk|хск|3[.,]0)/.test(t)){const lv=(t.match(/уров[а-яa-z]*\s*(\d)/)||t.match(/(?:hsk|хск)\s*(\d)/)||[])[1],bm=t.match(/блок[а-яa-z]*\s*(\d+)/);spec.src='h3';spec.lvl=+lv>=1&&+lv<=7?+lv:1;spec.block=bm?String(+bm[1]-1):'';spec.label=`HSK 3.0, уровень ${lvLabel(spec.lvl)}${bm?', блок '+bm[1]:''}`}
+  else{const vm=t.match(/(?:нск|hsk|хск|учебник[а-яa-z]*)\s*(?:по\s*)?([123])/);
+    if(vm){spec.src='book'+(vm[1]==='1'?'':vm[1]);spec.lesson=lesson;spec.label=`учебник 新HSK教程 ${vm[1]}${lesson?', урок '+lesson:''}`}
+    else if(/мои|выбранн/.test(t)){spec.src='sel';spec.label='твои выбранные слова'}
+    else if(/выучен|изучен/.test(t)){spec.src='srs';spec.label='выученные слова'}
+    else if(lesson){spec.src='book';spec.lesson=lesson;spec.label=`учебник 新HSK教程 1, урок ${lesson}`}
+    else if((S.sel||[]).length>=2){spec.src='sel';spec.label='твои выбранные слова'}
+    else{spec.src='book';spec.label='учебник 新HSK教程 1'}}
+  return spec}
+const TU_KIND={cards:'карточки',quiz:'вопросы с вариантами',bd:'сборка предложений',hand:'письмо знаков',wr:'письменный тест',mix:'смешанный тест'};
+function tuRunLocal(text,sp){TU.msgs.push({role:'user',content:text});TU.err='';TU.draft='';const ws=srcWords(sp);
+  if(!ws.length){TU.msgs.push({role:'assistant',say:`В источнике «${sp.label}» нет слов. Отметь слова во вкладке «Слова» или назови урок учебника.`});tuSave();if(view==='tutor')render();return}
+  const n=sp.n>=ws.length?ws.length:sp.n;
+  TU.msgs.push({role:'assistant',say:`Собрал тест: ${TU_KIND[sp.kind]}, ${n} из ${ws.length} слов. Источник: ${sp.label}. Он уже открыт.`,local:{kind:sp.kind,n:sp.n,ids:ws.map(w=>w.id).slice(0,400)}});tuSave();tsStart(sp.kind,{ids:ws.map(w=>w.id),n:sp.n})}
+
+Object.assign(act,{
+  more:()=>{const m=$('#more');if(!m)return;m.innerHTML=moreSheet();m.hidden=false},
+  moreclose:()=>{const m=$('#more');if(m)m.hidden=true},
+  gomore:d=>{const m=$('#more');if(m)m.hidden=true;go(d.v)},
+  qksrc:d=>{QK.src=d.s;QK.lesson='';QK.block='';QK.lvl=1;render()},
+  qkn:d=>{QK.n=+d.n;render()},
+  qkstart:d=>{const ws=srcWords({src:QK.src,lesson:QK.lesson,lvl:QK.lvl,block:QK.block});if(!ws.length){toast('В этом источнике нет слов');return}tsStart(d.k,{ids:ws.map(w=>w.id),n:QK.n})},
+  tulocal:d=>{const m=TU.msgs[+d.i];if(m&&m.local)tsStart(m.local.kind,{ids:m.local.ids,n:m.local.n})}
+});
+document.addEventListener('change',e=>{const t=e.target;if(!t.id)return;
+  if(t.id==='qklesson'){QK.lesson=t.value;render()}
+  if(t.id==='qklvl'){QK.lvl=+t.value;QK.lesson='';QK.block='';render()}
+  if(t.id==='qkblock'){QK.block=t.value;render()}});
+const _todayV=views.today;
+views.today=()=>{const r=_todayV(),h=typeof r==='string'?r:r.html,card=`<section class="card quickcard"><div style="min-width:0"><b>Быстрый тест</b><p class="muted">Открывается сразу: выбери, откуда слова, и вид теста.</p></div><button class="btn" data-a="go" data-v="quick">Начать</button></section>`,i=h.indexOf('</header>'),html=i>=0?h.slice(0,i+9)+card+h.slice(i+9):card+h;return typeof r==='string'?html:{...r,html}};
+
 let rz;window.addEventListener('resize',()=>{if(view!=='write'&&!(view==='lesson'&&$('#pad')))return;clearTimeout(rz);rz=setTimeout(render,200)});
 
 buildChars();
 render();
 cloudInit();
 </script>
+</body>
+</html>

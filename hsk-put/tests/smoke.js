@@ -61,8 +61,23 @@ S.sel=BOOK[16].words.slice(0,6).map(w=>w.id);tsStart('mix',{n:0});ok(TS&&TS.queu
 startDictation(sentPool().find(x=>x.book&&!x.py));ok(BD.task&&!BD.task.py&&!/undefined|NaN/.test(bdTaskHTML()),'диктант грамматического примера без пиньиня');
 S.sel=BOOK[0].words.map(w=>w.id);ok(sentPool().filter(x=>x.book).length>=2,'примеры учебника попадают в диктант');
 const tcB=tutorCtx();ok(tcB.lessons.filter(l=>l.std==='Учебник 新HSK教程 1').length===16&&tcB.lessons.filter(l=>l.std==='Учебник 新HSK教程 2').length===16&&tcB.lessons.filter(l=>l.std==='Учебник 新HSK教程 3').length===18&&tcB.lessons.find(l=>l.std==='Учебник 新HSK教程 3'&&l.n===5).grammar.length===3&&/НСК 3/.test(tcB.notes),'репетитор знает уроки учебника');PK.std='core';PK.lvl=0;PK.unit='';
+// Быстрый тест, локальная сборка по просьбе, телефон
+PK.std='core';S.sel=[];
+const qb=srcWords({src:'book',lesson:'3'});ok(qb.length===23,'источник: урок 3 учебника 1 — '+qb.length);
+ok(srcWords({src:'h3',lvl:2,block:'1'}).length===20&&srcWords({src:'book3'}).length>300&&srcWords({src:'core',lvl:1,lesson:'2'}).length>5,'источники: HSK 3.0 блок, учебник 3, курс');
+const qi=quizItem(BOOKW[10],allWords());ok(qi.opts.length===4&&new Set(qi.opts).size===4&&qi.opts[qi.a]&&qi.q,'вопрос с вариантами: '+qi.q);
+S.sel=BOOK[0].words.slice(0,6).map(w=>w.id);tsStart('quiz',{n:0});ok(TS&&TS.queue.length===6&&TS.queue.every(i=>i.t==='quiz'),'тест «вопросы»: '+(TS?TS.queue.length:0));
+go('quick');ok(!/undefined|NaN/.test(last)&&/Быстрый тест/.test(last),'экран «Быстрый тест»');QK.src='h3';go('quick');ok(!/undefined|NaN/.test(last),'быстрый тест: HSK 3.0');QK.src='book2';go('quick');ok(!/undefined|NaN/.test(last),'быстрый тест: учебник 2');
+let l1=tuLocal('сделай тест в виде карточек из 3 урока в НСК 1 на 7 заданий');ok(l1&&l1.kind==='cards'&&l1.src==='book'&&l1.lesson==='3'&&l1.n===7,'просьба 1: '+JSON.stringify(l1));
+let l2=tuLocal('квиз из 5 слов hsk 3.0 уровень 2 блок 3');ok(l2&&l2.kind==='quiz'&&l2.src==='h3'&&l2.lvl===2&&l2.block==='2'&&l2.n===5,'просьба 2: '+JSON.stringify(l2));
+let l3=tuLocal('прописать знаки из моих слов 4');ok(l3&&l3.kind==='hand'&&l3.src==='sel'&&l3.n===4,'просьба 3: '+JSON.stringify(l3));
+let l4=tuLocal('тест из урока 5 нск 2, 12 предложений');ok(l4&&l4.kind==='bd'&&l4.src==='book2'&&l4.lesson==='5'&&l4.n===12,'просьба 4: '+JSON.stringify(l4));
+ok(tuLocal('объясни разницу между 的 и 得')===null&&tuLocal('привет')===null,'вопросы без теста идут к ИИ');
+let l5=tuLocal('тест');ok(l5&&l5.kind==='cards'&&l5.src==='sel','просьба «тест» берёт мои слова: '+JSON.stringify(l5));
+S.sel=[];let l6=tuLocal('сделай тест');ok(l6.src==='book','без выбора берётся учебник 1');
+S.sel=BOOK[0].words.slice(0,4).map(w=>w.id);TU.msgs=[];tuRunLocal('тест из моих слов',tuLocal('тест из моих слов'));ok(TS&&TS.queue.length===4&&TU.msgs.length===2&&TU.msgs[1].local,'репетитор собрал и открыл тест');
 // Диктант
-ok(sentPool().length>20,'предложений для диктанта: '+sentPool().length);startDictation();ok(BD.task&&BD.task.chars.length>=2&&BD.task.ru&&BD.task.py,'диктант: '+(BD.task&&BD.task.zh));
+S.sel=[];ok(sentPool().length>20,'предложений для диктанта: '+sentPool().length);startDictation();ok(BD.task&&BD.task.chars.length>=2&&BD.task.ru&&BD.task.py,'диктант: '+(BD.task&&BD.task.zh));
 BD.chk=BD.task.chars.map(()=>({state:'ok'}));ok(!/undefined|NaN/.test(bdTaskHTML()),'итог диктанта без undefined');
 // Репетитор
 const tP1=tuParse('\\x60\\x60\\x60json\\n{"say":"Привет **мир** 你好","test":{"title":"Т","items":[{"type":"card","hz":"你好","py":"nǐ hǎo","ru":"привет"},{"type":"quiz","q":"?","opts":["a","b","c","d"],"a":2},{"type":"build","toks":["我","是","学生"],"ru":"Я студент","py":"wǒ shì xuésheng"},{"type":"write","hz":"学生","py":"xuésheng","ru":"студент"}]}}\\n\\x60\\x60\\x60');
