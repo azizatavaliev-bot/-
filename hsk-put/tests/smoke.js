@@ -47,14 +47,18 @@ S.sel=BANKW.filter(w=>w.lvl===3).slice(0,6).map(w=>w.id);tsStart('hand',{n:0});o
 ['cards','wr','bd','mix'].forEach(k=>{tsStart(k,{n:0});ok(!TS||TS.queue.length>=0,'тест '+k+' по HSK 3.0')});
 go('pick');ok(!/undefined|NaN/.test(last),'экран выбора в режиме HSK 3.0');PK.std='core';PK.lvl=0;PK.unit='';
 // Учебник 新HSK教程 1
-ok(BOOK.length===16&&BOOKW.length===338&&BOOK[2].words.length===23&&BOOK.reduce((a,l)=>a+l.ex.length,0)===8,'учебник: уроков '+BOOK.length+', слов '+BOOKW.length);
+ok(BOOK.filter(l=>l.vol===1).length===16&&BOOKW.filter(w=>w.vol===1).length===338&&BOOK[2].words.length===23&&BOOK.filter(l=>l.vol===1).reduce((a,l)=>a+l.ex.length,0)===8,'учебник 1: уроков '+BOOK.filter(l=>l.vol===1).length+', слов '+BOOKW.filter(w=>w.vol===1).length);
+ok(BOOK.filter(l=>l.vol===2).length===16&&BOOKW.filter(w=>w.vol===2).length===211&&BOOK.filter(l=>l.vol===2).reduce((a,l)=>a+l.ex.length,0)===28,'учебник 2: слов '+BOOKW.filter(w=>w.vol===2).length);
+PK.std='book2';PK.lvl=2;PK.unit='2';ok(pkVisible().length===15&&pkUnits().length===15,'учебник 2, урок 3: '+pkVisible().length+' слов, уроков со словами '+pkUnits().length);go('pick');ok(!/undefined|NaN/.test(last),'экран выбора: учебник 2');PK.std='book';PK.lvl=1;PK.unit='';
 ok(new Set(BOOKW.map(w=>w.id)).size===BOOKW.length&&BOOKW.every(w=>WB[w.id]===w&&aligned(w)),'слова учебника: id уникальны, слоги совпадают со знаками (не совпали: '+BOOKW.filter(w=>!aligned(w)).map(w=>w.hz).join(' ')+')');
 ok(BOOK[2].words.map(w=>w.hz).join('')==='人的中国法国中文这谁女朋友哪国她泰国喂姐姐工作还忙吗对太我们想您'&&BOOK[2].zh==='我是中国人','урок 3: '+BOOK[2].words.length+' слов');
-ok([...new Set(BOOKW.flatMap(w=>[...w.hz]))].every(c=>medOf(c)),'для всех знаков учебника есть порядок черт');
+ok([...new Set(BOOKW.flatMap(w=>[...w.hz]).concat(BOOK.flatMap(l=>l.ex.flatMap(e=>[...e.hz]))))].filter(isHan).every(c=>medOf(c)),'для всех знаков учебника есть порядок черт');
 PK.std='book';PK.lvl=1;PK.unit='2';ok(pkVisible().length===23&&pkUnits().length===16,'выбор урока 3 учебника: '+pkVisible().length);go('pick');ok(!/undefined|NaN/.test(last)&&/Урок 3/.test(last),'экран выбора: учебник');
 S.sel=BOOK[3].words.map(w=>w.id);tsStart('bd',{n:0});ok(TS&&TS.queue.length>=2&&TS.queue.every(i=>i.toks.length>=2),'предложения по уроку 4: '+(TS?TS.queue.length:0)+' заданий, пример: '+(TS&&TS.queue[0]?TS.queue[0].toks.join(''):''));
+S.sel=BOOK[16].words.slice(0,6).map(w=>w.id);tsStart('mix',{n:0});ok(TS&&TS.queue.length>=6,'тест по учебнику 2: '+(TS?TS.queue.length:0)+' заданий');
+startDictation(sentPool().find(x=>x.book&&!x.py));ok(BD.task&&!BD.task.py&&!/undefined|NaN/.test(bdTaskHTML()),'диктант грамматического примера без пиньиня');
 S.sel=BOOK[0].words.map(w=>w.id);ok(sentPool().filter(x=>x.book).length>=2,'примеры учебника попадают в диктант');
-const tcB=tutorCtx();ok(tcB.lessons.filter(l=>l.std==='Учебник 新HSK教程 1').length===16&&/НСК 1/.test(tcB.notes),'репетитор знает уроки учебника');PK.std='core';PK.lvl=0;PK.unit='';
+const tcB=tutorCtx();ok(tcB.lessons.filter(l=>l.std==='Учебник 新HSK教程 1').length===16&&tcB.lessons.filter(l=>l.std==='Учебник 新HSK教程 2').length===16&&/НСК 2/.test(tcB.notes),'репетитор знает уроки учебника');PK.std='core';PK.lvl=0;PK.unit='';
 // Диктант
 ok(sentPool().length>20,'предложений для диктанта: '+sentPool().length);startDictation();ok(BD.task&&BD.task.chars.length>=2&&BD.task.ru&&BD.task.py,'диктант: '+(BD.task&&BD.task.zh));
 BD.chk=BD.task.chars.map(()=>({state:'ok'}));ok(!/undefined|NaN/.test(bdTaskHTML()),'итог диктанта без undefined');
