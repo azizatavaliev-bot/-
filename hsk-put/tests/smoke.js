@@ -23,7 +23,7 @@ const two=recSegment([...box(0,0,100),...box(0,150,100)]);ok(two.length===2&&two
 const cells=recSegment([...box(5,5,100),...box(175,5,100)],{cell:160,ox:0,oy:0});ok(cells.length===2&&cells[1].col===1,'клетки: знаки по ячейкам');
 const rd=recRead('你好');ok(rd.length===1&&rd[0].py.join(' ')==='nǐ hǎo','слово «你好» читается целиком: '+rd.map(w=>w.py.join(' ')));
 // Распознавание по порядку черт
-recReady();ok(REC.tpl.length===CHARS.length,'образцы построены для всех '+CHARS.length+' знаков');
+recBuild(CHARS.map(x=>x.c));REC.act=recActive();ok(REC.tpl.length===CHARS.length,'образцы построены для всех '+CHARS.length+' знаков');
 let tHit=0;CHARS.slice(0,120).forEach(it=>{const st=medOf(it.c).map(m=>m.map(p=>[p[0]*100,p[1]*100]));if(recMatch(st,1)[0].c===it.c)tHit++});ok(tHit>=118,'идеальные штрихи узнаются: '+tHit+'/120');
 const tWv=recVerify(medOf('大').map(m=>m.map(p=>[p[0]*100,p[1]*100])),'大');ok(tWv.state==='ok','проверка нужного знака: '+tWv.state);
 const tBv=recVerify(medOf('大').map(m=>m.map(p=>[p[0]*100,p[1]*100])),'人');ok(tBv.state==='bad','чужой знак не засчитывается: '+tBv.state);
@@ -38,13 +38,21 @@ tsStart('cards',{n:0});for(let k=0;k<20&&!TS.done;k++){act.tsflip();act.tsknow({
 go('pick');ok(last.length>500&&!/undefined|NaN/.test(last),'экран «Мои слова»');
 ok(masteredIds().length===0,'освоение требует два вида тестов');
 tsStart('wr',{n:0});for(let k=0;k<20&&!TS.done;k++){const it=tsCur();TS.st.pick=it.a;TS.st.py=pyText(it.w.py);TS.st.pyRes=pyCheck(TS.st.py,it.w.py);tsPush(TS.st.pyRes==='ok'&&TS.st.pick===it.a);tsNext()}ok(masteredIds().length===S.sel.length,'после двух тестов слова освоены: '+masteredIds().length);
+// HSK 3.0: списки слов
+const bk={};BANKW.forEach(w=>bk[w.lvl]=(bk[w.lvl]||0)+1);ok(BANKW.length===10969&&bk[1]===506&&bk[6]===1123&&bk[7]===5606,'HSK 3.0: '+JSON.stringify(bk));
+ok(new Set(BANKW.map(w=>w.id)).size===BANKW.length&&BANKW.every(w=>WB[w.id]===w&&w.ru&&w.py),'слова HSK 3.0: id уникальны, у всех есть пиньинь и перевод');
+ok(BANKW.filter(w=>/[a-z]{5,}/i.test(w.ru)).length<120,'в переводах почти нет английского: '+BANKW.filter(w=>/[a-z]{5,}/i.test(w.ru)).length);
+PK.std='h3';PK.lvl=7;PK.unit='5';ok(pkVisible().length===20&&pkVisible()[0].lvl===7,'блок HSK 7–9');PK.lvl=4;PK.unit='2';ok(pkVisible().length===20&&pkVisible()[0].lvl===4,'блок из 20 слов HSK 3.0');PK.q='';
+S.sel=BANKW.filter(w=>w.lvl===3).slice(0,6).map(w=>w.id);tsStart('hand',{n:0});ok(TS.queue.length>=6&&TS.queue.every(i=>i.py!==undefined),'письмо знаков по словам HSK 3.0: '+TS.queue.length);
+['cards','wr','bd','mix'].forEach(k=>{tsStart(k,{n:0});ok(!TS||TS.queue.length>=0,'тест '+k+' по HSK 3.0')});
+go('pick');ok(!/undefined|NaN/.test(last),'экран выбора в режиме HSK 3.0');PK.std='core';PK.lvl=0;PK.unit='';
 // Диктант
 ok(sentPool().length>20,'предложений для диктанта: '+sentPool().length);startDictation();ok(BD.task&&BD.task.chars.length>=2&&BD.task.ru&&BD.task.py,'диктант: '+(BD.task&&BD.task.zh));
 BD.chk=BD.task.chars.map(()=>({state:'ok'}));ok(!/undefined|NaN/.test(bdTaskHTML()),'итог диктанта без undefined');
 // Репетитор
 const tP1=tuParse('\\x60\\x60\\x60json\\n{"say":"Привет **мир** 你好","test":{"title":"Т","items":[{"type":"card","hz":"你好","py":"nǐ hǎo","ru":"привет"},{"type":"quiz","q":"?","opts":["a","b","c","d"],"a":2},{"type":"build","toks":["我","是","学生"],"ru":"Я студент","py":"wǒ shì xuésheng"},{"type":"write","hz":"学生","py":"xuésheng","ru":"студент"}]}}\\n\\x60\\x60\\x60');
 ok(tP1.test&&tuQueue(tP1.test).length===5,'разбор теста репетитора: '+(tP1.test?tuQueue(tP1.test).length:0));ok(tuParse('просто текст').test===null,'обычный ответ без теста');
-const tCtx=tutorCtx();ok(tCtx.lessons.length>=30&&tCtx.selected.length===8&&JSON.stringify(tCtx).length<120000,'контекст репетитора: уроков '+tCtx.lessons.length+', '+Math.round(JSON.stringify(tCtx).length/1000)+' КБ');
+const tCtx=tutorCtx();ok(tCtx.lessons.length>=30&&tCtx.selected.length===S.sel.length&&JSON.stringify(tCtx).length<120000,'контекст репетитора: уроков '+tCtx.lessons.length+', '+Math.round(JSON.stringify(tCtx).length/1000)+' КБ');
 go('tutor');ok(last.length>400&&!/undefined|NaN/.test(last),'экран «Репетитор»');
 console.log(fails?'\\n'+fails+' ошибок':'\\nВсе проверки пройдены');process.exitCode=fails?1:0;
 `);

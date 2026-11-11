@@ -25,6 +25,7 @@ npm run rec            # точность распознавания знако�
 
 Материалы для репетитора (файлы HSK) кладутся в папку `materials/`.
 
+Слова HSK 3.0 (уровни 1–9): открытый словарь complete-hsk-vocabulary (MIT), переводы на русский сделаны для приложения.
 Данные порядка черт: Make Me a Hanzi / hanzi-writer-data, Arphic Public License.
 
 ## Перенос в GitHub

@@ -9,7 +9,7 @@ function sim(c){const m=medOf(c).map(s=>s.map(p=>[p[0]*100,p[1]*100]));
   if(st.length>2&&rn()<.12*LEVEL){const i=Math.floor(rn()*(st.length-1));st.splice(i,2,st[i].concat(st[i+1]))}
   if(rn()<.06*LEVEL){const i=Math.floor(rn()*st.length),s=st[i];if(s.length>4){const k=Math.floor(s.length/2);st.splice(i,1,s.slice(0,k+1),s.slice(k+1))}}
   return st.map(s=>s.map(([x,y])=>{let px=x-50,py=y-50;px+=sh*py;const qx=(px*Math.cos(th)-py*Math.sin(th))*sx,qy=(px*Math.sin(th)+py*Math.cos(th))*sy;return[qx+ax*Math.sin(py/18+ph)+gs()*.4*LEVEL,qy+ax*Math.sin(px/22+ph)+gs()*.4*LEVEL]}))}
-recReady();const cs=REC.tpl.map(t=>t.c);let t1=0,t3=0,okV=0,fa=0,n=0;const bad=[];
+recBuild(CHARS.map(x=>x.c));REC.act=recActive();const cs=REC.tpl.map(t=>t.c);let t1=0,t3=0,okV=0,fa=0,n=0;const bad=[];
 // ближайший по форме «двойник» каждого знака — им проверяем, не засчитывается ли чужой
 const twin={};REC.tpl.forEach(t=>{twin[t.c]=REC.tpl.filter(x=>x!==t).map(x=>({c:x.c,s:recDist(t,x)})).sort((a,b)=>a.s-b.s)[0].c});
 for(let i=0;i<NN;i++){const c=cs[Math.floor(rn()*cs.length)],st=sim(c);if(!recPrep(st))continue;n++;
