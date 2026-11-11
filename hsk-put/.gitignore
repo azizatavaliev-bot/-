@@ -1,0 +1,4 @@
+node_modules/
+screens/
+.DS_Store
+.vercel

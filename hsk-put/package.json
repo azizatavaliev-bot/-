@@ -1,0 +1,16 @@
+{
+  "name": "hsk-put",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Китайский от нуля до HSK 6: тетрадь, доска, тесты по своим словам, ИИ-репетитор",
+  "scripts": {
+    "test": "node tests/smoke.js",
+    "ui": "node tests/ui.js",
+    "rec": "node tests/rec.js",
+    "screens": "node tests/screens.js",
+    "start": "npx --yes serve -l 3000 ."
+  },
+  "devDependencies": {
+    "playwright": "^1.47.0"
+  }
+}
