@@ -421,6 +421,8 @@ section.row{flex-direction:row}
 .kind:hover{border-color:var(--accent)}
 .kind small{color:var(--muted);font-size:12px}
 .pktests{display:flex;flex-direction:column;gap:10px}
+.seg.wide{display:flex;flex-wrap:wrap;max-width:100%}
+.seg.wide button{flex:1 1 auto}
 .tscard{display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center}
 .tscard .opts,.tscard .build{align-self:stretch;max-width:none}
 .tshz{font-size:76px;line-height:1.1}
@@ -12689,6 +12691,374 @@ const BANK_SRC=`@1
 做证|zuò zhèng|свидетельствовать`;
 let BANKW=[];
 function buildBank(){BANKW=[];const seen={};let L=1;BANK_SRC.trim().split('\n').forEach(l=>{if(l[0]==='@'){L=+l.slice(1);return}const[hz,py,ru]=l.split('|');if(!hz||!ru)return;const k=L+'-'+hz;seen[k]=(seen[k]||0)+1;const w={id:'n'+L+'-'+hz+(seen[k]>1?'-'+seen[k]:''),hz,py,ru,lvl:L,std:'h3'};BANKW.push(w);WB[w.id]=w})}
+/* ---------- учебник «新HSK教程 1»: 15 уроков и имена собственные ---------- */
+/* Слова, переводы и примеры по словарю уроков, присланному пользователем; пиньинь сверен со словарём HSK (в изменённых тонах и лёгких слогах учебник прав, 学生 исправлено на xué sheng). */
+const BOOK_SRC=`@1|AI小语，你好！|Привет, Сяоюй!
+你好|nǐ hǎo|Привет; здравствуйте
+王老师|Wáng lǎo shī|Учитель Ван
+大家|dà jiā|Все
+好|hǎo|Хороший; хорошо
+学生|xué sheng|Ученик; студент
+们|men|Суффикс множественного числа
+老师|lǎo shī|Учитель
+你|nǐ|Ты; Вы
+你们|nǐ men|Вы (множественное число)
+谢谢|xiè xie|Спасибо
+不客气|bú kè qi|Не за что
+同学|tóng xué|Одноклассник; однокурсник
+再见|zài jiàn|До свидания
+=你好！|Nǐ hǎo!|Здравствуйте!
+=老师，您好！|Lǎoshī, nín hǎo!|Здравствуйте, учитель!
+@2|我叫李文|Меня зовут Ли Вэнь
+请问|qǐng wèn|Разрешите спросить
+你|nǐ|Ты; Вы
+叫|jiào|Зваться; называться
+什么|shén me|Что; какой
+名字|míng zi|Имя
+我|wǒ|Я
+不|bù|Не; нет
+是|shì|Быть; являться
+对不起|duì bu qǐ|Извините
+没关系|méi guān xi|Ничего страшного
+没事|méi shì|Всё в порядке
+很|hěn|Очень
+高兴|gāo xìng|Радостный
+认识|rèn shi|Знать; познакомиться
+也|Yě|Тоже; также
+=你叫什么名字？|Nǐ jiào shénme míngzi?|Как Вас зовут?
+=我叫李文。|Wǒ jiào Lǐ Wén.|Меня зовут Ли Вэнь.
+@3|我是中国人|Я китаец
+人|rén|Человек
+的|de|Частица принадлежности
+中国|Zhōng guó|Китай
+法国|Fǎ guó|Франция
+中文|Zhōng wén|Китайский язык
+这|zhè|Этот
+谁|shéi|Кто
+女朋友|nǚ péng you|Девушка (в отношениях)
+哪|nǎ|Какой; который
+国|Guó|Страна
+她|tā|Она
+泰国|Tài guó|Таиланд
+喂|wèi|Алло; эй
+姐姐|jiě jie|Старшая сестра
+工作|gōng zuò|Работа; работать
+还|hái|Ещё; всё ещё
+忙|máng|Занятый
+吗|ma|Вопросительная частица
+对|duì|Правильно; да
+太|tài|Слишком; очень
+我们|wǒ men|Мы
+想|xiǎng|Хотеть; думать
+您|nín|Вы (вежливо)
+=我是中国人。|Wǒ shì Zhōngguó rén.|Я китаец.
+=她是谁？|Tā shì shéi?|Кто она?
+@4|我有两个孩子|У меня двое детей
+有|yǒu|Иметь; есть
+多少|duō shao|Сколько
+个|gè|Универсальное счётное слово
+哥哥|gē ge|Старший брат
+呢|ne|Вопросительная частица
+没有|méi yǒu|Не иметь; нет
+弟弟|dì di|Младший брат
+几|jǐ|Сколько (обычно небольшое количество)
+口|kǒu|Счётное слово для членов семьи
+爸爸|bà ba|Папа
+妈妈|mā ma|Мама
+妹妹|mèi mei|Младшая сестра
+和|hé|И; с
+儿子|ér zi|Сын
+孩子|hái zi|Ребёнок; дети
+女儿|nǚ ér|Дочь
+岁|suì|Лет (о возрасте)
+他|tā|Он
+今年|jīn nián|В этом году
+多|duō|Много; насколько
+大|dà|Большой; старший
+=我有两个孩子。|Wǒ yǒu liǎng ge háizi.|У меня двое детей.
+=你今年多大？|Nǐ jīnnián duō dà?|Сколько Вам лет?
+@5|今天我休息|Сегодня я отдыхаю
+今天|jīn tiān|Сегодня
+号|hào|Число; номер
+月|yuè|Месяц
+日|Rì|День; дата
+星期|xīng qī|Неделя
+星期日|Xīng qī rì|Воскресенье
+星期天|Xīng qī tiān|Воскресенье
+休息|xiū xi|Отдыхать
+会|huì|Уметь; мочь
+做饭|zuò fàn|Готовить еду
+做|zuò|Делать
+面条儿|miàn tiáo r|Лапша
+饺子|jiǎo zi|Пельмени
+一些|yì xiē|Немного; несколько
+菜|cài|Блюдо; овощи
+下班|xià bān|Заканчивать работу
+新|Xīn|Новый
+电脑|diàn nǎo|Компьютер
+真|zhēn|Действительно
+好看|hǎo kàn|Красивый; хорошо выглядящий
+喜欢|xǐ huan|Нравиться; любить
+它|tā|Оно; это
+@6|你的手机号是多少？|Какой у Вас номер телефона?
+手机|shǒu jī|Мобильный телефон
+电话|diàn huà|Телефон; звонок
+号|hào|Номер
+明天|míng tiān|Завтра
+去|qù|Идти; ехать
+哪儿|nǎ r|Где; куда
+想|xiǎng|Хотеть
+超市|chāo shì|Супермаркет
+买|mǎi|Покупать
+东西|dōng xi|Вещь; вещи
+些|xiē|Немного; несколько
+牛奶|niú nǎi|Молоко
+吃|chī|Есть; кушать
+晚饭|wǎn fàn|Ужин
+那|nà|Тот; тогда
+包子|bāo zi|Баоцзы, булочка с начинкой
+非常|fēi cháng|Очень; чрезвычайно
+好吃|hǎo chī|Вкусный
+米饭|mǐ fàn|Варёный рис
+怎么|zěn me|Как; каким образом
+坐|Zuò|Сидеть; ехать на транспорте
+出租车|chū zū chē|Такси
+@7|我晚上六点半下班|Я заканчиваю работу в 18:30
+现在|xiàn zài|Сейчас
+点|diǎn|Час (время)
+早上|zǎo shang|Раннее утро
+上午|shàng wǔ|Первая половина дня
+分|fēn|Минута
+课|kè|Урок; занятие
+下午|xià wǔ|Вторая половина дня
+见|jiàn|Видеть; встречать
+吧|ba|Частица предложения или совета
+电影院|diàn yǐng yuàn|Кинотеатр
+看|kàn|Смотреть; читать
+电影|diàn yǐng|Фильм
+事|shì|Дело
+上课|shàng kè|Посещать занятие
+要|yào|Хотеть; нужно
+半|bàn|Половина
+下课|xià kè|Заканчивать занятие
+在|zài|Находиться; в
+家|jiā|Дом; семья
+里|lǐ|Внутри
+晚上|wǎn shang|Вечер
+医院|yī yuàn|Больница
+上班|shàng bān|Идти на работу; работать
+店|diàn|Магазин
+菜|cài|Овощи; блюдо
+分钟|fēn zhōng|Минута (длительность)
+后|Hòu|После; позже
+@8|我爸爸也在医院工作|Мой папа тоже работает в больнице
+房间|fáng jiān|Комната
+外|wài|Снаружи
+只|zhī|Счётное слово для животных
+小|xiǎo|Маленький
+猫|māo|Кошка
+没|méi|Не (отрицание)
+看见|kàn jiàn|Увидеть
+桌子|zhuō zi|Стол
+下|xià|Под; внизу
+漂亮|piào liang|Красивый
+在|zài|В; находиться
+学校|xué xiào|Школа
+书店|shū diàn|Книжный магазин
+前|qián|Перед; впереди
+能|Néng|Мочь; быть способным
+到|dào|Прибывать; достигать
+午饭|wǔ fàn|Обед
+饭|fàn|Еда; приём пищи
+大|dà|Большой
+病人|bìng rén|Пациент
+多|duō|Много
+医生|yī shēng|Врач
+工作|gōng zuò|Работать; работа
+@9|我明天上午在学校学习|Завтра утром я буду учиться в школе
+前边|qián bian|Спереди; впереди
+边|biān|Сторона; край
+家|jiā|Дом; семья
+那个|nà ge|Тот
+外边|wài bian|Снаружи
+椅子|yǐ zi|Стул
+上|shàng|На; сверху
+本|běn|Счётное слово для книг
+书|Shū|Книга
+第|dì|Приставка порядкового числительного
+学习|xué xí|Учиться
+做|zuò|Делать
+每天|měi tiān|Каждый день
+读书|dú shū|Читать книги; учиться
+和|hé|И; с
+朋友|péng you|Друг
+唱|chàng|Петь
+歌|gē|Песня
+好听|hǎo tīng|Приятный на слух
+电视|diàn shì|Телевизор; телевидение
+狗|gǒu|Собака
+玩|wán|Играть; развлекаться
+@10|这儿的苹果真便宜！|Яблоки здесь действительно дешёвые!
+杯子|bēi zi|Чашка; стакан
+售货员|shòu huò yuán|Продавец
+这边|zhè bian|Здесь; с этой стороны
+钱|Qián|Деньги
+这些|zhè xiē|Эти
+块|kuài|Юань (разговорно); кусок
+那些|nà xiē|Те
+这儿|zhè r|Здесь
+水果|shuǐ guǒ|Фрукты
+少|shǎo|Мало
+斤|jīn|Цзинь (500 граммов)
+苹果|píng guǒ|Яблоко
+便宜|pián yi|Дешёвый
+商店|shāng diàn|Магазин
+衣服|yī fu|Одежда
+件|jiàn|Счётное слово для одежды
+元|Yuán|Юань
+怎么样|zěn me yàng|Как; какой
+贵|guì|Дорогой
+穿|chuān|Носить одежду; надевать
+女|nǚ|Женщина; женский
+男|nán|Мужчина; мужской
+那儿|nà r|Там
+@11|我读大学呢|Я учусь в университете
+时候|shí hou|Время; момент
+饭店|fàn diàn|Ресторан; гостиница
+知道|zhī dào|Знать
+正在|zhèng zài|Прямо сейчас (действие в процессе)
+找|zhǎo|Искать
+开车|kāi chē|Водить машину
+车|Chē|Машина; транспорт
+在|zài|Указывает на действие в процессе
+读|dú|Читать; учиться
+大学|Dà xué|Университет
+大学生|dà xué shēng|Студент университета
+学|xué|Учить; изучать
+医|yī|Медицина
+弟弟|dì di|Младший брат
+起床|qǐ chuáng|Вставать с постели
+睡觉|shuì jiào|Спать
+睡|shuì|Спать
+那里|nà li|Там
+哪里|nǎ li|Где
+昨天|zuó tiān|Вчера
+问|wèn|Спрашивать
+对|duì|К; по отношению к
+说|shuō|Говорить
+要|yào|Хотеть
+小朋友|xiǎo péng you|Ребёнок; малыш
+@12|昨天下雪了|Вчера шёл снег
+天气|tiān qì|Погода
+这里|zhè li|Здесь
+差|chà|Плохой; хуже
+下雨|xià yǔ|Идёт дождь
+了|le|Частица изменения состояния
+雨|yǔ|Дождь
+有点儿|yǒu diǎn r|Немного; слегка
+觉得|jué de|Считать; чувствовать
+冷|Lěng|Холодный
+下|xià|Выпадать (об осадках)
+雪|Xuě|Снег
+来|lái|Приходить
+公司|gōng sī|Компания
+生病|shēng bìng|Заболеть
+看病|kàn bìng|Обращаться к врачу
+病|bìng|Болезнь; болеть
+一点儿|yì diǎn r|Немного
+药|yào|Лекарство
+天|tiān|День
+回|huí|Возвращаться
+再|zài|Снова; затем
+喝|hē|Пить
+热|rè|Горячий; жаркий
+水|Shuǐ|Вода
+@13|请给我一杯茶|Дайте мне чашку чая, пожалуйста
+可以|kě yǐ|Можно; мочь
+再|zài|Ещё раз; снова
+问题|wèn tí|Вопрос; проблема
+卖|mài|Продавать
+打电话|dǎ diàn huà|Звонить по телефону
+一下|yí xià|Немного; разок
+服务员|fú wù yuán|Официант; обслуживающий персонал
+女士|nǚ shì|Госпожа; дама
+请|qǐng|Пожалуйста; просить
+坐|Zuò|Садиться; сидеть
+给|gěi|Давать; для
+杯|bēi|Чашка; стакан (счётное слово)
+要|yào|Хотеть; заказывать
+早饭|zǎo fàn|Завтрак
+这个|zhè ge|Этот
+面包|miàn bāo|Хлеб
+鸡蛋|jī dàn|Яйцо
+先生|xiān sheng|Господин
+一半|yí bàn|Половина
+茶|chá|Чай
+@14|我看了一个电影|Я посмотрел фильм
+上|shàng|Садиться в транспорт; подниматься
+火车|huǒ chē|Поезд
+中午|zhōng wǔ|Полдень
+开|kāi|Отправляться; открывать
+有些|yǒu xiē|Некоторые
+有的|yǒu de|Некоторые (из них)
+了|le|Частица завершённого действия
+写|xiě|Писать
+都|dōu|Все; всё
+听见|tīng jiàn|Услышать
+不要|bú yào|Не надо
+说话|shuō huà|Разговаривать
+听|tīng|Слушать
+哪些|nǎ xiē|Какие
+字|zì|Иероглиф; письменный знак
+汉语|Hàn yǔ|Китайский язык
+汉字|hàn zì|Китайский иероглиф
+明年|míng nián|Следующий год
+上学|shàng xué|Ходить в школу; учиться
+中学|zhōng xué|Средняя школа
+小学|xiǎo xué|Начальная школа
+中学生|zhōng xué shēng|Ученик средней школы
+小学生|xiǎo xué shēng|Ученик начальной школы
+他们|tā men|Они
+她们|tā men|Они (о женщинах)
+它们|tā men|Они (о предметах или животных)
+晚|wǎn|Поздний
+@15|大兴机场见！|Увидимся в аэропорту Дасин!
+爱|ài|Любить; нравиться
+哪个|nǎ ge|Который; какой
+去年|qù nián|Прошлый год
+男朋友|nán péng you|Парень (в отношениях)
+几|jǐ|Несколько; сколько
+年|Nián|Год
+好玩儿|hǎo wán r|Интересный; весёлый
+飞机|fēi jī|Самолёт
+要|yào|Нужно; собираться
+小时|xiǎo shí|Час (длительность)
+家人|jiā rén|Член семьи
+时间|shí jiān|Время
+机场|jī chǎng|Аэропорт
+接|jiē|Встречать; забирать
+住|zhù|Жить; проживать
+早|zǎo|Рано
+那|nà|Тогда; тот
+@16|Имена собственные|Имена собственные из учебника
+王一飞|Wáng Yī fēi|Ван Ифэй
+白佳月|Bái Jiā yuè|Бай Цзяюэ
+陈天中|Chén Tiān zhōng|Чэнь Тяньчжун
+李文|Lǐ Wén|Ли Вэнь
+王一雪|Wáng Yī xuě|Ван Исюэ
+刘明|Liú Míng|Лю Мин
+刘小雪|Liú Xiǎo xuě|Лю Сяосюэ
+刘小明|Liú Xiǎo míng|Лю Сяомин
+杨同乐|Yáng Tóng lè|Ян Тунлэ
+胡医生|Hú yī shēng|Доктор Ху
+西安|Xī ān|Сиань
+北京|Běi jīng|Пекин
+大兴机场|Dà xīng jī chǎng|Аэропорт Дасин
+西安饭店|Xī ān fàn diàn|Ресторан «Сиань»`;
+let BOOK=[],BOOKW=[];
+function buildBook(){BOOK=[];BOOKW=[];let cur=null;BOOK_SRC.trim().split('\n').forEach(l=>{if(l[0]==='@'){const[n,zh,ru]=l.slice(1).split('|');cur={n:+n,zh,ru,words:[],ex:[]};BOOK.push(cur);return}
+  if(l[0]==='='){const[hz,py,ru]=l.slice(1).split('|');cur.ex.push({hz,py,ru});return}
+  const[hz,py,ru]=l.split('|'),w={id:'b'+cur.n+'-'+hz,hz,py,ru,lvl:1,std:'book',lesson:cur.n};cur.words.push(w);BOOKW.push(w);WB[w.id]=w})}
 function buildWords(){WORDS=[...parseList(H1,1),...parseList(H2,2)];[3,4,5,6].forEach(l=>(S.custom[l]||[]).forEach(w=>WORDS.push({...w,lvl:l})));
   const HZ={};WORDS.forEach(w=>{if(!HZ[w.hz])HZ[w.hz]=w});
   const mk=(pre,hz,py,ru,extra)=>{if(HZ[hz])return HZ[hz];const w={id:pre+hz,hz,py,ru,lvl:0,...extra};HZ[hz]=w;WORDS.push(w);return w};
@@ -12697,7 +13067,7 @@ function buildWords(){WORDS=[...parseList(H1,1),...parseList(H2,2)];[3,4,5,6].fo
   DLG.forEach(d=>d.lines.forEach(l=>l.w=mk('d-',l[1],l[2],l[3],{sent:true})));
   (S.aiw||[]).forEach(a=>mk('a-',a.hz,a.py,a.ru,{ph:true}));
   GRAPH_WORDS=GRAPH.map(it=>{const w={id:'g-'+it.g,hz:it.g,py:it.py,ru:it.ru,lvl:0,gr:true,say:RADONLY.includes(it.g)?it.exs[0].hz:it.g,exs:it.exs.map(e=>e.hz+' '+e.py+' '+e.ru).join(' · ')};it.w=w;WORDS.push(w);return w});
-  WB={};WORDS.forEach(w=>WB[w.id]=w);buildBank()}
+  WB={};WORDS.forEach(w=>WB[w.id]=w);buildBank();buildBook()}
 buildWords();
 const byLvl=l=>WORDS.filter(w=>w.lvl===l);
 buildUnits();buildSprint();
@@ -14092,10 +14462,32 @@ const MEDS_SRC=`你J5K7IEFJ6V4W GKGMHOGdFkFp X4Y5Z9WFPROS VMgJlInKmNiQ ZQbSbnbpX
 准ADGHHJ BnAkDeHT U4V4W6SGNNJS QMQORPRfQoQs b8gBhD WLaLgKmIoI XUZUjSmS XbabiZlZmZ dMeNfPehdi TlTlVlnjpjtk
 备O5P6OBMEEMBO OEYCcDPTEa7c MIPJZRkXmXwW GbHcIeKpLt JbZZcZfbdpaq NjXiZiai ScTdTfTnSo MrNrap
 始G6JACaDbNhPk MNOPMXGhCk8m 4S7UCSKQLP c8dBaHUTXTlQ iKoPpSpT TcUdVeXq WcWciajakhji YlZmjklkml
-半HBMENH h6i8i9eDbF JOKOOOcLgL 6YAZOXoVrVuW R4T5V7VGUv
+王IEKENFeCiC KUMVPVXTdSgS TGVHVJUhTi 7l9mCmOkoitk
+李GEIEKEfBjB S4T4V6UIUP TFQIKOFS9U WFXGcLkQnQvR KTLUXRZRVYVY RXVcWiVqVrNp 6e9fOdmbqbtc
+文N4T8VA BLELFLeGhGkH UKWNVXNhFl8m GSKUXhholovp
+法FAKDMG 9LDOEQ BoBlBjCgKT QKSLVKcJhHlH X6Z8a9ZSYT LXOXUWnTpTsT aYYYUeQlSlhi fcmlnnnp
+泰ICKDNDVCdAgA IKJKNKbHdI CSFSSQhOmP S4U6RJMUIY6f ZRaRgXmbqcxd RWUYUmTrRqMo JbMcOe EmHmPh cYcaYe Zidkgmhoiq
+口EJGLHNKgLj IKTJgHhIjLdb MhNgddgeie
+饺H6J8IDFJAR4Y GKNIOIQJNOLR FSHVHcGkHlPg a5f8hA VHWIaHkEoE WNXOSURURU fLlOmP fTgYedYkVmOn UXXZehillnvp
+超DIGIQGTG J5M8MMLO 5S9SPOSOVO KRMSMeNf OYPXRWTX DVFXCeAh6l3n FbIeSkeqhrup XEkClClLkOeN bFdGdHcJZPVS WWYYai ZWbXhVlVmWjc bgbgjemf
+市Q3V7X9 8H9HBHmCpCsE GOIQJRJWIdIg KPfNhNhcgdab SGUIUv
 包O5P6Q8KIFNDP MIgFhSfZccXY ISJRQPRPRWQW HbIaPZTZ FQFeIoQsmqsd
-用F9HBHMGVCh8o JAPAh8khjobl NMSMaKcK MWPWaUdU RBUCVDUm
+半HBMENH h6i8i9eDbF JOKOOOcLgL 6YAZOXoVrVuW R4T5V7VGUv
+只HCJDKFNT LCNDcAgDgDbM ORPQbOfOgP PaNbKfHhBm8o bXgclhmjnm
+售L6M7LBIG9Q6S JIJKKLJVJZJd V4a7b8 PDQEUEaDgBjB RLTLeJhJ RSTSfPhQ XFZGZGZVYX LZMaOahXjXmY JhJhLkOu JhWhcfgghheo PrQrdqgqir
+货K4L5K8FD8K6L IDIEIHINIR j8g8dBaDUGQH V4WCXIgKpJqB LPMRNUNZMgMj OQPRaPcQdfdi SUUWUfQoNqEt Yleqfrgu
+斤d7Y7TAOCNDMC HCKEJTIYEh7o MPNOWMlKoKrK YObPaw
+元KCMDPCYAc9 BREReLgKjL KSMTKZHf8n7o TPVaWliosmsc
 差L7QAQB b3c5c6ZAWC IHLHNHUGcEgE JPMPbNfN BXCXEYVVjUoV PISKQUIjEm6r OeSeccfc VfWgWhVnUo IqLrZpjpoq
+士8UCVNTmQrR S9T9VBUgUhTi GlJlcjfjik
+接8LCLMIPI G6J8IkHoBlAk 5c7cHVOQ Y5d8eA UGWGYGjDmD VKXMYO fGgHhIePdQ RSTTkQmQoQ YUZVXifllpos gXhcfhZmXoPp McPceapZsZua
+佳K7L8MACR8V5Y HNHPIRIcHnHr TKVKYKiHlH Z6c8bPaR OUQUYTmRpRrR SdUeXegckc ZUbVbYbkal MoPpomrmtn
+陈DCKBMBJLMSGR 9CBDBFCbBmBr QKRKUKaJkHoH a6c9YLWXlVoV bPcQeSdocpVm TdShPm kcqirkrm
+刘H5N8PB 7LAMQITIWI NLPNNUHeDh5k CSMaReThUj YIaJaKab j6l8m9mllocl
+杨6N8NBNMKPK H4K8JeInIs INHNGSCZ8f4j KROVPX RCdBXQrQknbm XTYTYVXXTdQf fQhSeZZhUnSo
+胡8KAKDKPHTH I4K6L7IRHT 8UAVBWDh BUDVMTNTNaMb EfFeLdPd WAZDZOWfQpLt aBcBmAohmpfl bNbMfMiM aXaXbWdWhWjW
+安R4V6X9 GEGFGHEMEP IIRFfDiDkFeL RLTONcXiemks YSZYXdRlNoEq 5Z9aMXqUvV
+用F9HBHMGVCh8o JAPAh8khjobl NMSMaKcK MWPWaUdU RBUCVDUm
 地7TATJQMP DBGDGEGdFf 5j9kNc KXaQkLlRicdZ Y5Z6b8bAaOZe QJRMTicnqluY
 方R5W8X9YC 9NDNUKmIqIsJ VSdTfWciZnPk TMUNPXKdDk7n
 图CAEBECEYDmDq GBQAi8lQmlls RDSFRHNMIR RKZIaJSTNXHZ PNPNVReWiWjW TWWYXa RcWgXi FoGnemin
@@ -14111,8 +14503,6 @@ const MEDS_SRC=`你J5K7IEFJ6V4W GKGMHOGdFkFp X4Y5Z9WFPROS VMgJlInKmNiQ ZQbSbnbpX
 记G6MAOC 5RGOIOGhHkPg VFYFkDlEiNhO YTZSgQjQlQ TQVTWmcosmtd
 楼6N9NKLOK G6H7J9IeHmHs HOGOFSDWAc5i KTKTKUOXOY TCVEXF k8lAgE QLSLVLjImIoI a4b5c7bNcU aLVRTTSTSUQU dLfOkSoTtT YVZWaXhnkpmt fZhbfhcmWpPq NcPddbpatb
 渴D8IBICJE 8JEMFO BmBlAiCfIT P7Q8RATN S7e6h7i8gGeM UFUFYEaDcE ULWKaKbKcL TNUQSSPWKZ TUbTmSmmjqco YUaVaWZXWcTe aZbZdaebgc NaPcQjViehhi
-文N4T8VA BLELFLeGhGkH UKWNVXNhFl8m GSKUXhholovp
-口EJGLHNKgLj IKTJgHhIjLdb MhNgddgeie
 马HBQAa9cAbGZR KFLTXVmWhpYm 8hBhNfbeff
 毛b8W7QCLEHGGH FQHQLPYLcL 5cAdfViV MFQIRlZormuZ
 拿X5V5PDDN7R5S W8X9YAiIoLxM NHRGXFZF KMMNMONU NMPMaKbKcOaP OTPSYRcRdR dVVWQXMYLYKY IcLdOdZbeaha BkDkPikgmhph TXVZWoVsUuMr
@@ -14125,14 +14515,11 @@ const MEDS_SRC=`你J5K7IEFJ6V4W GKGMHOGdFkFp X4Y5Z9WFPROS VMgJlInKmNiQ ZQbSbnbpX
 行K5L6L8EHCJ9L KHLIJNGR7a5c GTHXHfGmHq WEaFjCmC PRSRZPrNwO eRgShlgocqZn
 页CAFBSAl7p8 SBTCQIPI JIKKLMLSKg MJUJaHcIdQdf QPUSSdPmLpCs Xifoirit
 爷M6N9LBIEFGBH a5jAkClE YCXHTLMRIU7X MFPFSHiSmTvT EZJZfWgcejXi SaUbTw
-元KCMDPCYAc9 BREReLgKjL KSMTKZHf8n7o TPVaWliosmsc
 重e8a7QCPCLDJD 8LCLMJlHoHrI HPIQJSMe JPMQfOgPebec PWYUaV NcNcca SCUDVHUnUoTp LjOkaiei CrFsYqkqmqpr
 啊5I6J6K8V 8J8JDHGIEPDQ 9TASDRFRHR MBRAQISNQRMP IAJCLJLZJlJo WFZFhDqCvD WNXOZY ZOZOeNfNfSgT aWbVdUgV jElGmimkilej
-安R4V6X9 GEGFGHEMEP IIRFfDiDkFeL RLTONcXiemks YSZYXdRlNoEq 5Z9aMXqUvV
 静BFDFGFQDSD CLGLOJRJ J5L7KNJO 5S9SOPROTO DVEWEaCp GWMUOWOjOnIm FcHbLb FhFgIgKfLg b6c8bBXGUJ aFgDiEiEeKcM VOYOjMnNlWkX SVVVfTqRsRvS VbXbjZmZnZ aPcRdXdncqUo
 全S6U9RDJOFS6Y VCVDhPlRpSwS JVLVOVaTdT IfKfNfZddd RWTXTYTmSn BqErPpionp
 办EOHPgLdkaoSk S8UATONdGl8q HUFXBd kUqYrasc
-法FAKDMG 9LDOEQ BoBlBjCgKT QKSLVKcJhHlH X6Z8a9ZSYT LXOXUWnTpTsT aYYYUeQlSlhi fcmlnnnp
 夜R3W6Y9 CGFHPFhCjCmD KJLKMLCY7c5d IUIVJXIpIr YIZKYNVSSVSV ZPfNhSdcViOl WTXTYUaVbW PWQWSXkmnnvn
 饱H6J8IDGJBR5Y HKNIPIQJNOLR FRHTHdHkJkQf a4c5c9aDVMTO YLmHoIlYjbeZ VTWTcRdScXbY Vbaada TSUVVmcqqote
 背M6O8P9PEPO CFFFMENF 8O9OCPNLNK h8iAZF W4YAYJgNnMoF KSMUMXMgKr OTQTbSdYbsWp OaPaUZWYXZ NgPgTfWfXg
@@ -14155,8 +14542,6 @@ const MEDS_SRC=`你J5K7IEFJ6V4W GKGMHOGdFkFp X4Y5Z9WFPROS VMgJlInKmNiQ ZQbSbnbpX
 草DDIDSCgBjBmC L7N7O8QH a4b4c6aCYH ILKMKNNY LLNLbKgMfPcX NRORWPXPYQ OWPXRXZVbW 9fCgPemdpdse SXUZUv
 层MCNBe8f9fFdG MKMKOKdIgIhI I9KCIODdBh5p PSQSTSdQfQ HbJcLckYmZpZ XcUdPlOnfkfl dfhkjnlqlr
 查EGIHVFeEhEjE S4T5V7UQUT SHNOJREV9X WHYJbMkTnTvU JXKYLaMhNl LYOYZVdYajbk OeOeUdWcYd PkQjVjYjYj BqCrErPqkpqq
-超DIGIQGTG J5M8MMLO 5S9SPOSOVO KRMSMeNf OYPXRWTX DVFXCeAh6l3n FbIeSkeqhrup XEkClClLkOeN bFdGdHcJZPVS WWYYai ZWbXhVlVmWjc bgbgjemf
-市Q3V7X9 8H9HBHmCpCsE GOIQJRJWIdIg KPfNhNhcgdab SGUIUv
 辆9HCIEHNFQF I5FKBTCVEVPT INKPJgIpJt 5g8hPZ THXHkEmEoE RRSTTWTaSjSm USeQoPqfnnhl XJZKZSYZWcVe aYaZbacb fHhIhSgWdebh hYiakclf
 称SANAIEBHAHAI 6Q9RMNPN HGIHIIIdImIr HQGRGUDZAe5j JTNWOX X8Y9ZAYEUMRS WMZMmInJkQjQ bNdOdkcobpVl VZUcRi jZqerhri
 绩G6I9EHANGNIM MENHEUDWEXNU 7iAiPb TCVDYCeBj9m9 UIYIeHgGjG a3c5cLbM PPSPeNpLtM USVTVUVZViVk XTXThRiRkfkk aWcZcgZoWqQs gmlqmsnt
@@ -14212,7 +14597,6 @@ const MEDS_SRC=`你J5K7IEFJ6V4W GKGMHOGdFkFp X4Y5Z9WFPROS VMgJlInKmNiQ ZQbSbnbpX
 级H7I9AOAPGPIO NGOHLNFVGYOV 6j8kAkOb VIXKVTTZMkJo SHhEdQkSggQp VZWZYalnmowq
 更JALAOAc7g7 FIHKIMKULY JJbGeGiJeTdY NQPPXOYOaO MWNWbU QBTDScRfMl8r EaJcMddqgrus
 交P5U8W9 CHDHGHhDkDmE LKMMMNJRGUBX XJeNhQ WSXYUdLlIn8p JXMYYjfojquq
-斤d7Y7TAOCNDMC HCKEJTIYEh7o MPNOWMlKoKrK YObPaw
 平K8O9W7c6e5f6 GFLKMM fCgDhEaM 7VBVOTnRqRtS SAUBUCVDUu
 故6P8QAPQMSLTM I8LBLCJWJXIY 9aBbBcEo DbEaLYOYOfMg FkFkMiQi b6c6d8aIWOSU YOaOgNmLqK dPgRcdagUlQn UVXXfhmnooxp
 顾FFGFKEQCSC ADCGCQAZ7g2n HPJPQORPQYLX FOGQHZGjJjQf VBXBZBl9q9 bCcDbIaJ VJXKXMXTWcXf ZKaKkJlKlake bPeRdcamXpQs hinoopos
@@ -14244,10 +14628,8 @@ const MEDS_SRC=`你J5K7IEFJ6V4W GKGMHOGdFkFp X4Y5Z9WFPROS VMgJlInKmNiQ ZQbSbnbpX
 讲E7KBLD 4QAQGNHOGjOd RMUNWNkJpJ OYRYaXpVuW VAYGYPWcTgNn f4g5i7ibhoht
 通Q9U9f6h8cDbE WDaFbH PKRLRORWQePg SLiIlJlakhff VScQeQgQ UYYYcXfWgX YLaMaNag C9HCJE 5RFOHRFXIfHh 6jEiMjWnhqso
 角R4S7OCJHEJ QDWCbBbCWLUM GNJQJZHjEn9s LOWNiLjPirbp NWPXRXXWZVcV MePfRfZded SOVQUp
-饺H6J8IDFJAR4Y GKNIOIQJNOLR FSHVHcGkHlPg a5f8hA VHWIaHkEoE WNXOSURURU fLlOmP fTgYedYkVmOn UXXZehillnvp
 脚9BBEBPAY8e4m CBHBJCJgJlCk DNEMGM CVDVEUFUHU OLRLYJbJ T7V9UQTR MTPTaRdS SUSZPeRgXdZd XYcech jKoHrIrRpWkW eIgKgLgv
 育Q3V5X8 9FCGTDlBoBqC TFRGLONOcLcL aHgMiOiP LTMVNaMkLoKs OUaTcadmcsWq OcWaYa OjOiUhYh
-接8LCLMIPI G6J8IkHoBlAk 5c7cHVOQ Y5d8eA UGWGYGjDmD VKXMYO fGgHhIePdQ RSTTkQmQoQ YUZVXifllpos gXhcfhZmXoPp McPceapZsZua
 受d6c6Z5T9OBKC JFMINJNL SDUGVH gAhBhDeFZJ CODQAWAZ FQIQWOlMmNiU LXRWaXWhNpEr KbNccpfqjsus
 街J4K6K7FDDGAI IIJKIOFR6b3e GTGVGWGdGnGq OISIYFbF T5V7VMUN LQNQYNbNdN NYRYYVbV TQURVSVcUe LgOhZedc eFhFnEqD cQfQrOwO iRlSllkogqdo
 目HBICJEJbIjIn KBNCc9fCgjak LOMNVMYM LXMXSWWVZW KkMjTjYibj
@@ -14353,7 +14735,6 @@ const MEDS_SRC=`你J5K7IEFJ6V4W GKGMHOGdFkFp X4Y5Z9WFPROS VMgJlInKmNiQ ZQbSbnbpX
 晨H7J8K9LFNK K7M7c5e5cHcI NDNCTBXBYB OJPIaG KOMOVNdLgL HMIPIUDhBm4t OTQUYScS IaKaUYgXkX LbNdMqTmUlVl jdhcbgbg SaTaZihojptq
 占R6U9UAUWTY WLYKcJhIlI EZGbHdLt IaLadXgXibem MrNqdohoio
 确9HAHDHMEPE EJFLCT5e4f3g BTCWEg EUEULSMTLZKa FeGdJcMbOc Z3b5a7WDSIQJ ZCfBhBiCeJcL RMTPTURiQmMr VNlKoNoknqgp XXaWgViVjV Weadhckc aObOcPdQdo
-只HCJDKFNT LCNDcAgDgDbM ORPQbOfOgP PaNbKfHhBm8o bXgclhmjnm
 末CIFIVGeFiEmF HSJTcPePhQ R4U7UfTpTv TSSTRWKeDk7n WSWUhgkjnkvm
 主R5W9YB HLJMNMfIjI IZLaUYcXfX TMVOVjTl 7oBpPnplrlvn
 装EBHDJF 9OCPMJMJ M5N6O8OIOQ SFUFjDnD a5d8cJbL VNXNhLlM ROUQURUS EWHWKWZTcT QXLcGhBk6m NdNiNpUlVkWk fVgXZcZdYd RYahekjnnouo
@@ -14615,7 +14996,6 @@ const MEDS_SRC=`你J5K7IEFJ6V4W GKGMHOGdFkFp X4Y5Z9WFPROS VMgJlInKmNiQ ZQbSbnbpX
 香d7c7Z6SAID CLFLPJhHmI SBUDURUV SKRMMRJUCY7a WKfRjUnVuV KYMaMcMgMpMs OZPZaXdZdpYp OhOhUgWfYg NqPpXoZoap
 蕉CCHDWBi9m9oA M5P7QG c3d3e5bBaF QIOIKOFTBW8Y KRKUKaKfKi VFYHZJ QNTNgKiK QUSUcSeSfS QZSZdXgX VOXPXQXcWd MfNgOgfejelf GjFnCt NlPoQq Xkanbq hjmmopqsqt
 效I7NAOD 9LCLPISHUH EPFRDVAZ7b ONRQSS MUOWJgGj8p6q FaNhPiPk b6c7e9ZMXPVS ZOhNmLoKqL ePgTfadfbhRn VVXWghmnrowp
-李GEIEKEfBjB S4T4V6UIUP TFQIKOFS9U WFXGcLkQnQvR KTLUXRZRVYVY RXVcWiVqVrNp 6e9fOdmbqbtc
 形BBFCU9XA 4Q7R9RTNWNYN EDHGGWFa9i6k PCRDRZRgRl k6l6l8fHcJaL kLlMlOfUcXYZ mWnYkfgkWrQt
 状9HEKFN 5e9dJUJT J7K9MBLhKnKr QSRSUScRkPnP Y6b9bOYeVhOm cXcYignlwo hDmHnJ
 幸KDNEQDcBfB T3U4V5VIUJ 8NBOSLmJoJsK MPOSPU aMcNZTXV IXKYMXcVeVhW BhEhPfjdmepf WYVaUw
@@ -14654,8 +15034,6 @@ const MEDS_SRC=`你J5K7IEFJ6V4W GKGMHOGdFkFp X4Y5Z9WFPROS VMgJlInKmNiQ ZQbSbnbpX
 置F9HAIBKK I9U7e6i6k9hH PAQARFRG Y8a9YEXF LIMIRHeFfF EPHPSOhMjMlM SITJULTRST LUMWNYNoMo NUaSbSdVdcbn ObQaUZWZYZ OgQfTfWeYf OlPkUkWjYk 9qDrOqnosq
 暗7E9G9J9V8g9k BFCFIEJFIjJl BTBTCSESGS AjBiFiHh X4c7d9 SFTGWGjDkDmD TKVNWO fFgHhIeOcQ MTPUZSoQrQtR TZUbVcVjUpUs WaXaiZjaiqiu WiXhbhdgeh WqXpcofo
 巴IFKFaBeCfDaN QFRGROPP HSHSJSZPdPeP DDFLGfRmokqX
-士8UCVNTmQrR S9T9VBUgUhTi GlJlcjfjik
-货K4L5K8FD8K6L IDIEIHINIR j8g8dBaDUGQH V4WCXIgKpJqB LPMRNUNZMgMj OQPRaPcQdfdi SUUWUfQoNqEt Yleqfrgu
 摆8MCMLJOJ G6I9ISImHo9l 4d6dKVKUOS PBRCRDTN SBUBk9n9pCmL YCYEaK fBgCfIeJ UMVMaLhKkKkK TTWThSkS ZNcPbYbZaZ McPdbbpZsaub YdXiUmWnglkl ifnmopoq
 脱ABCECNAZ8f4n EBJBLCMeLiFh ENFMIM DXDWEVHVIV S9WDXF j5k7cF RKSLTNVW UKVLfJiLhQfR WVXUfThTjT VZWbVeSkPmLp bVdWdniqsouf
 败9DBFCICSBbBe DEIDMCOEOMOc GJILIXFkCn6q JhOkPn Z6a7b9WMTQRT XNYMcMmJpJ eOgSfXcgaiSm TUWWdgkmmovp
@@ -14706,7 +15084,6 @@ const MEDS_SRC=`你J5K7IEFJ6V4W GKGMHOGdFkFp X4Y5Z9WFPROS VMgJlInKmNiQ ZQbSbnbpX
 虫EMGOHPKb IMUMcKhLiMeU LZMYNYdWgWiW Q7UAUCUiSj AmEodieifi ddlmmomr
 抽9NCNNKQK H6I6KJJlIoCl 5f8fOU QQSSSTUm UReQoOqRohmo XZaZgYjX a8dBdDcfbg WkWjZighkh
 奖ECIFKH CSFSMNMNNLOL N6O7P8PMPW b5c6d7YGVJSL aEiDkEjIcRXV WJYKbM AcDcXalYra SVUZSfOmKoCr VcWdZiholqtr
-售L6M7LBIG9Q6S JIJKKLJVJZJd V4a7b8 PDQEUEaDgBjB RLTLeJhJ RSTSfPhQ XFZGZGZVYX LZMaOahXjXmY JhJhLkOu JhWhcfgghheo PrQrdqgqir
 席S2W5X6 JBLBRBg8j8 F9HDGNDY9f4m JLMMWKjImIoI QGSHTNTQTS bCdFbNaO URVQYQcPdQ LXMYNaMm OXPYhWjYikch VSXTXUXu
 统G6I9AM9PFPHO MGNIIQCYEYMW 6k9kOd Y5d8eA SISIVIcGjFlF XJXOUSVUdRhR gNjQkT VYWaVcRjOmJp bTdVdogqrptf
 窗R4W6X8 EBFDEEBJBN GENDkBlBiHiH NHOINKHPGPGP ZGeJfM SMTNOU GUIWIYIjIqIt KXRVfThUiohv SWSYRaPdMe SaUaZaabTiMm ReYiakbl KrLqdp
@@ -14897,7 +15274,6 @@ const MEDS_SRC=`你J5K7IEFJ6V4W GKGMHOGdFkFp X4Y5Z9WFPROS VMgJlInKmNiQ ZQbSbnbpX
 透g7c7WBRCRCQD OIQIhFjFlF XBZDYMZQ XIVMRPLT aIeLkPnQuQ OVeScZjZhjbi UWVXUbTdPhMj BAHDIG 4S8SGREXHfGi 5lDkHkhrmrsq
 袜G5M8NB 5M8NKKJMDW2g FVGXGYGiGnGq OPPRNUMU KUOXPZ RKSKVKeIlGpG SUVUiRkRnS Z5b8c9cZbnbt cUaWWbSgPjLl dUdWganiqkwl
 弯Q3V5X8 BDEDGDkAoA OEPGPJONPP XDZEZFYLZP JJHNCS fImMoQ KUPUaSdTcWaX NbObYZcZdZ JZIiVgefcrUq
-王IEKENFeCiC KUMVPVXTdSgS TGVHVJUhTi 7l9mCmOkoitk
 络G6I9GEAOCPJO MGNIKODYFYNW 7k8kAkMc Y4a5ZAXERNOP XHfFiFbTVYPb UMULfUjXoaxZ RdSeTgVq VfVegckehjgk WoXofmimjn
 微H7I8I9GCBJ8M FLGMGN9Z6c4e DVEXEYEgDmEp Q9SASJRK LFMGMNRLWKWK YCaEYM KTNTURWR LXMYNaMfLjIn OZRXTYViZfZe g7h8i9dOaUZV eQiPpNsN jRkShdfhalXm aVbVcWnlpmwn
 维H6I9EIAOEOIO NFOHIPDWDYOV 7kAkPc Y4a7ZAROROPQ VLVNWPWhVoVt e9iCkE ZLbLeLnJqI bTeTmRpR bacafamZoZ gMhNhPhggi YkYkZkqisivj
@@ -15053,7 +15429,6 @@ const MEDS_SRC=`你J5K7IEFJ6V4W GKGMHOGdFkFp X4Y5Z9WFPROS VMgJlInKmNiQ ZQbSbnbpX
 恨8M8S6Y HHLJNL D5F6G8FbFlFr UAb8f8iAgGeQ UJVIYHbH URVQaPbPcQ Q9SCTFSnVndi iQjQkSgWeYdY UUgdmiriwi
 猴J9LBIGDM9P7Q ABEFGJHiFn9l GQFUDW9b4f T6U8UCSGNPKT POPQQRQfPmQq ZCaDhBjBjGhI VKYLmIoIpI ZOaPZRVWVWVX aTdTkRnR TbVcpYtZ cUeXdcajYlTo fbgcifnmqnvo
 悔9M9R7V7X IHJIJINKOM E5G6H8GYFlFr X4Z6Z7VESIRJ XFeEmCoC UKWPQgShfgsi YNhKlMjfgqZn bOcQdS KWNXYVqUsUvV ZYbbcc
-胡8KAKDKPHTH I4K6L7IRHT 8UAVBWDh BUDVMTNTNaMb EfFeLdPd WAZDZOWfQpLt aBcBmAohmpfl bNbMfMiM aXaXbWdWhWjW
 虎T3V6VEUF X9Y9d8f7i7 JIKJgEkElGiL EHHKGaFdBl4r LRORbNgN SKUSVVcWiVjP ObQfPjNoKqFt Sdabagbpktri
 滑D7HAJD 8ICMDN BoBmAjHU Q6S7S9TKTKTL U8V7h5j6gIfJ UEVDYCbEaJZK LKMMKSJU ONQNaLnJpKmR RSTTTXTfRr VUeRhTimgsap VaVaYZcZ UhVhZgagcg
 慌8N7S6Z GIKKLM B6F9EdDnDs LFNFZDkBnBqC S8U9VH f4g5h6dH XIZJcL MPPPiMkMmM SQSRTXUXgWjX PbRdQhMpJrHr XbYdYq fagjhportpuh
@@ -15540,7 +15915,6 @@ const MEDS_SRC=`你J5K7IEFJ6V4W GKGMHOGdFkFp X4Y5Z9WFPROS VMgJlInKmNiQ ZQbSbnbpX
 宗R4W7X8Y9 FEFGDMCP HIIHRFlDmFiK MPQPZNdN FYIZWWgVlV TYUZVkUoSpMm IeGiDn ddkjlkmn
 祖H6N9OA 6NEMJLLOFX4i IWIYJZJeIoJr MUQWRY VEWGXHXJXhWi XFaFiDjDkJjg ZRZQbPePgP ZZZYcXeXfX OkRkpisiuj
 钻J6K7HFFJ7T4W IHQFSF DQFQNNPN AZEZNWRW GRHSIcHiKjQe a6d8d9dXcY fMgLnJqJ TaVbVdXp XbYbkYmYmhli YmZljkmkol
-佳K7L8MACR8V5Y HNHPIRIcHnHr TKVKYKiHlH Z6c8bPaR OUQUYTmRpRrR SdUeXegckc ZUbVbYbkal MoPpomrmtn
 废S4X7Y9 KFKGPGfCkC FDHGGRDcAh4p MNNPNVRUhRlR UIWKURPfMiGp SbcZbhWnQqKr ReSfUggqirss eIiKjM
 哦5L6N6O8c 8N9MFKHLGTEU AYAXEWHVIW TBTCTERGMK LRORiMkMnM QIRJSLRpMnMn EgIgYV X4b7fcmorquh kRlUjYedbfXh gBlDmF
 丝JAKBDQCRKRMR QHSKMSGbFcQa c8eBbIVRXSeQ jIhQaYYbabmZ 9mBnDnPlljrl
@@ -15777,7 +16151,6 @@ const MEDS_SRC=`你J5K7IEFJ6V4W GKGMHOGdFkFp X4Y5Z9WFPROS VMgJlInKmNiQ ZQbSbnbpX
 喉5K6M6N8a 8M9LEJGLFSET 9WAVDVGV Q6R7S9NLKPIS NNOQOSOdNlNp YDaDiCkDhJgJ UMWMfKnJqJsK YPZQZSXVUX aTdUkSnS RdUdhboasb cVeXdeakYlSo fdfeiionvp
 咙5L7N9b 9N9MFKIMGTFU AXBWEVHVJW LOPOfLiKkL U5XAVOQcNgEo XOYbYlepopte hTiViWgZafUj f9kCmF
 瞒8E9GAKAV9g9k BGHEIEKdJhJl BQCPFPGP BYCXDXEWGX BiBiHh PHSHYGmEpDsE U9WBXL g6g6i8gGfL SOUPjMmN OWPXQZQgPnQr RXaWoVpnnrgo WQYRXZWeTi XcYcYdafbg ePfPgQdeciZl gckfkh
-陈DCKBMBJLMSGR 9CBDBFCbBmBr QKRKUKaJkHoH a6c9YLWXlVoV bPcQeSdocpVm TdShPm kcqirkrm
 迈OHSImEqE aOhPjRhbfgVe YIZKZKTXQZNc E8JBLE 7QGOISGXJeIh 6kEiIiapirtp
 垫BIEIOFRF K6L7M8MVLXEV 8RBSINOLPKQK Z4a7ZHYNWSSX SIhFgNjVqWrL SNZRbTbU IgKhNhceeegf SZTaVcUmTn BqEqRpjopp
 誓DCFDHCPATA K4N6NOMQHO 8MBMSF k5k5h5b8a8a9 W8X9XFWKVNUN ZFlCqD fFgGgS RNVQWS 7XBYSWoTsV LcNcYZbZca MgNgYeaecf IlLnNv KkSlajckelbq OsOtPtasdses
@@ -16669,14 +17042,12 @@ const MEDS_SRC=`你J5K7IEFJ6V4W GKGMHOGdFkFp X4Y5Z9WFPROS VMgJlInKmNiQ ZQbSbnbpX
 戈BRDRGQWKYKZK I7M9WZjonqqe dPeSaYRhNkEn Z7fAhD
 禾e8V9RAJCJCID COFPTNhKjKmL SCUDVEUt TOSQRTKb9k8l WPXRaWlgnhwi
 絮I3K4GIHJPNQO P9QBMKLMERBS 6E8FDENCOB XAYBZDaL ZAbBi9lAkFiH cKcJiIkImI TKTLNTMVSWUW cOVWPbRdcaeb cWgahd UdWeWfWqVrPp JiIlEq fhijlmmnnp
-杨6N8NBNMKPK H4K8JeInIs INHNGSCZ8f4j KROVPX RCdBXQrQknbm XTYTYVXXTdQf fQhSeZZhUnSo
 弈R4V6W8 EEHESChBkCmD NEPGOONQKSJT XDYFYMYOXPTN IJGNDS eIkMlOmQ 7c9dCdUbnasc LWNYLjKmFrCs ZVaVbXbu
 鸦DDEDGDOBQB 9HBJBSHRQPSQ JGLIKlJoDl ISFYCc9g4k c4c4d6XEXF YHhElFkOiRdP aKcLcM UFVYbZpXpkgn NiQjZhggjglh
 雀T3U4V6VEVH KBIFFK e8kBlDnF gFdEYJEZBb7c KTKTMVMiLsLv YNbOcP RURUVUaTgSjS RaUbXbfZhZ QhThbhfgig XVYWZYZlYm NqPpRpjnmnpo
 岂S5V7UFTG HAJDIKRIaHfH h7iAgK IRJSbOcPcVbW KaKaLaaYdXfY FYHiInNqgqne
 霞M7Q8W7c5d5f5 FCFEFGCKCN HEJFZCjBlBiI T9VAUO KINJPK KMNNOO ZFcGeI ZLcMdN JUJTOSRTQXPX IbJaOZRZ FSGUHXGkFqFt IgJfMfPfQf IlJlNkPkQk WRaRePhRgUeV WYYYdXhX VdebgdejYoPq UgYhdnkrssts
 酣8DCDMBRB 6L8N8R8Y7l ANILNKQMQhMi CFEGEMDRCVBX IEKFJSKUNUOU CcKaMb AiAiBiCiMh SRVRcQpOrOvP WGZIYn i9kAlNlikmkq abbadafZha albkgjhk
-泰ICKDNDVCdAgA IKJKNKbHdI CSFSSQhOmP S4U6RJMUIY6f ZRaRgXmbqcxd RWUYUmTrRqMo JbMcOe EmHmPh cYcaYe Zidkgmhoiq
 瑞8HDHKEOE 8TCTKQMQ EIGJGLGaFbFc 5h9hNa Z6b8b9bIaJ RDTFSMVMhJiI l9mCkL STTUWUbThRkR YVaWYaWb NcOePgPpQr Qdcboapappio WeXfXo dcfder
 雁J9LAPAY8h6l6 F8HBGKCaAf3o PEQFRHMPJSHV MRNVNYNfMlMo YCZEZGSSRSQU VQVRWUWgVoWr eEiGjI aOdOiNnMqM bVfVlToU bceblanaoa gPhQhShfgh YjYkajphrhui
 潦C9HCIE 8NCPDR BpAnAkBiHV ODTDZCg9j9 W4Y6XETNQQJU YEZGcJnPqQxR LJOLPM nGlFhJgJ PTQTTe SSdQfQhSebdc TYTXXWaWbW UcVccb XdYeZoYqWrSp PhNmLq ghmmop
@@ -17000,6 +17371,7 @@ function bdFit(){const cv=$('#bd'),stage=$('#bdstage');if(!cv||!stage)return;con
 function bdFS(){const b=$('#brd');try{if(BD.full&&b&&b.requestFullscreen)b.requestFullscreen({navigationUI:'hide'}).catch(()=>{});else if(!BD.full&&document.fullscreenElement)document.exitFullscreen().catch(()=>{})}catch(e){}}
 /* диктант: подбор предложения */
 function sentPool(){const sel=new Set((S.sel||[]).map(id=>WB[id]&&WB[id].hz).filter(Boolean)),out=[];
+  BOOK.forEach(l=>l.ex.forEach(e=>{const hz=e.hz.replace(/[，。？！、：；\s]/g,''),chars=[...hz].filter(isHan);if(chars.length<2||!chars.every(c=>medOf(c)))return;out.push({zh:e.hz,hz,chars,ru:e.ru,py:e.py.replace(/[，。？！、：；,.?!:;]/g,'').replace(/\s+/g,' ').trim(),hit:[...sel].some(h=>hz.includes(h)),book:true})}));
   SPR.forEach(d=>d.S.forEach(s=>{const hz=s.toks.filter(t=>!SPR_P.has(t)).join(''),chars=[...hz].filter(isHan);if(chars.length<2||chars.length>16||!chars.every(c=>medOf(c)))return;
     const py=s.toks.filter(t=>!SPR_P.has(t)).map(t=>{const w=sprWord(t);return w?pyText(w.py):pyOf(t)}).join(' ');
     out.push({zh:s.toks.join(''),hz,chars,ru:s.ru,py,hit:s.toks.some(t=>sel.has(t))})}));
@@ -17026,13 +17398,13 @@ function prMount(){const cv=$('#sq');if(!cv)return;
   PR.pad=mkPad(cv,{w:600,h:600,pw:14,strokes:PR.strokes,ink:()=>cssv('--ink'),guide:x=>{paperCell(x,0,0,600,{line:cssv('--line'),mi:PR.grid})}});recReady()}
 async function prRecognize(){await recReady();PR.res=PR.strokes.length?recMatch(PR.strokes,5):[];if(view==='prac'&&$('#prres'))$('#prres').innerHTML=prResHTML()}
 /* ---------- «Мои слова»: выбор слов и тесты по ним ---------- */
-const PK={std:'core',lvl:0,q:'',unit:'',n:10,dir:'hz'};
+const PK={std:'book',lvl:1,q:'',unit:'',n:10,dir:'hz'};
 const pickWords=()=>WORDS.filter(w=>w.lvl>0&&!w.gr&&!w.chr&&!w.sent&&w.hz&&w.py&&w.ru);
 const lvLabel=l=>l===7?'7–9':String(l);
-const stdWords=()=>PK.std==='h3'?BANKW:pickWords();
-const allWords=()=>pickWords().concat(BANKW);
+const stdWords=()=>PK.std==='book'?BOOKW:PK.std==='h3'?BANKW:pickWords();
+const allWords=()=>pickWords().concat(BANKW,BOOKW);
 const bankUnits=L=>{const lw=BANKW.filter(w=>w.lvl===L),out=[];for(let i=0;i<lw.length;i+=20)out.push({t:`Блок ${out.length+1}: ${lw[i].hz} … ${lw[Math.min(lw.length,i+20)-1].hz}`,words:lw.slice(i,i+20)});return out};
-const pkUnits=()=>PK.lvl?(PK.std==='h3'?bankUnits(PK.lvl):(UNITS[PK.lvl]||[])):[];
+const pkUnits=()=>PK.std==='book'?BOOK.map(l=>({t:`Урок ${l.n}. ${l.zh} — ${l.ru}`,words:l.words})):PK.lvl?(PK.std==='h3'?bankUnits(PK.lvl):(UNITS[PK.lvl]||[])):[];
 function charPyOf(c,w){if(w&&aligned(w)){const i=charsOf(w).indexOf(c);if(i>=0&&syls(w)[i])return syls(w)[i]}const it=CHM[c];return it&&it.py||''}
 const selSet=()=>new Set(S.sel||[]);
 function pkVisible(){const q=PK.q.trim().toLowerCase();let ws=stdWords();
@@ -17042,7 +17414,7 @@ function pkVisible(){const q=PK.q.trim().toLowerCase();let ws=stdWords();
   return ws}
 function pkListHTML(){const sel=selSet(),ws=pkVisible();
   if(!ws.length)return'<p class="muted" style="padding:12px">Ничего не найдено. Измени фильтр или поиск.</p>';
-  return ws.slice(0,400).map(w=>`<label class="pkrow${sel.has(w.id)?' on':''}"><input type="checkbox" data-pk="${esc(w.id)}" ${sel.has(w.id)?'checked':''}><span class="hz pkhz t${sylTone(w.py)}">${esc(w.hz)}</span><span class="pkpy py">${esc(pyText(w.py))}</span><span class="pkru">${esc(w.ru)}</span><span class="chip pklv">HSK ${lvLabel(w.lvl)}${w.std==='h3'?' · 3.0':''}</span></label>`).join('')+(ws.length>400?`<p class="muted" style="padding:10px">Показаны первые 400 из ${ws.length}. Уточни поиск.</p>`:'')}
+  return ws.slice(0,400).map(w=>`<label class="pkrow${sel.has(w.id)?' on':''}"><input type="checkbox" data-pk="${esc(w.id)}" ${sel.has(w.id)?'checked':''}><span class="hz pkhz t${sylTone(w.py)}">${esc(w.hz)}</span><span class="pkpy py">${esc(pyText(w.py))}</span><span class="pkru">${esc(w.ru)}</span><span class="chip pklv">${w.std==='book'?'Урок '+w.lesson:'HSK '+lvLabel(w.lvl)+(w.std==='h3'?' · 3.0':'')}</span></label>`).join('')+(ws.length>400?`<p class="muted" style="padding:10px">Показаны первые 400 из ${ws.length}. Уточни поиск.</p>`:'')}
 function pkStats(){const n=(S.sel||[]).length;const m=masteredIds().length;return`Выбрано слов: <b>${n}</b>${m?`, из них освоено в тестах: <b>${m}</b>`:''}`}
 const KINDS=[['cards','Карточки','Видишь знак, вспоминаешь чтение и перевод'],['wr','Письменный','Печатаешь пиньинь и выбираешь перевод'],['bd','Предложения','Собираешь фразу из слов по порядку'],['hand','Прописать знаки','Пишешь каждый знак рукой и печатаешь пиньинь'],['mix','Всё подряд','Карточки, письменный, предложения и письмо']];
 views.pick=()=>{const sel=selSet(),lvs=[...new Set(stdWords().map(w=>w.lvl))].sort(),units=pkUnits();
@@ -17051,11 +17423,11 @@ views.pick=()=>{const sel=selSet(),lvs=[...new Set(stdWords().map(w=>w.lvl))].so
     <div class="kinds">${KINDS.map(([k,t,d])=>`<button class="kind" data-a="tstart" data-k="${k}"><b>${t}</b><small>${d}</small></button>`).join('')}</div></section>`;
   return`<header class="ph"><p class="eyebrow">Свой набор</p><h1>Мои слова</h1><p class="lead">Отметь слова, которые хочешь учить прямо сейчас: два или двадцать. Тесты берут только их, а репетитор знает, что ты прошёл.</p></header>
   ${tests}
-  <section style="display:flex;flex-direction:column;gap:10px"><div class="pkbar"><div class="seg" role="group" aria-label="Список слов"><button data-a="pkstd" data-s="core" aria-pressed="${PK.std!=='h3'}">Курс приложения</button><button data-a="pkstd" data-s="h3" aria-pressed="${PK.std==='h3'}">HSK 3.0 · уровни 1–9</button></div></div><div class="pkbar">
-    <div class="seg" role="group" aria-label="Уровень"><button data-a="pklvl" data-l="0" aria-pressed="${!PK.lvl}">Все</button>${lvs.map(l=>`<button data-a="pklvl" data-l="${l}" aria-pressed="${PK.lvl===l}">HSK ${lvLabel(l)}</button>`).join('')}</div>
-    ${units.length?`<select id="pkunit" style="width:auto;max-width:100%" aria-label="Тема"><option value="">${PK.std==='h3'?'Все блоки':'Все темы'} HSK ${lvLabel(PK.lvl)}</option>${units.map((u,i)=>`<option value="${i}" ${String(PK.unit)===String(i)?'selected':''}>${PK.std==='h3'?'':i+1+'. '}${esc(u.t)}</option>`).join('')}</select>`:''}
+  <section style="display:flex;flex-direction:column;gap:10px"><div class="pkbar"><div class="seg wide" role="group" aria-label="Список слов"><button data-a="pkstd" data-s="book" aria-pressed="${PK.std==='book'}">Учебник 新HSK教程 1</button><button data-a="pkstd" data-s="core" aria-pressed="${PK.std==='core'}">Курс приложения</button><button data-a="pkstd" data-s="h3" aria-pressed="${PK.std==='h3'}">HSK 3.0 · уровни 1–9</button></div></div><div class="pkbar">
+    ${PK.std==='book'?'':`<div class="seg" role="group" aria-label="Уровень"><button data-a="pklvl" data-l="0" aria-pressed="${!PK.lvl}">Все</button>${lvs.map(l=>`<button data-a="pklvl" data-l="${l}" aria-pressed="${PK.lvl===l}">HSK ${lvLabel(l)}</button>`).join('')}</div>`}
+    ${units.length?`<select id="pkunit" style="width:100%;max-width:100%;min-width:0;flex:1 1 240px" aria-label="Тема"><option value="">${PK.std==='book'?'Все уроки учебника':PK.std==='h3'?'Все блоки HSK '+lvLabel(PK.lvl):'Все темы HSK '+lvLabel(PK.lvl)}</option>${units.map((u,i)=>`<option value="${i}" ${String(PK.unit)===String(i)?'selected':''}>${PK.std==='core'?i+1+'. ':''}${esc(u.t)}</option>`).join('')}</select>`:''}
     <input id="pkq" type="search" placeholder="Поиск: знак, пиньинь, перевод" value="${esc(PK.q)}" autocomplete="off" style="flex:1;min-width:160px"></div>
-  <div class="row"><button class="btn sm" data-a="pall">Выбрать всё в списке</button><button class="btn ghost sm" data-a="pnone">Снять выбор в списке</button><button class="btn ghost sm" data-a="pclear">Очистить набор</button>${units.length&&PK.unit!==''?`<button class="btn ghost sm" data-a="punit">${PK.std==='h3'?'Добавить блок целиком':'Добавить тему целиком'}</button>`:''}<button class="btn ghost sm" data-a="plearned">Добавить выученные</button></div>
+  <div class="row"><button class="btn sm" data-a="pall">Выбрать всё в списке</button><button class="btn ghost sm" data-a="pnone">Снять выбор в списке</button><button class="btn ghost sm" data-a="pclear">Очистить набор</button>${units.length&&PK.unit!==''?`<button class="btn ghost sm" data-a="punit">${PK.std==='h3'?'Добавить блок целиком':PK.std==='book'?'Добавить урок целиком':'Добавить тему целиком'}</button>`:''}<button class="btn ghost sm" data-a="plearned">Добавить выученные</button></div>
   <div class="pklist card" id="plist">${pkListHTML()}</div></section>`};
 function pkSync(){const l=$('#plist');if(l)l.innerHTML=pkListHTML();const s=$('#pkstat');if(s)s.innerHTML=pkStats()}
 function masteredIds(){return Object.keys(S.selp||{}).filter(id=>{const k=S.selp[id];return k&&Object.values(k).filter(v=>v&&v.ok).length>=2})}
@@ -17064,7 +17436,10 @@ function masteredIds(){return Object.keys(S.selp||{}).filter(id=>{const k=S.selp
 let TS=null;
 const normKind={cards:'карточки',wr:'письменный',bd:'предложения',hand:'письмо',mix:'всё подряд',quiz:'вопросы'};
 function meaningOpts(w,pool){const others=shuffle(pool.filter(x=>x.ru!==w.ru&&x.id!==w.id)).slice(0,3).map(x=>x.ru);const all=shuffle([w.ru,...others]);return{opts:all,a:all.indexOf(w.ru)}}
-function sentFor(w){ // предложение из спринта со словом
+function bookToks(hz){const body=[...hz.replace(/[，。？！、：；\s]/g,'')],set=new Set(BOOKW.map(x=>x.hz)),out=[];let i=0;while(i<body.length){let n=Math.min(4,body.length-i);while(n>1&&!set.has(body.slice(i,i+n).join('')))n--;out.push(body.slice(i,i+n).join(''));i+=n}return out}
+function bookSent(w){const out=[];BOOK.forEach(l=>l.ex.forEach(e=>{if(e.hz.includes(w.hz))out.push(e)}));if(!out.length)return null;const e=out[Math.floor(Math.random()*out.length)],toks=bookToks(e.hz);return toks.length>=2?{toks,ru:e.ru,py:e.py.replace(/[，。？！、：；,.?!:;]/g,'').replace(/\s+/g,' ').trim(),p:e.hz.match(/[。？！]$/)?e.hz.slice(-1):'。',wid:w.id}:null}
+function sentFor(w){ // предложение: пример из учебника или фраза спринта со словом
+  const bs=bookSent(w);if(bs)return bs;
   const out=[];SPR.forEach(d=>d.S.forEach(s=>{const toks=s.toks.filter(t=>!SPR_P.has(t));if(toks.length>=2&&toks.length<=9&&toks.includes(w.hz))out.push(s)}));
   if(!out.length)return null;const s=out[Math.floor(Math.random()*out.length)];const toks=s.toks.filter(t=>!SPR_P.has(t));
   const py=toks.map(t=>{const x=sprWord(t);return x?pyText(x.py):pyOf(t)}).join(' ');return{toks,ru:s.ru,py,p:s.toks.filter(t=>SPR_P.has(t)).pop()||'。',wid:w.id}}
@@ -17129,7 +17504,7 @@ Object.assign(act,{
   pnone:()=>{const s=selSet();pkVisible().forEach(w=>s.delete(w.id));S.sel=[...s];save();pkSync()},
   pclear:()=>{S.sel=[];save();pkSync()},
   punit:()=>{const u=pkUnits()[+PK.unit];if(!u)return;const s=selSet();const ids=new Set(u.words.map(w=>w.id||w.hz));stdWords().filter(w=>w.lvl===PK.lvl&&(ids.has(w.id)||ids.has(w.hz))).forEach(w=>s.add(w.id));S.sel=[...s];save();toast('Добавлено: '+u.t);pkSync()},
-  pkstd:d=>{PK.std=d.s;PK.lvl=0;PK.unit='';render()},
+  pkstd:d=>{PK.std=d.s;PK.lvl=d.s==='book'?1:0;PK.unit='';render()},
   plearned:()=>{const s=selSet();let n=0;Object.keys(S.srs).forEach(id=>{const w=WB[id];if(w&&w.lvl>0&&!w.chr&&!w.gr&&!w.sent&&!s.has(id)){s.add(id);n++}});S.sel=[...s];save();toast(n?`Добавлено выученных слов: ${n}`:'Выученных слов пока нет');pkSync()},
   tstart:d=>tsStart(d.k),
   tsquit:()=>{TS=null;go('pick')},
@@ -17197,9 +17572,10 @@ function tutorCtx(){
   const sel=(S.sel||[]).map(id=>WB[id]).filter(Boolean).slice(0,150).map(wl);
   const res=[];Object.entries(S.selp||{}).forEach(([id,k])=>{const w=WB[id];if(!w)return;res.push(`${w.hz}: `+Object.entries(k).map(([n,v])=>n+(v&&v.ok?'+':'-')).join(' '))});
   const lessons=[];[1,2,3,4,5,6].forEach(l=>{if(UNITS[l]&&UNITS[l].length)UNITS[l].forEach((u,i)=>lessons.push({lvl:l,n:i+1,title:u.t,words:u.words.filter(w=>!w.bonus).map(wl)}));else{const ws=byLvl(l);if(ws.length)lessons.push({lvl:l,n:1,title:'Слова HSK '+l,words:ws.slice(0,200).map(wl)})}});
+  BOOK.forEach(l=>lessons.push({std:'Учебник 新HSK教程 1',lvl:1,n:l.n,title:`${l.zh} — ${l.ru}`,words:l.words.map(wl),examples:l.ex.map(e=>`${e.hz} ${e.py} ${e.ru}`)}));
   BANKW.length&&[1,2,3,4,5,6,7].forEach(l=>{const lw=BANKW.filter(w=>w.lvl===l);for(let i=0;i<lw.length;i+=20)lessons.push({std:'HSK 3.0',lvl:l,n:i/20+1,title:`HSK 3.0, уровень ${lvLabel(l)}, блок ${i/20+1}`,words:lw.slice(i,i+20).map(w=>w.hz).join(' ')})});
   const learned=Object.keys(S.srs).map(id=>WB[id]).filter(w=>w&&w.lvl>0&&!w.chr&&!w.gr&&!w.sent).slice(0,300).map(w=>w.hz);
-  return{notes:'lessons без поля std — уроки курса приложения (HSK 1–2, по темам). Блоки с std HSK 3.0 — списки слов официального HSK 3.0 по 20 слов, там только иероглифы: пиньинь и перевод давай сам. selected и mastered могут содержать слова обоих списков.',count:TU.n,level:curLevel(),passedLevels:Object.keys(S.passed||{}).filter(k=>S.passed[k]),selected:sel,mastered:masteredIds().map(id=>WB[id]&&WB[id].hz).filter(Boolean),results:res.slice(0,150),learnedWords:learned,
+  return{notes:'Если ученик говорит «урок N из НСК 1 / HSK 1 / учебника», бери записи lessons со std «Учебник 新HSK教程 1» (n = N): это его учебник, слова и примеры там проверены. lessons без поля std — уроки курса приложения (HSK 1–2, по темам), их бери только если ученик просит курс приложения. Блоки с std HSK 3.0 — списки слов официального HSK 3.0 по 20 слов, там только иероглифы: пиньинь и перевод давай сам. selected и mastered могут содержать слова обоих списков.',count:TU.n,level:curLevel(),passedLevels:Object.keys(S.passed||{}).filter(k=>S.passed[k]),selected:sel,mastered:masteredIds().map(id=>WB[id]&&WB[id].hz).filter(Boolean),results:res.slice(0,150),learnedWords:learned,
     tests:(S.tlog||[]).slice(0,12).map(t=>`${t.title||t.k}: ${t.ok}/${t.n}${t.ai?' (тест репетитора)':''}`),lessons,
     materials:TU.mat.filter(m=>m.on).map(m=>({name:m.name,text:m.text.slice(0,30000)}))}}
 function tuParse(raw){let t=String(raw||'').trim();const f=t.match(/^```(?:json)?\s*([\s\S]*?)```$/);if(f)t=f[1].trim();
@@ -17223,13 +17599,13 @@ async function tuSend(text){text=String(text||'').trim();if(!text||TU.busy)retur
   TU.busy=false;tuSave();if(view==='tutor')render()}
 const TU_ERR={no_key:'На сервере не задан ключ ИИ. В настройках проекта на Vercel добавь переменную ANTHROPIC_API_KEY и сделай redeploy.',code:'Неверный код доступа. Введи его в настройках репетитора ниже.',rate:'Слишком много запросов за час. Подожди немного.',offline:'Репетитор работает только на задеплоенном сайте с сервером. Из файла или предпросмотра запросы уходить некуда.',fail:'Сервер ответил ошибкой. Попробуй ещё раз.'};
 views.tutor=()=>{tuLoad();if(TU.draft==null)TU.draft='';
-  const lessons=[];[1,2,3,4,5,6].forEach(l=>(UNITS[l]||[]).forEach((u,i)=>lessons.push([l,i+1,u.t])));
+  const lessons=[];BOOK.forEach(l=>lessons.push(['book',l.n,l.zh+' — '+l.ru]));[1,2,3,4,5,6].forEach(l=>(UNITS[l]||[]).forEach((u,i)=>lessons.push([l,i+1,u.t])));
   const quick=[['Карточки по моим словам',`Сделай тест в виде карточек из моих выбранных слов. Заданий: ${TU.n}.`],['Квиз по моим словам',`Сделай квиз с вариантами ответов по моим выбранным словам. Заданий: ${TU.n}.`],['Составление предложений',`Дай задания на составление предложений из моих выбранных слов. Заданий: ${TU.n}.`],['Прописать знаки',`Сделай тест на письмо иероглифов по моим выбранным словам. Слов: ${Math.min(TU.n,12)}.`],['Разбор моих ошибок','Посмотри мои результаты тестов и дай тренировку на слабые места.']];
   const msgs=TU.msgs.map((m,i)=>m.role==='user'?`<div class="tu me">${esc(m.content)}</div>`:`<div class="tu bot">${tuMd(m.say)}${m.test?`<div class="tutest"><b>${esc(m.test.title||'Тест')}</b><span class="muted">${m.test.items.length} заданий</span><button class="btn sm" data-a="tutest" data-i="${i}">Начать тест</button></div>`:''}</div>`).join('');
   return`<header class="ph"><p class="eyebrow">ИИ</p><h1>Репетитор</h1><p class="lead">Знает твои выбранные слова, пройденные тесты и все уроки приложения. Попроси сделать тест, объяснить грамматику или разобрать ошибки. Количество заданий задаёшь ниже: хоть два, хоть двадцать.</p></header>
   <section class="tuwrap"><div class="tuquick">${quick.map(([t,p],i)=>`<button class="chip btnchip" data-a="tuquick" data-i="${i}">${t}</button>`).join('')}</div>
     <div class="row" style="align-items:flex-end"><label class="tsfield" style="max-width:120px"><span class="muted" style="font-size:12px">Заданий</span><input id="tun" type="number" min="2" max="40" value="${TU.n}"></label>
-      <label class="tsfield" style="flex:1;min-width:220px"><span class="muted" style="font-size:12px">Тест из урока</span><select id="tulesson"><option value="">— выбрать урок —</option>${lessons.map(([l,n,t])=>`<option value="${l}|${n}|${esc(t)}">HSK ${l} · урок ${n}: ${esc(t)}</option>`).join('')}</select></label></div>
+      <label class="tsfield" style="flex:1;min-width:220px"><span class="muted" style="font-size:12px">Тест из урока</span><select id="tulesson" style="min-width:0;max-width:100%"><option value="">— выбрать урок —</option>${lessons.map(([l,n,t])=>`<option value="${l}|${n}|${esc(t)}">${l==='book'?'Учебник 新HSK教程 1 · урок '+n:'Курс приложения HSK '+l+' · урок '+n}: ${esc(t)}</option>`).join('')}</select></label></div>
     <div class="tuchat card" id="tuchat">${msgs||'<p class="muted">Напиши, что нужно. Например: «сделай тест в виде карточек из 3 урока HSK 1» или «объясни разницу между 的 и 得».</p>'}${TU.busy?'<div class="tu bot muted">Репетитор думает…</div>':''}${TU.err?`<div class="card bad">${esc(TU_ERR[TU.err]||TU_ERR.fail)}</div>`:''}</div>
     <form class="tuform" data-form="tu"><textarea id="tuin" rows="2" placeholder="Сообщение репетитору" ${TU.busy?'disabled':''}>${esc(TU.draft)}</textarea><button class="btn" type="submit" ${TU.busy?'disabled':''}>Отправить</button></form>
     <details class="card tuset"><summary><b>Настройки репетитора</b> · материалы и доступ</summary>
@@ -17248,7 +17624,7 @@ document.addEventListener('submit',e=>{if(e.target.dataset&&e.target.dataset.for
 document.addEventListener('keydown',e=>{if(e.target.id==='tuin'&&e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();tuSend(e.target.value)}});
 document.addEventListener('change',e=>{const t=e.target;
   if(t.id==='tun'){TU.n=Math.max(2,Math.min(40,+t.value||10));t.value=TU.n}
-  if(t.id==='tulesson'&&t.value){const[l,n,title]=t.value.split('|');t.value='';tuSend(`Сделай тест в виде карточек из урока ${n} HSK ${l} «${title}». Заданий: ${TU.n}.`)}
+  if(t.id==='tulesson'&&t.value){const[l,n,title]=t.value.split('|');t.value='';tuSend(l==='book'?`Сделай тест в виде карточек из урока ${n} учебника «新HSK教程 1» «${title}». Заданий: ${TU.n}.`:`Сделай тест в виде карточек из урока ${n} курса приложения HSK ${l} «${title}». Заданий: ${TU.n}.`)}
   if(t.id==='tucode'){TU.code=t.value;try{localStorage.setItem('hskput.code',TU.code)}catch(e){}}
   if(t.id==='tumat'&&t.files)[...t.files].forEach(f=>{if(f.size>400000){toast('Файл больше 400 КБ: '+f.name);return}const r=new FileReader();r.onload=()=>{TU.mat.push({name:f.name,text:String(r.result||''),on:true});tuSaveMat();if(view==='tutor')render()};r.readAsText(f)})});
 document.addEventListener('change',e=>{const t=e.target;if(t.dataset&&t.dataset.pk){const s=selSet();if(t.checked)s.add(t.dataset.pk);else s.delete(t.dataset.pk);S.sel=[...s];save();t.closest('.pkrow').classList.toggle('on',t.checked);const e2=$('#pkstat');if(e2)e2.innerHTML=pkStats()}
