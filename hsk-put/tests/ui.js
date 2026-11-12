@@ -30,6 +30,35 @@ for(const [w,h] of [[1280,900],[390,844]]){const p=await b.newPage({viewport:{wi
   if(w<=860){await p.evaluate("go('quick')");await p.click('#tabbar [data-a=more]');await p.waitForTimeout(200);ok(await p.evaluate(()=>!document.querySelector('#more').hidden),'меню «Ещё» открывается');await p.screenshot({path:`${out}/more-${w}.png`});await p.click('.moresheet [data-v=dict]');await p.waitForTimeout(250);ok(await p.evaluate(()=>view==='dict'&&document.querySelector('#more').hidden),'переход из «Ещё»')}
   await p.evaluate("TU.msgs=[];go('tutor')");await p.fill('#tuin','10 карточек из урока 3 НСК 1');await p.click('.tuform button');await p.waitForTimeout(500);
   ok(await p.evaluate(()=>view==='stest'&&TS.queue.length===10&&TS.wids.length===10),'репетитор собрал тест сам, без сервера @'+w);
+  // --- письмо на карточке, кисть/ластик, подсказки, практика слова
+  await p.evaluate("S.sel=BOOKW.filter(w=>w.hz==='学生').map(w=>w.id);TSW.on=true;PK.dir='ru';tsStart('cards',{n:0})");await p.waitForTimeout(300);
+  let bx=await rect(p,'#tsw');const cols=await p.evaluate(()=>WPC());
+  for(const [i,ch] of [...'学生'].entries())await draw(p,ch,{x:bx.x+bx.w*(i%cols)/cols,y:bx.y,w:bx.w/cols,h:bx.h/2});
+  await p.click('[data-a=wpt][data-t=brush]');ok(await p.evaluate(()=>WPT.tool==='brush'),'кисть выбирается');
+  const lc={x:bx.x+bx.w*(cols-1)/cols,y:bx.y,w:bx.w/cols,h:bx.h/2},n1=await p.evaluate(()=>TS.st.strokes.length);
+  await p.mouse.move(lc.x+lc.w*.2,lc.y+lc.h*.5);await p.mouse.down();await p.mouse.move(lc.x+lc.w*.5,lc.y+lc.h*.5);await p.mouse.move(lc.x+lc.w*.8,lc.y+lc.h*.5);await p.mouse.up();
+  const n2=await p.evaluate(()=>TS.st.strokes.length);ok(n2===n1+1,'кистью написан штрих');
+  const wBrush=await p.evaluate(()=>{const s=TS.st.strokes.at(-1);return Math.max(...s.map(q=>q[2]))});
+  await p.click('[data-a=wpt][data-t=pen]');await p.mouse.move(lc.x+lc.w*.2,lc.y+lc.h*.8);await p.mouse.down();await p.mouse.move(lc.x+lc.w*.5,lc.y+lc.h*.8);await p.mouse.move(lc.x+lc.w*.8,lc.y+lc.h*.8);await p.mouse.up();
+  const wPen=await p.evaluate(()=>{const s=TS.st.strokes.at(-1);return Math.max(...s.map(q=>q[2]))});ok(wBrush>wPen,'кисть толще ручки: '+wBrush.toFixed(1)+' > '+wPen.toFixed(1));
+  await p.click('[data-a=wpt][data-t=erase]');await p.mouse.move(lc.x+lc.w*.1,lc.y+lc.h*.5);await p.mouse.down();await p.mouse.move(lc.x+lc.w*.5,lc.y+lc.h*.5);await p.mouse.move(lc.x+lc.w*.9,lc.y+lc.h*.5);await p.mouse.up();
+  await p.mouse.move(lc.x+lc.w*.1,lc.y+lc.h*.8);await p.mouse.down();await p.mouse.move(lc.x+lc.w*.9,lc.y+lc.h*.8);await p.mouse.up();
+  ok(await p.evaluate(()=>TS.st.strokes.length)===n1,'ластик стирает штрихи');
+  await p.click('[data-a=wpt][data-t=pen]');
+  await p.fill('#tspy','xuésheng');await p.click('[data-a=tsflip]');await p.waitForTimeout(600);
+  ok(await p.evaluate(()=>TS.st.suggest===1&&TS.st.wres.res.every(x=>x.state==='ok'||x.state==='close')),'карточка: написанное 学生 и пиньинь проверены автоматически @'+w);
+  await p.screenshot({path:`${out}/card-write-${w}.png`});await noX('карточка с письмом');
+  await p.evaluate("tsStart('cards',{n:0})");await p.waitForTimeout(250);
+  await p.click('[data-a=tshint]');ok(await p.evaluate(()=>TS.st.hints===1)&&await p.evaluate(()=>!!document.querySelector('.hintbox')),'подсказка на карточке');
+  await p.click('[data-a=tsdk]');ok(await p.evaluate(()=>TS.res.at(-1).dk===true&&TS.res.at(-1).hinted===true),'«Не знаю» на карточке записано вместе с подсказкой');
+  await p.evaluate("act.wfocus({id:BOOKW.find(w=>w.hz==='学生').id})");await p.waitForTimeout(300);
+  bx=await rect(p,'#wfpad');for(const [i,ch] of [...'学生'].entries())await draw(p,ch,{x:bx.x+bx.w*(i%cols)/cols,y:bx.y,w:bx.w/cols,h:bx.h/2});
+  await p.fill('#wfpy','xuésheng');await p.click('[data-a=wfcheck]');await p.waitForTimeout(500);
+  ok(await p.evaluate(()=>!!document.querySelector('#wfres .card.ok')),'практика слова: письмо и пиньинь проверены');
+  await p.click('[data-a=wfhint]');ok(await p.evaluate(()=>!!document.querySelector('#wfres .hintbox')),'подсказка в практике слова');
+  await p.screenshot({path:`${out}/wordfocus-${w}.png`});await noX('практика слова');
+  await p.fill('#wfown','我是学生。');await p.click('[data-a=wfowncheck]');await p.waitForTimeout(200);ok(await p.evaluate(()=>/есть в предложении/.test(document.querySelector('#wfownres').innerText)),'своё предложение проверяется');
+  await p.evaluate("D.set=true;D.lvl=-1;D.q='学生';go('dict')");await p.waitForTimeout(300);await p.click('[data-a=wfocus]');await p.waitForTimeout(250);ok(await p.evaluate(()=>view==='wf'),'из библиотеки открывается практика слова');
   // --- тетрадь для прописи
   await p.evaluate("W.mode='trace';W.set=false;go('write')");await p.waitForTimeout(300);
   let box=await rect(p,'#wb');await draw(p,'一',{x:box.x,y:box.y,w:box.w/(w<560?4:6),h:box.h/2});
@@ -73,7 +102,7 @@ for(const [w,h] of [[1280,900],[390,844]]){const p=await b.newPage({viewport:{wi
   await p.fill('#pkq','');await p.evaluate("PK.lvl=1;PK.unit='';render()");await p.click('[data-a=plearned]');
   await p.evaluate("S.sel=WORDS.filter(w=>w.lvl===1&&!w.gr&&!w.chr).slice(0,3).map(w=>w.id);render()");await p.screenshot({path:`${out}/pick-${w}.png`});await noX('мои слова');
   await p.evaluate("tsStart('hand',{n:0})");await p.waitForTimeout(300);
-  const hc=await p.evaluate(()=>tsCur().c),hpy=await p.evaluate(()=>tsCur().py);box=await rect(p,'#sq');await draw(p,hc,box);await p.fill('#tspy',hpy);await p.click('[data-a=tshcheck]');await p.waitForTimeout(300);
+  const hc=await p.evaluate(()=>tsCur().c),hpy=await p.evaluate(()=>tsCur().py);box=await rect(p,'#tsh');await draw(p,hc,box);await p.fill('#tspy',hpy);await p.click('[data-a=tshcheck]');await p.waitForTimeout(300);
   ok(await p.evaluate(()=>TS.res[0]&&TS.res[0].ok),'тест «прописать»: знак '+hc+' + пиньинь засчитаны');await p.screenshot({path:`${out}/test-hand-${w}.png`});await noX('тест');
   // --- репетитор с подставным сервером
   await p.evaluate("go('tutor')");await p.waitForTimeout(300);await p.fill('#tuin','объясни разницу между 的 и 得');await p.click('.tuform button');await p.waitForTimeout(600);

@@ -485,6 +485,18 @@ section.row{flex-direction:row}
   .opt{min-height:52px}
   .tok{padding:12px 14px}
 }
+
+.hintbox{background:var(--accent-soft);border:1px solid var(--accent);border-radius:10px;padding:8px 12px;font-size:14px;text-align:left;align-self:stretch}
+.opt.dim{opacity:.35;text-decoration:line-through}
+.tswrite{display:flex;flex-direction:column;gap:10px;align-self:stretch;text-align:left}
+.wpad{display:flex;flex-direction:column;gap:8px;min-width:0}
+.wptools{align-items:center}
+.wres{display:flex;flex-direction:column;gap:8px;align-self:stretch;text-align:left}
+.sentlist{display:flex;flex-direction:column}
+.sentrow{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.sentrow:last-child{border-bottom:0}
+.wfcard{display:flex;flex-direction:column;gap:12px}
+td.nw{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -14270,7 +14282,8 @@ function explainHTML(w){libIndex();const cm=COMPM(),pm=PHONM();
   return`<article class="xcard"><div class="xhead"><span class="hz xhz">${hzHTML(w)}</span><div style="min-width:0;flex:1"><div class="pybig">${pyW(w)}</div>${pallHTML(w)}<div class="ru">${esc(w.ru)}</div></div>${playBtn(sayT(w))}</div>${lit}
     ${parts?`<div class="xparts">${parts}</div>`:''}${note?`<p class="xnote">${esc(note)}</p>`:''}
     ${exs.length?`<div class="xex"><p class="eyebrow">Пример</p>${exs.map(e=>`<button data-a="say" data-t="${esc(e.hz)}"><span class="hz">${esc(e.hz)}</span><span class="muted">${esc(e.ru)}</span></button>`).join('')}</div>`:''}
-    <div class="row" style="justify-content:space-between"><span class="chip">${w.gr?'графема':w.lvl?'HSK '+w.lvl:'фраза'}</span>${S.srs[w.id]?statusChip(w):`<button class="btn ghost sm" data-a="libadd" data-id="${esc(w.id)}">В повторение</button>`}</div></article>`}
+    <div class="row" style="justify-content:space-between"><span class="chip">${w.gr?'графема':w.lvl?'HSK '+w.lvl:'фраза'}</span>${S.srs[w.id]?statusChip(w):`<button class="btn ghost sm" data-a="libadd" data-id="${esc(w.id)}">В повторение</button>`}</div>${wfBtns(w)?`<div class="row">${wfBtns(w)}</div>`:''}</article>`}
+const wfBtns=w=>!w.gr&&[...w.hz].some(isHan)?`<button class="btn ghost sm" data-a="wfocus" data-id="${esc(w.id)}" title="Писать это слово">写 Писать</button><button class="btn ghost sm" data-a="wfocus" data-id="${esc(w.id)}" data-s="sent" title="Составить предложения">句 Предложения</button>`:''
 const statusChip=w=>{const c=S.srs[w.id];if(c)return(w.chr?c.iv>=7:c.iv>=21)?'<span class="chip know">усвоено</span>':'<span class="chip learn">учу</span>';
   const closed=w.chr?(CHM[w.hz]&&!levelOpen(CHM[w.hz].lvl)):(w.lvl>0&&w.lvl<=6&&!levelOpen(w.lvl));return closed?'<span class="chip" style="opacity:.6">пока рано</span>':'<span class="chip">новое</span>'};
 function libList(){const q=D.q.trim().toLowerCase(),qb=sylBase(q).replace(/[\s'-]/g,'');
@@ -14279,7 +14292,7 @@ function libList(){const q=D.q.trim().toLowerCase(),qb=sylBase(q).replace(/[\s'-
 function libResults(){const list=libList();if(!list.length)return'<p class="muted">Ничего не найдено. Попробуй пиньинь без тонов (xuexi) или слово по-русски.</p>';
   const more=list.length>D.limit?`<div class="row" style="justify-content:center"><button class="btn ghost" data-a="libmore">Показать ещё (${list.length-D.limit})</button></div>`:'';
   if(D.mode==='explain')return`<p class="muted" style="font-size:13px">${list.length} записей</p><div class="xgrid">${list.slice(0,D.limit).map(explainHTML).join('')}</div>${more}`;
-  return`<p class="muted" style="font-size:13px">${list.length} записей · нажми на строку, чтобы услышать</p><div class="tbl"><table><thead><tr><th>Слово</th><th>Пиньинь</th><th>Перевод</th><th>Статус</th></tr></thead><tbody>${list.slice(0,D.limit).map(w=>`<tr class="click" data-a="say" data-t="${esc(sayT(w))}"><td class="hz">${hzHTML(w)}</td><td class="py">${pyW(w)}${pallW(w)?`<br><span class="pall">≈ ${esc(pallW(w))}</span>`:''}</td><td>${esc(w.ru)}</td><td>${statusChip(w)}</td></tr>`).join('')}</tbody></table></div>${more}`}
+  return`<p class="muted" style="font-size:13px">${list.length} записей · нажми на строку, чтобы услышать</p><div class="tbl"><table><thead><tr><th>Слово</th><th>Пиньинь</th><th>Перевод</th><th>Статус</th><th>Практика</th></tr></thead><tbody>${list.slice(0,D.limit).map(w=>`<tr class="click" data-a="say" data-t="${esc(sayT(w))}"><td class="hz">${hzHTML(w)}</td><td class="py">${pyW(w)}${pallW(w)?`<br><span class="pall">≈ ${esc(pallW(w))}</span>`:''}</td><td>${esc(w.ru)}</td><td>${statusChip(w)}</td><td class="nw">${wfBtns(w)}</td></tr>`).join('')}</tbody></table></div>${more}`}
 views.dict=()=>{if(!D.set){D.lvl=wordsLearned()?-3:Math.max(1,curLevel());D.set=true}const groups=[[-3,`Изучено · ${wordsLearned()}`],[-4,`Иероглифы · ${charsLearned()}/${CHARS.length}`],[1,'HSK 1'],[2,'HSK 2'],...[3,4,5,6].filter(l=>byLvl(l).length).map(l=>[l,'HSK '+l]),[0,'Фразы'],[-2,'Графемы'],[-1,'Всё']];
   return`<header class="ph"><p class="eyebrow">Библиотека</p><h1>Библиотека слов</h1><p class="lead">Все слова программы с иероглифами, пиньинем и переводом. Режим «С объяснениями» разбирает каждое слово: что значит каждый иероглиф, из каких графем он собран, как его используют и пример фразы.</p></header>
   <div class="row" style="justify-content:space-between"><div class="gtabs" role="group">${groups.map(([l,t])=>`<button data-a="libgrp" data-l="${l}" aria-pressed="${D.lvl===l}">${t}</button>`).join('')}</div>
@@ -18003,20 +18016,25 @@ function pyCheck(input,expected){ // 'ok' — совпало с тонами; 't
   const bare=x=>sylBase(x).replace(/[^a-zü]/g,'');if(bare(a)===bare(b))return'tone';return'bad'}
 
 /* универсальное поле для письма */
-function mkPad(cv,o){ // o: w,h (логические), ink(), tool(), pw, guide(ctx), onStart(), onEnd(erase), strokes
-  const st=o.strokes||[];cv.width=o.w;cv.height=o.h;const x=cv.getContext('2d');let cur=null;
+function mkPad(cv,o){ // o: w,h (логические), ink(), tool() 'pen'|'brush'|'erase', pw, guide(ctx), onStart(), onEnd(erase), strokes
+  const st=o.strokes||[];cv.width=o.w;cv.height=o.h;const x=cv.getContext('2d');let cur=null,lt=0;
   function draw(){x.clearRect(0,0,o.w,o.h);if(o.guide)o.guide(x);x.strokeStyle=x.fillStyle=o.ink();x.lineCap=x.lineJoin='round';
     st.forEach(s=>{if(s.length===1){x.beginPath();x.arc(s[0][0],s[0][1],(s[0][2]||o.pw)/2,0,7);x.fill();return}
       for(let i=1;i<s.length;i++){x.beginPath();x.lineWidth=(s[i-1][2]+s[i][2])/2||o.pw;x.moveTo(s[i-1][0],s[i-1][1]);x.lineTo(s[i][0],s[i][1]);x.stroke()}});if(o.over)o.over(x)}
   const pt=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*o.w/r.width,(e.clientY-r.top)*o.h/r.height]};
-  const wOf=e=>o.pw*(e.pointerType==='pen'&&e.pressure>0?.6+e.pressure*.8:1);
+  const mode=()=>o.tool?o.tool():'pen',penP=e=>e.pointerType==='pen'&&e.pressure>0;
+  const wOf=e=>o.pw*(penP(e)?.6+e.pressure*.8:1)*(mode()==='brush'?1.6:1);
   function erase(p){const r=o.pw*5;let hit=false;for(let i=st.length-1;i>=0;i--)if(st[i].some(q=>Math.hypot(q[0]-p[0],q[1]-p[1])<r)){st.splice(i,1);hit=true}if(hit)draw();return hit}
   cv.onpointerdown=e=>{e.preventDefault();cv.setPointerCapture(e.pointerId);const p=pt(e);
-    if(o.tool&&o.tool()==='erase'){cur='erase';erase(p);return}
-    cur=[[p[0],p[1],wOf(e)]];st.push(cur);if(o.onStart)o.onStart();draw()};
+    if(mode()==='erase'){cur='erase';erase(p);return}
+    lt=performance.now();cur=[[p[0],p[1],wOf(e)]];st.push(cur);if(o.onStart)o.onStart();draw()};
   cv.onpointermove=e=>{if(!cur)return;const p=pt(e);if(cur==='erase'){erase(p);return}
-    const q=cur[cur.length-1];if(Math.hypot(p[0]-q[0],p[1]-q[1])<o.w/400+.8)return;cur.push([p[0],p[1],wOf(e)]);draw()};
-  cv.onpointerup=cv.onpointercancel=()=>{if(!cur)return;const was=cur;cur=null;draw();if(o.onEnd)o.onEnd(was==='erase')};
+    const q=cur[cur.length-1],d=Math.hypot(p[0]-q[0],p[1]-q[1]);if(d<o.w/400+.8)return;let w=wOf(e);
+    if(mode()==='brush'&&!penP(e)){const now=performance.now(),v=d/Math.max(1,now-lt);lt=now;const tgt=o.pw*2.2*Math.max(.3,1.2-v*.5);w=q[2]*.7+tgt*.3}
+    cur.push([p[0],p[1],w]);draw()};
+  cv.onpointerup=cv.onpointercancel=()=>{if(!cur)return;const was=cur;cur=null;
+    if(was!=='erase'&&mode()==='brush'&&was.length>3){const n=was.length;[.75,.5,.3].forEach((f,k)=>{const i=n-3+k;if(was[i])was[i][2]*=f})}
+    draw();if(o.onEnd)o.onEnd(was==='erase')};
   draw();return{strokes:st,draw,undo(){st.pop();draw();if(o.onEnd)o.onEnd(true)},clear(){st.length=0;draw();if(o.onEnd)o.onEnd(true)}}}
 function fitBox(cv,boxW,boxH,ratio){let w=boxW,h=w/ratio;if(h>boxH){h=boxH;w=h*ratio}cv.style.width=Math.max(120,w)+'px';cv.style.height=Math.max(120/ratio,h)+'px'}
 const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
@@ -18084,20 +18102,20 @@ function mountWB(ch){const cv=$('#wb');if(!cv)return;const d=wbDims();padInk=fal
       for(let c=0;c<d.cols;c++)paperCell(x,c*d.cell,y0+d.ph,d.cell,{line:r===0&&c===0?seal:line,mi:true});
       if(r===0&&ch){paperPyText(x,ch.py,d.cell/2,y0,d.ph,ink);
         [.9,.3,.22,.15].forEach((a,c)=>paperGlyph(x,ch.c,c*d.cell+d.cell/2,y0+d.ph+d.cell/2,d.cell,ink,a))}}};
-  WBP=mkPad(cv,{w:d.W,h:d.H,pw:W.tool==='brush'?7.5:4.2,strokes:[],ink:()=>cssv('--ink'),tool:()=>W.tool,guide,onStart:()=>{padInk=true}});
+  WBP=mkPad(cv,{w:d.W,h:d.H,pw:4.2,strokes:[],ink:()=>cssv('--ink'),tool:()=>W.tool,guide,onStart:()=>{padInk=true}});
   padClear=()=>{WBP.clear();padInk=false}}
 function recallView(seg,lv,list,ch){
   const t=ch?sylTone(ch.py):5;
   if(W.rmode==='sent')return{html:`<header class="ph"><p class="eyebrow">Письменность</p><h1>Предложение по памяти</h1><p class="lead">Выбери предложение, прочитай перевод и напиши его на длинной доске: образца нет. Система проверит каждый знак и пиньинь.</p></header>${seg}
     <section class="card" style="display:flex;flex-direction:column;gap:10px"><p>Источники: фразы из спринта и тематических уроков. Если выбраны слова во вкладке «Мои слова», берутся предложения с ними.</p><div class="row"><button class="btn" data-a="wsentgo">Взять предложение</button><button class="btn ghost" data-a="go" data-v="board">Свободная доска</button></div></section>`};
   return{html:`<header class="ph"><p class="eyebrow">Письменность</p><h1>Иероглифы по памяти</h1><p class="lead">Образца нет: видишь только чтение и значение. Напиши знак, нажми «Проверить», система определит, что получилось. Порядок черт не проверяется, важна форма.</p></header>${seg}
-  <section class="wrap-w"><div style="display:flex;flex-direction:column;gap:10px"><canvas id="sq" class="sq" aria-label="Поле для письма"></canvas>
-    <div class="row"><button class="btn" data-a="wcheck">Проверить</button><button class="btn ghost sm" data-a="wrclear">Очистить</button><button class="btn ghost sm" data-a="wreveal">Показать ответ</button></div></div>
+  <section class="wrap-w"><div style="display:flex;flex-direction:column;gap:10px">${wpadHTML('sq',{single:true})}
+    <div class="row"><button class="btn" data-a="wcheck">Проверить</button><button class="btn ghost sm" data-a="wreveal">Показать ответ</button></div></div>
     <div style="display:flex;flex-direction:column;gap:12px;min-width:0">${wLvlRow(lv,list).replace('</span></div>',`</span><span class="muted" style="font-size:13px"> · верно <span id="wcnt">${W.rc.ok} из ${W.rc.tot}</span></span></div>`)}
     ${ch?`<div class="row"><div class="pybig t${t}" style="font-size:34px">${esc(ch.py)}</div><div class="muted">значение: <b>${esc(charMean(ch.c)||ch.w.ru)}</b><br>в слове ${esc(ch.w.hz.replace(ch.c,'＿'))} — ${esc(ch.w.ru)}</div>${playBtn(ch.w.hz)}</div>`:''}
     <div id="wver"></div>
     <div class="row"><button class="btn ghost" data-a="wprev">Назад</button><button class="btn" data-a="wnext">Следующий</button></div></div></section>`,
-  mount:()=>{padInk=false;const cv=$('#sq');if(!cv)return;RP=mkPad(cv,{w:600,h:600,pw:14,strokes:[],ink:()=>cssv('--ink'),guide:x=>{const l=cssv('--line');paperCell(x,0,0,600,{line:l})},onStart:()=>{padInk=true}});recReady()}}}
+  mount:()=>{padInk=false;RP=wpadMount('sq',{cols:1,rows:1,cell:600,single:true,strokes:[]});recReady()}}}
 let RP=null;
 function verdictHTML(ch,v,own){if(!v)return'';const t=sylTone(ch.py);
   if(v.state==='ok')return`<div class="card ok"><b>Верно.</b> Система узнала <span class="hz t${t}" style="font-size:22px">${esc(ch.c)}</span>.</div>`;
@@ -18113,7 +18131,7 @@ const bdDim=()=>BD.ratio==='16:9'?[1600,900]:[900,1600];
 function bdGeo(){const [W_,H_]=bdDim(),c=BD.cell;if(!c)return null;const ph=BD.py?Math.round(c*.3):0,rh=c+ph,cols=Math.floor(W_/c),rows=Math.floor(H_/rh);return{cell:c,ph,rh,cols,rows,ox:(W_-cols*c)/2,oy:(H_-rows*rh)/2}}
 const bdText=()=>BD.res.map(r=>(r.nl?'\n':'')+r.cands[r.pick].c).join('');
 function pyFix(a){return(a||[]).join(' ')}
-function bdResHTML(){
+function bdResBase(){
   if(BD.task)return bdTaskHTML();
   if(!BD.res.length)return`<p class="muted">Напиши слово или предложение. Через секунду после паузы система определит знаки и покажет пиньинь. Знаков в словаре приложения: ${REC.tpl?REC.tpl.length:CHARS.length}.</p>`;
   const text=bdText().replace(/\n/g,''),words=recRead(text);
@@ -18147,7 +18165,7 @@ views.board=()=>{
   const tb=`<div class="bdtb"><div class="seg" role="group" aria-label="Формат">${['16:9','9:16'].map(r=>`<button data-a="bdset" data-k="ratio" data-v="${r}" aria-pressed="${BD.ratio===r}">${r}</button>`).join('')}</div>
     ${T?'':`<div class="seg" role="group" aria-label="Клетки">${[[0,'Свободно'],[160,'Клетки'],[240,'Крупно']].map(([v,t])=>`<button data-a="bdset" data-k="cell" data-v="${v}" aria-pressed="${BD.cell===v}">${t}</button>`).join('')}</div>`}
     <div class="seg" role="group" aria-label="Линейка"><button data-a="bdpy" aria-pressed="${BD.py}" ${BD.cell?'':'disabled'}>Строка пиньинь</button></div>
-    <div class="seg" role="group" aria-label="Инструмент"><button data-a="bdset" data-k="tool" data-v="pen" aria-pressed="${BD.tool==='pen'}">Ручка</button><button data-a="bdset" data-k="tool" data-v="erase" aria-pressed="${BD.tool==='erase'}">Ластик</button></div>
+    <div class="seg" role="group" aria-label="Инструмент"><button data-a="bdset" data-k="tool" data-v="pen" aria-pressed="${BD.tool==='pen'}">Ручка</button><button data-a="bdset" data-k="tool" data-v="brush" aria-pressed="${BD.tool==='brush'}">Кисть</button><button data-a="bdset" data-k="tool" data-v="erase" aria-pressed="${BD.tool==='erase'}">Ластик</button></div>
     <div class="swatches" role="group" aria-label="Доска">${Object.entries(BSURF).map(([k,v])=>`<button class="sw" data-a="bdset" data-k="surf" data-v="${k}" aria-pressed="${BD.surf===k}" title="${v.t}" style="background:${v.bg}"></button>`).join('')}</div>
     <button class="btn ghost sm" data-a="bdundo">Отменить</button><button class="btn ghost sm" data-a="bdclear">Очистить</button>${T?'<button class="btn ghost sm" data-a="bdfree">Свободная доска</button>':''}<button class="btn sm" data-a="bdfull">${BD.full?'Свернуть':'На весь экран'}</button></div>`;
   return{html:`${BD.full?'':`<header class="ph"><p class="eyebrow">${T?'Диктант':'Свободное письмо'}</p><h1>Доска</h1><p class="lead">${T?'Напиши предложение по переводу. Каждый знак — в своей клетке. Система проверит знаки и пиньинь, а ошибку покажет с анимацией порядка черт.':'Пиши слово или целое предложение: система сама найдёт знаки и покажет, как это читается. В режиме «Клетки» один знак — одна клетка, так распознавание точнее. «На весь экран» разворачивает доску в 16:9 или 9:16.'}</p></header>`}
@@ -18191,15 +18209,13 @@ function bdCheck(){const T=BD.task,g=bdGeo();if(!T||!g)return;const m=bdCellStro
 /* ---------- тренировка: чистый квадрат ---------- */
 let PR={grid:false,strokes:[],res:null,pad:null};
 views.prac=()=>({html:`<header class="ph"><p class="eyebrow">Без подсказок</p><h1>Тренировка</h1><p class="lead">Чистый квадрат: ни образца, ни порядка черт. Пиши знак так, как помнишь. Хочешь проверить себя, нажми «Что получилось?»: система скажет, какой знак она увидела.</p></header>
-  <section class="wrap-w"><div style="display:flex;flex-direction:column;gap:10px"><canvas id="sq" class="sq" aria-label="Поле для письма"></canvas>
-    <div class="row"><button class="btn ghost sm" data-a="prundo">Отменить штрих</button><button class="btn ghost sm" data-a="prclear">Очистить</button><button class="btn ghost sm" data-a="prgrid">${PR.grid?'Убрать сетку':'Сетка 米'}</button></div></div>
+  <section class="wrap-w"><div style="display:flex;flex-direction:column;gap:10px">${wpadHTML('sq',{single:true})}</div>
     <div style="display:flex;flex-direction:column;gap:12px;min-width:0"><button class="btn" data-a="prrec" style="align-self:flex-start">Что получилось?</button><div id="prres">${prResHTML()}</div><div id="pranim"></div>
     <p class="muted" style="font-size:13px">Распознаются знаки из программы приложения (${CHARS.length}). Порядок и направление черт не учитываются, важна форма и пропорции.</p></div></section>`,mount:prMount});
 function prResHTML(){if(!PR.res)return`<p class="muted">Здесь появится ответ системы.</p>`;
   if(!PR.res.length)return`<p class="muted">Ничего не нарисовано.</p>`;
   return`<div class="cands">${PR.res.map((r,i)=>{const it=CHM[r.c],py=it?it.py:'',t=sylTone(py||'');return`<button class="cand${i===0?' top':''}" data-a="pranimate" data-c="${esc(r.c)}" title="Нажми: как писать этот знак"><span class="hz t${t}">${esc(r.c)}</span><span><b class="py t${t}">${esc(py)}</b><small>${esc(it?charMean(r.c):'')}</small></span></button>`}).join('')}</div><p class="muted" style="font-size:12px">Нажми на знак, чтобы увидеть порядок черт.</p>`}
-function prMount(){const cv=$('#sq');if(!cv)return;
-  PR.pad=mkPad(cv,{w:600,h:600,pw:14,strokes:PR.strokes,ink:()=>cssv('--ink'),guide:x=>{paperCell(x,0,0,600,{line:cssv('--line'),mi:PR.grid})}});recReady()}
+function prMount(){PR.pad=wpadMount('sq',{cols:1,rows:1,cell:600,single:true,strokes:PR.strokes});recReady()}
 async function prRecognize(){await recReady();PR.res=PR.strokes.length?recMatch(PR.strokes,5):[];if(view==='prac'&&$('#prres'))$('#prres').innerHTML=prResHTML()}
 /* ---------- «Мои слова»: выбор слов и тесты по ним ---------- */
 const PK={std:'book',lvl:1,q:'',unit:'',n:10,dir:'hz'};
@@ -18261,9 +18277,8 @@ function tsStart(kind,o={}){let ws=o.queue?[]:(o.ids||S.sel||[]).map(id=>WB[id])
   ws=shuffle(ws);const n=o.n!=null?o.n:PK.n;if(n&&ws.length>n)ws=ws.slice(0,n);
   const queue=o.queue||itemsFor(kind,ws);
   if(!queue.length){toast(kind==='bd'?'Для этих слов нет подходящих предложений':'Нечего проверять');return}
-  TS={kind,title:o.title||normKind[kind],queue,i:0,res:[],st:{},ai:!!o.queue,wids:ws.map(w=>w.id),dir:PK.dir};go('stest')}
+  TS={kind,title:o.title||normKind[kind],queue,i:0,res:[],st:{},ai:!!o.queue,wids:ws.map(w=>w.id),dir:PK.dir,back:o.back||null};go('stest')}
 const tsCur=()=>TS.queue[TS.i];
-function tsPush(ok,extra){const it=tsCur();TS.res.push({t:it.t,ok,id:it.w&&it.w.id||it.wid||null,hz:it.w?it.w.hz:it.c||it.toks&&it.toks.join('')||it.q||'',py:it.w?pyText(it.w.py):it.py||'',ru:it.w?it.w.ru:it.ru||'',...extra});TS.st.done=true}
 function tsNext(){TS.i++;TS.st={};if(TS.i>=TS.queue.length)tsFinish();else render()}
 function tsFinish(){TS.done=true;const ok=TS.res.filter(r=>r.ok).length,n=TS.res.length,pct=n?Math.round(100*ok/n):0;
   const now=Date.now();S.tlog=S.tlog||[];S.tlog.unshift({t:now,k:TS.kind,n,ok,ai:TS.ai,title:TS.title,ids:TS.wids.slice(0,40)});S.tlog=S.tlog.slice(0,60);
@@ -18275,35 +18290,13 @@ views.stest=()=>{if(!TS)return pickGo();
   const it=tsCur(),n=TS.queue.length,head=`<header class="ph"><div class="row" style="justify-content:space-between"><p class="eyebrow">${esc(TS.title)} · ${TS.i+1} из ${n}</p><button class="btn ghost sm" data-a="tsquit">Выйти</button></div><div class="bar"><i style="width:${Math.round(100*TS.i/n)}%"></i></div></header>`;
   return{html:head+tsItemHTML(it),mount:()=>tsMount(it)}};
 const pickGo=()=>{go('pick');return''};
-function tsItemHTML(it){const st=TS.st;
-  if(it.t==='card'){const w=it.w,front=TS.dir==='ru'?`<div class="tsru">${esc(w.ru)}</div>`:`<div class="hz tshz t${sylTone(w.py)}">${esc(w.hz)}</div>`,back=`<div class="hz tshz t${sylTone(w.py)}" ${TS.dir==='ru'?'':'style="font-size:40px"'}>${TS.dir==='ru'?esc(w.hz):''}</div><div class="pybig t${sylTone(w.py)}">${esc(pyText(w.py))}</div><div class="tsru">${esc(w.ru)}</div>${pallHTML(w)}${playBtn(w.hz)}`;
-    return`<section class="card tscard">${front}${st.flip?`<hr style="width:100%;border:0;border-top:1px solid var(--line)">${back}<div class="row"><button class="btn ghost" data-a="tsknow" data-v="0">Не знаю</button><button class="btn" data-a="tsknow" data-v="1">Знаю</button></div>`:`<div class="row">${playBtn(w.hz)}<button class="btn" data-a="tsflip">Показать ответ</button></div><div class="seg" role="group" aria-label="Сторона"><button data-a="tsdir" data-d="hz" aria-pressed="${TS.dir!=='ru'}">Знак → ответ</button><button data-a="tsdir" data-d="ru" aria-pressed="${TS.dir==='ru'}">Перевод → знак</button></div>`}</section>`}
-  if(it.t==='wr'){const w=it.w,d=st.done;return`<section class="card tscard"><div class="hz tshz t${sylTone(w.py)}">${esc(w.hz)}</div>${playBtn(w.hz)}
-    <label class="tsfield"><span class="muted">Пиньинь (тоны знаками или цифрами: ni3 hao3)</span><input id="tspy" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" ${d?'disabled':''} value="${esc(st.py||'')}" placeholder="nǐ hǎo"></label>
-    <div class="muted" style="font-size:13px">Что значит?</div><div class="opts">${it.opts.map((o,k)=>`<button class="opt ${d?(k===it.a?'ok':k===st.pick?'no':''):(k===st.pick?'sel':'')}" data-a="tswrpick" data-k="${k}" ${d?'disabled':''}>${esc(o)}</button>`).join('')}</div>
-    ${d?`<div class="card ${st.pyRes==='ok'?'ok':st.pyRes==='tone'?'':'bad'}"><b>Пиньинь: ${st.pyRes==='ok'?'верно':st.pyRes==='tone'?'слоги верны, тон нет':st.pyRes==='empty'?'не введён':'неверно'}.</b> Правильно: <b class="py">${esc(pyText(w.py))}</b></div><div class="row"><button class="btn" data-a="tsnext">Дальше</button></div>`:`<div class="row"><button class="btn" data-a="tswrcheck">Проверить</button></div>`}</section>`}
-  if(it.t==='bd'){const b=st.b||(st.b={pool:shuffle(it.toks.map((t,i)=>({t,i}))),chosen:[]}),ok=st.state==='ok';
-    return`<section class="card tscard"><p class="eyebrow">Собери предложение</p><div class="tsru">${esc(it.ru)}</div><div class="build"><div class="slot ${st.state||''}">${b.chosen.length?b.chosen.map((k,j)=>`<button class="tok" data-a="tsbu" data-j="${j}" ${st.done?'disabled':''}>${esc(b.pool[k].t)}</button>`).join(''):'<span class="muted" style="font-size:13px">Нажимай слова по порядку</span>'}</div>
-    <div class="pool">${b.pool.map((t,k)=>`<button class="tok ${b.chosen.includes(k)?'used':''}" data-a="tsbt" data-k="${k}" ${st.done?'disabled':''}>${esc(t.t)}</button>`).join('')}</div></div>
-    ${st.done?`<div class="card ${ok?'ok':'bad'}"><b>${ok?'Верно':'Порядок неверный'}.</b> Правильно: <span class="hz">${esc(it.toks.join('')+it.p)}</span> <span class="py muted">${esc(it.py)}</span></div><div class="row">${playBtn(it.toks.join(''))}<button class="btn" data-a="tsnext">Дальше</button></div>`:`<div class="row"><button class="btn ghost sm" data-a="tsbr">Сбросить</button><button class="btn" data-a="tsbc" ${b.chosen.length===it.toks.length?'':'disabled'}>Проверить</button></div>`}</section>`}
-  if(it.t==='hand'){const c=it.c,py=it.py,v=st.v;
-    return`<section class="wrap-w"><div style="display:flex;flex-direction:column;gap:10px"><canvas id="sq" class="sq" aria-label="Поле для письма"></canvas><div class="row"><button class="btn ghost sm" data-a="tshclear" ${st.done?'disabled':''}>Очистить</button></div></div>
-    <div style="display:flex;flex-direction:column;gap:12px;min-width:0"><div class="eyebrow">Напиши знак</div><div class="tsru">${esc(charMean(c)||it.w.ru)}</div><div class="muted">в слове ${esc(it.w.hz.replace(c,'＿'))} — ${esc(it.w.ru)}</div>${playBtn(it.w.hz)}
-    <label class="tsfield"><span class="muted">Пиньинь этого знака</span><input id="tspy" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" ${st.done?'disabled':''} value="${esc(st.py||'')}" placeholder="${esc(py)?'например: '+esc(py):'пиньинь'}"></label>
-    ${st.done?`${verdictHTML({c,py},v,'tsown')}<div class="card ${st.pyRes==='ok'?'ok':st.pyRes==='tone'?'':'bad'}"><b>Пиньинь: ${st.pyRes==='ok'?'верно':st.pyRes==='tone'?'слоги верны, тон нет':st.pyRes==='empty'?'не введён':'неверно'}.</b> Правильно: <b class="py t${sylTone(py)}">${esc(py)}</b></div><div id="tsanim"></div><div class="row"><button class="btn ghost" data-a="tsanimshow" data-c="${esc(c)}">Как писать</button><button class="btn ghost" data-a="cwrite" data-c="${esc(c)}">Пропись</button><button class="btn" data-a="tsnext">Дальше</button></div>`
-     :`<div class="row"><button class="btn" data-a="tshcheck">Проверить</button><button class="btn ghost sm" data-a="tshshow">Показать ответ</button></div>`}</div></section>`}
-  if(it.t==='quiz'){const d=st.done;return`<section class="card tscard"><div class="tsru" style="font-size:20px">${esc(it.q)}</div><div class="opts">${it.opts.map((o,k)=>`<button class="opt ${d?(k===it.a?'ok':k===st.pick?'no':''):''}" data-a="tsq" data-k="${k}" ${d?'disabled':''}>${esc(o)}</button>`).join('')}</div>${d?`${it.why?`<p class="muted">${esc(it.why)}</p>`:''}<div class="row"><button class="btn" data-a="tsnext">Дальше</button></div>`:''}</section>`}
-  return'<p>Неизвестное задание</p>'}
-function tsMount(it){if(it.t==='hand'){const cv=$('#sq');if(!cv)return;const st=TS.st;st.pad=mkPad(cv,{w:600,h:600,pw:14,strokes:st.strokes||(st.strokes=[]),ink:()=>cssv('--ink'),guide:x=>paperCell(x,0,0,600,{line:cssv('--line')}),onStart:()=>{}});recReady([it.c]);
-    if(st.done&&st.v&&st.v.state==='bad')showAnim('#tsanim',it.c)}
-  if(it.t==='card'&&!TS.st.flip&&TS.dir!=='ru'&&it.w)try{}catch(e){}}
 function tsSummary(){const ok=TS.res.filter(r=>r.ok).length,n=TS.res.length,pct=n?Math.round(100*ok/n):0,pass=pct>=80,wrong=TS.res.filter(r=>!r.ok);
   const byT={};TS.res.forEach(r=>{(byT[r.t]=byT[r.t]||[0,0])[1]++;if(r.ok)byT[r.t][0]++});const tn={card:'Карточки',wr:'Письменный',bd:'Предложения',hand:'Письмо знаков',quiz:'Вопросы'};
   return`<header class="ph"><p class="eyebrow">${esc(TS.title)}</p><h1>${pass?'Тест пройден':'Нужно ещё потренироваться'}</h1></header>
-  <section class="card tscard"><div class="bignum ${pass?'t3':'t1'}">${pct}%</div><p class="muted">Верно ${ok} из ${n}. Порог: 80%.</p>
+  <section class="card tscard"><div class="bignum ${pass?'t3':'t1'}">${pct}%</div><p class="muted">Верно ${ok} из ${n}. Порог: 80%.${TS.res.some(r=>r.hinted||r.dk)?` С подсказкой: ${TS.res.filter(r=>r.hinted).length}, «не знаю»: ${TS.res.filter(r=>r.dk).length}.`:''}</p>
   ${Object.keys(byT).length>1?`<div class="row" style="justify-content:center">${Object.entries(byT).map(([t,[a,b]])=>`<span class="chip">${tn[t]||t}: ${a}/${b}</span>`).join('')}</div>`:''}</section>
-  ${wrong.length?`<section><h2>Над чем поработать</h2><div class="pkwrong card">${wrong.map(r=>`<div class="pkrow"><span class="hz pkhz">${esc(r.hz)}</span><span class="pkpy py">${esc(r.py)}</span><span class="pkru">${esc(r.ru)}</span></div>`).join('')}</div></section>`:''}
-  <div class="row">${wrong.length&&!TS.ai?'<button class="btn" data-a="tsretry">Повторить ошибки</button>':''}<button class="btn ghost" data-a="tsagain">Ещё раз</button><button class="btn ghost" data-a="tstutor">Разобрать с репетитором</button><button class="btn ghost" data-a="go" data-v="${TS.ai?'tutor':'pick'}">${TS.ai?'К репетитору':'Мои слова'}</button></div>`}
+  ${wrong.length?`<section><h2>Над чем поработать</h2><div class="pkwrong card">${wrong.map(r=>`<div class="pkrow"><span class="hz pkhz">${esc(r.hz)}</span><span class="pkpy py">${esc(r.py)}</span><span class="pkru">${esc(r.ru)}</span>${r.id&&WB[r.id]?`<button class="btn ghost sm" data-a="wfocus" data-id="${esc(r.id)}">Практика</button>`:''}</div>`).join('')}</div></section>`:''}
+  <div class="row">${wrong.length&&!TS.ai?'<button class="btn" data-a="tsretry">Повторить ошибки</button>':''}<button class="btn ghost" data-a="tsagain">Ещё раз</button>${TS.back&&WB[TS.back]?`<button class="btn" data-a="wfocus" data-id="${esc(TS.back)}">К слову</button>`:''}<button class="btn ghost" data-a="tstutor">Разобрать с репетитором</button><button class="btn ghost" data-a="go" data-v="${TS.ai?'tutor':'pick'}">${TS.ai?'К репетитору':'Мои слова'}</button></div>`}
 
 Object.assign(act,{
   pklvl:d=>{PK.lvl=+d.l;PK.unit='';render()},
@@ -18482,7 +18475,8 @@ views.quick=()=>{if(!QK.src)QK.src=(S.sel||[]).length>=2?'sel':'book';
 
 /* ---------- репетитор собирает тест по просьбе сам, без сервера ---------- */
 function tuLocal(text){const t=String(text||'').toLowerCase().replace(/ё/g,'е');
-  if(!/(тест|карточ|квиз|викторин|задани|упражнен|экзамен|прописа|составл|проверь|проверк)/.test(t))return null;
+  if(!/(тест|карточ|квиз|викторин|задани|упражнен|экзамен|прописа|составл)/.test(t))return null;
+  if(/(мо[её] предложение|моего предложения|посмотри мо)/.test(t))return null;
   if(/(объясни|почему|в чем разница|разница между|что значит|расскажи|исправь|разбери)/.test(t)&&!/(тест|карточ|квиз|викторин)/.test(t))return null;
   let kind='cards';
   if(/квиз|викторин|вариант|вопрос/.test(t))kind='quiz';
@@ -18524,6 +18518,139 @@ document.addEventListener('change',e=>{const t=e.target;if(!t.id)return;
   if(t.id==='qkblock'){QK.block=t.value;render()}});
 const _todayV=views.today;
 views.today=()=>{const r=_todayV(),h=typeof r==='string'?r:r.html,card=`<section class="card quickcard"><div style="min-width:0"><b>Быстрый тест</b><p class="muted">Открывается сразу: выбери, откуда слова, и вид теста.</p></div><button class="btn" data-a="go" data-v="quick">Начать</button></section>`,i=h.indexOf('</header>'),html=i>=0?h.slice(0,i+9)+card+h.slice(i+9):card+h;return typeof r==='string'?html:{...r,html}};
+
+/* ---------- единое поле письма: ручка, кисть, ластик в одном экране ---------- */
+const WPT={tool:'pen'},WPADS={},TSW={on:true};
+const WPC=()=>innerWidth<560?4:6;
+function wpadHTML(id,o={}){return`<div class="wpad"><canvas id="${id}" class="${o.single?'sq':'wb'}" aria-label="Поле для письма"></canvas><div class="row wptools"><div class="seg" role="group" aria-label="Инструмент">${[['pen','Ручка'],['brush','Кисть'],['erase','Ластик']].map(([k,t])=>`<button data-a="wpt" data-t="${k}" aria-pressed="${WPT.tool===k}">${t}</button>`).join('')}</div><button class="btn ghost sm" data-a="wpundo" data-w="${id}">Отменить</button><button class="btn ghost sm" data-a="wpclear" data-w="${id}">Очистить</button></div></div>`}
+function wpadMount(id,o){const cv=$('#'+id);if(!cv)return null;const cell=o.cell||100,W_=o.cols*cell,H_=o.rows*cell,st=o.strokes||[];
+  const ctrl=mkPad(cv,{w:W_,h:H_,pw:cell*(o.single?.023:.042),strokes:st,ink:()=>cssv('--ink'),tool:()=>WPT.tool,
+    guide:x=>{const line=cssv('--line');for(let r=0;r<o.rows;r++)for(let c=0;c<o.cols;c++)paperCell(x,c*cell,r*cell,cell,{line,mi:true});
+      if(o.ghost)[...o.ghost].filter(isHan).forEach((ch,i)=>{if(i>=o.cols*o.rows)return;paperGlyph(x,ch,(i%o.cols)*cell+cell/2,Math.floor(i/o.cols)*cell+cell/2,cell,cssv('--ink'),o.ghostA||.28)})},
+    onStart:()=>{padInk=true},onEnd:o.onEnd});
+  WPADS[id]={ctrl,strokes:st,cols:o.cols,rows:o.rows,cell};return ctrl}
+function wpCells(id){const w=WPADS[id];if(!w)return[];const m=[];w.strokes.forEach(s=>{const b=sbox(s),c=Math.floor(b.cx/w.cell),r=Math.floor(b.cy/w.cell);if(c<0||r<0||c>=w.cols||r>=w.rows)return;const k=r*w.cols+c;(m[k]=m[k]||[]).push(s)});return m}
+async function wpCheck(id,word){await recReady([...word].filter(isHan));return wpCheckNow(id,word)}
+function wpCheckNow(id,word){const chars=[...word].filter(isHan);const cells=wpCells(id);
+  const res=chars.map((c,i)=>cells[i]&&cells[i].length?recVerify(cells[i],c):{state:'empty'});
+  let free='';for(let i=chars.length;i<cells.length;i++)if(cells[i]&&cells[i].length){const r=recMatch(cells[i],1)[0];if(r)free+=r.c}
+  return{res,free}}
+const wpOk=r=>r&&r.res.length&&r.res.every(x=>x.state==='ok'||x.state==='close');
+function wresHTML(r,w,py){const chars=[...w.hz].filter(isHan);
+  const chips=chars.map((c,i)=>{const s=r.res[i]?r.res[i].state:'empty',cls=s==='ok'?'g':s==='close'?'y':s==='empty'?'':'r',p=charPyOf(c,w);return`<button class="rc ${cls}" ${s==='bad'||s==='empty'?`data-a="wpanim" data-c="${esc(c)}" title="Как писать"`:`data-a="say" data-t="${esc(c)}"`}><span class="hz t${sylTone(p)}">${esc(c)}</span><span class="py t${sylTone(p)}">${esc(p)}</span></button>`}).join('');
+  const okN=r.res.filter(x=>x.state==='ok'||x.state==='close').length,any=r.res.some(x=>x.state!=='empty');
+  const pyl=r.pyRes?`<div class="card ${r.pyRes==='ok'?'ok':r.pyRes==='tone'?'':'bad'}"><b>Пиньинь: ${r.pyRes==='ok'?'верно':r.pyRes==='tone'?'слоги верны, тон нет':r.pyRes==='empty'?'не введён':'неверно'}.</b> Правильно: <b class="py">${esc(pyText(w.py))}</b></div>`:'';
+  const free=r.free?`<p class="muted" style="font-size:13px">В других клетках распознано: <span class="hz">${esc(r.free)}</span> · ${esc(recRead(r.free).map(x=>x.py.join(' ')).join(' · '))}</p>`:'';
+  return`<div class="wres">${any?`<div class="rline">${chips}</div><div class="card ${okN===chars.length?'ok':''}"><b>Знаков верно: ${okN} из ${chars.length}.</b> ${okN<chars.length?'Нажми на красный знак, чтобы увидеть, как его писать.':''}</div>`:'<p class="muted">Знаки не написаны.</p>'}${pyl}${free}<div id="wpanim"></div></div>`}
+
+/* ---------- подсказки и «не знаю» во всех тестах ---------- */
+const ini=p=>sylBase(String(p)).slice(0,1);
+function hintFor(it,n){if(!n)return null;const L=Math.min(3,n);
+  if(it.t==='card'){const w=it.w,sy=syls(w),ch=[...w.hz].filter(isHan);
+    if(TS.dir==='ru')return[`Знаков: ${ch.length}. Чтение начинается на «${ini(w.py)}».`,`Первый знак: ${ch[0]||''}.`,`Чтение: ${pyText(w.py)}.`][L-1];
+    return[`Слогов: ${sy.length}. Чтение начинается на «${ini(w.py)}».`,`Первый слог: ${sy[0]||''}.`,`Перевод начинается на «${String(w.ru).slice(0,2)}…».`][L-1]}
+  if(it.t==='wr'){const w=it.w,sy=syls(w);return[`Слогов: ${sy.length}. Начинается на «${ini(w.py)}».`,'Убрал два неверных перевода.',`Первый слог: ${sy[0]||''}.`][L-1]}
+  if(it.t==='quiz')return'Убрал два неверных варианта.';
+  if(it.t==='bd')return`Подставлено слов: ${Math.min(n,it.toks.length)}.`;
+  if(it.t==='hand'){const m=medOf(it.c);return[`Черт: ${m?m.length:'?'}. Чтение начинается на «${ini(it.py||'')}».`,`Чтение: ${it.py||''}.`,'Смотри порядок черт ниже.'][L-1]}
+  return null}
+const hintBox=(it,st)=>st.hints?`<div class="hintbox">Подсказка ${Math.min(3,st.hints)}: ${esc(hintFor(it,st.hints))}</div>`:'';
+const tsBtns=(main,it,st)=>`<div class="row">${main}<button class="btn ghost" data-a="tshint" ${st.hints>=(it.t==='bd'?it.toks.length:3)?'disabled':''}>Подсказка</button><button class="btn ghost" data-a="tsdk">Не знаю</button></div>`;
+function tsPush(ok,extra){const it=tsCur();TS.res.push({t:it.t,ok,id:it.w&&it.w.id||it.wid||null,hz:it.w?it.w.hz:it.c||it.toks&&it.toks.join('')||it.q||'',py:it.w?pyText(it.w.py):it.py||'',ru:it.w?it.w.ru:it.ru||'',hinted:(TS.st.hints||0)>0,...extra});TS.st.done=true}
+const bdSt=(it,st)=>st.b||(st.b={pool:shuffle(it.toks.map((t,i)=>({t,i}))),chosen:[]});
+function bdCorrect(it,b){const used=new Set(),out=[];it.toks.forEach(t=>{const i=b.pool.findIndex((x,k)=>x.t===t&&!used.has(k));if(i>=0){used.add(i);out.push(i)}});return out}
+function tsItemHTML(it){const st=TS.st;
+  if(it.t==='card'){const w=it.w,ru=TS.dir==='ru',on=TSW.on,t=sylTone(w.py);
+    const front=ru?`<div class="tsru">${esc(w.ru)}</div>`:`<div class="hz tshz t${t}">${esc(w.hz)}</div>`;
+    const pad=on?`<div class="tswrite">${wpadHTML('tsw')}<label class="tsfield"><span class="muted">Пиньинь слова или фразы</span><input id="tspy" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" ${st.done?'disabled':''} value="${esc(st.py||'')}" placeholder="nǐ hǎo"></label></div>`:'';
+    const tog=`<button class="btn ghost sm" data-a="tswtoggle">${on?'Скрыть письмо':'Писать на карточке'}</button>`;
+    if(!st.flip)return`<section class="card tscard">${front}${hintBox(it,st)}<div class="row">${playBtn(w.hz)}${tog}</div>${pad}${tsBtns('<button class="btn" data-a="tsflip">Показать ответ</button>',it,st)}<div class="seg" role="group" aria-label="Сторона"><button data-a="tsdir" data-d="hz" aria-pressed="${!ru}">Знак → ответ</button><button data-a="tsdir" data-d="ru" aria-pressed="${ru}">Перевод → знак</button></div></section>`;
+    const back=`<div class="hz tshz t${t}" ${ru?'':'style="font-size:40px"'}>${ru?esc(w.hz):''}</div><div class="pybig t${t}">${esc(pyText(w.py))}</div><div class="tsru">${esc(w.ru)}</div>${pallHTML(w)}${playBtn(w.hz)}`;
+    const wres=st.wres?wresHTML(st.wres,w):'';
+    return`<section class="card tscard">${front}<hr style="width:100%;border:0;border-top:1px solid var(--line)">${back}${pad}${wres}${st.done?`<div class="row"><button class="btn" data-a="tsnext">Дальше</button></div>`:`<div class="row"><button class="btn ghost" data-a="tsknow" data-v="0">Не знаю</button><button class="btn ${st.suggest?'':'ghost'}" data-a="tsknow" data-v="1">Знаю</button></div>${st.suggest?'<p class="muted" style="font-size:13px">Система проверила написанное: всё верно.</p>':''}`}</section>`}
+  if(it.t==='wr'){const w=it.w,d=st.done,h=hintFor(it,st.hints||0),elim=st.hints>=2?(st.elim||(st.elim=shuffle(it.opts.map((_,k)=>k).filter(k=>k!==it.a)).slice(0,2))):[];
+    return`<section class="card tscard"><div class="hz tshz t${sylTone(w.py)}">${esc(w.hz)}</div>${playBtn(w.hz)}${hintBox(it,st)}
+    <label class="tsfield"><span class="muted">Пиньинь (тоны знаками или цифрами: ni3 hao3)</span><input id="tspy" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" ${d?'disabled':''} value="${esc(st.py||'')}" placeholder="nǐ hǎo"></label>
+    <div class="muted" style="font-size:13px">Что значит?</div><div class="opts">${it.opts.map((o,k)=>`<button class="opt ${d?(k===it.a?'ok':k===st.pick?'no':''):(k===st.pick?'sel':'')} ${elim.includes(k)&&!d?'dim':''}" data-a="tswrpick" data-k="${k}" ${d||elim.includes(k)?'disabled':''}>${esc(o)}</button>`).join('')}</div>
+    ${d?`<div class="card ${st.dk?'bad':st.pyRes==='ok'?'ok':st.pyRes==='tone'?'':'bad'}"><b>${st.dk?'Ответ':'Пиньинь: '+(st.pyRes==='ok'?'верно':st.pyRes==='tone'?'слоги верны, тон нет':st.pyRes==='empty'?'не введён':'неверно')}.</b> Правильно: <b class="py">${esc(pyText(w.py))}</b> — ${esc(w.ru)}</div><div class="row"><button class="btn" data-a="tsnext">Дальше</button></div>`:tsBtns('<button class="btn" data-a="tswrcheck">Проверить</button>',it,st)}</section>`}
+  if(it.t==='bd'){const b=st.b||(st.b={pool:shuffle(it.toks.map((t,i)=>({t,i}))),chosen:[]}),ok=st.state==='ok';
+    return`<section class="card tscard"><p class="eyebrow">Собери предложение</p><div class="tsru">${esc(it.ru)}</div>${hintBox(it,st)}<div class="build"><div class="slot ${st.state||''}">${b.chosen.length?b.chosen.map((k,j)=>`<button class="tok" data-a="tsbu" data-j="${j}" ${st.done?'disabled':''}>${esc(b.pool[k].t)}</button>`).join(''):'<span class="muted" style="font-size:13px">Нажимай слова по порядку</span>'}</div>
+    <div class="pool">${b.pool.map((t,k)=>`<button class="tok ${b.chosen.includes(k)?'used':''}" data-a="tsbt" data-k="${k}" ${st.done?'disabled':''}>${esc(t.t)}</button>`).join('')}</div></div>
+    ${st.done?`<div class="card ${ok?'ok':'bad'}"><b>${ok?'Верно':st.dk?'Ответ':'Порядок неверный'}.</b> Правильно: <span class="hz">${esc(it.toks.join('')+it.p)}</span> <span class="py muted">${esc(it.py)}</span></div><div class="row">${playBtn(it.toks.join(''))}<button class="btn" data-a="tsnext">Дальше</button></div>`:`<div class="row"><button class="btn ghost sm" data-a="tsbr">Сбросить</button><button class="btn" data-a="tsbc" ${b.chosen.length===it.toks.length?'':'disabled'}>Проверить</button><button class="btn ghost" data-a="tshint" ${st.hints>=it.toks.length?'disabled':''}>Подсказка</button><button class="btn ghost" data-a="tsdk">Не знаю</button></div>`}</section>`}
+  if(it.t==='hand'){const c=it.c,py=it.py,v=st.v;
+    return`<section class="wrap-w"><div style="display:flex;flex-direction:column;gap:10px;min-width:0">${wpadHTML('tsh',{single:true})}</div>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0"><div class="eyebrow">Напиши знак</div><div class="tsru">${esc(charMean(c)||it.w.ru)}</div><div class="muted">в слове ${esc(it.w.hz.replace(c,'＿'))} — ${esc(it.w.ru)}</div>${playBtn(it.w.hz)}${hintBox(it,st)}
+    <label class="tsfield"><span class="muted">Пиньинь этого знака</span><input id="tspy" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" ${st.done?'disabled':''} value="${esc(st.py||'')}" placeholder="${esc(py)?'например: '+esc(py):'пиньинь'}"></label>
+    ${st.done?`${verdictHTML({c,py},st.dk?{state:'bad',top:'?',dk:true}:v,'tsown').replace(/Не то\.<\/b> Система увидела <span class="hz" style="font-size:22px">\?<\/span>, а нужен/,'Ответ.</b> Нужен')}<div class="card ${st.pyRes==='ok'?'ok':st.pyRes==='tone'?'':'bad'}"><b>Пиньинь: ${st.pyRes==='ok'?'верно':st.pyRes==='tone'?'слоги верны, тон нет':st.pyRes==='empty'?'не введён':'неверно'}.</b> Правильно: <b class="py t${sylTone(py)}">${esc(py)}</b></div><div id="tsanim"></div><div class="row"><button class="btn ghost" data-a="tsanimshow" data-c="${esc(c)}">Как писать</button><button class="btn ghost" data-a="cwrite" data-c="${esc(c)}">Пропись</button><button class="btn" data-a="tsnext">Дальше</button></div>`
+     :`${tsBtns('<button class="btn" data-a="tshcheck">Проверить</button>',it,st)}<div id="tsanim">${st.hints>=3?animHTML(c):''}</div>`}</div></section>`}
+  if(it.t==='quiz'){const d=st.done,elim=st.hints?(st.elim||(st.elim=shuffle(it.opts.map((_,k)=>k).filter(k=>k!==it.a)).slice(0,Math.min(2,it.opts.length-2)))):[];
+    return`<section class="card tscard"><div class="tsru" style="font-size:20px">${esc(it.q)}</div>${hintBox(it,st)}<div class="opts">${it.opts.map((o,k)=>`<button class="opt ${d?(k===it.a?'ok':k===st.pick?'no':''):''} ${elim.includes(k)&&!d?'dim':''}" data-a="tsq" data-k="${k}" ${d||elim.includes(k)?'disabled':''}>${esc(o)}</button>`).join('')}</div>${d?`${it.why?`<p class="muted">${esc(it.why)}</p>`:''}<div class="row"><button class="btn" data-a="tsnext">Дальше</button></div>`:`<div class="row"><button class="btn ghost" data-a="tshint" ${st.hints?'disabled':''}>Подсказка</button><button class="btn ghost" data-a="tsdk">Не знаю</button></div>`}</section>`}
+  return'<p>Неизвестное задание</p>'}
+function tsMount(it){const st=TS.st;
+  if(it.t==='hand'){st.pad=wpadMount('tsh',{cols:1,rows:1,cell:600,single:true,strokes:st.strokes||(st.strokes=[])});recReady([it.c]);
+    if(st.done&&st.v&&st.v.state==='bad')showAnim('#tsanim',it.c);else if(st.hints>=3&&!st.done)animMount($('#tsanim'))}
+  if(it.t==='card'&&TSW.on){const chars=[...it.w.hz].filter(isHan);wpadMount('tsw',{cols:WPC(),rows:2,cell:100,strokes:st.strokes||(st.strokes=[])});recReady(chars)}}
+
+Object.assign(act,{
+  wpt:d=>{WPT.tool=d.t;document.querySelectorAll('[data-a=wpt]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.t===WPT.tool)))},
+  wpundo:d=>{const w=WPADS[d.w];if(w)w.ctrl.undo()},
+  wpclear:d=>{const w=WPADS[d.w];if(w)w.ctrl.clear()},
+  wpanim:d=>showAnim('#wpanim',d.c),
+  tswtoggle:()=>{TSW.on=!TSW.on;render()},
+  tsflip:async()=>{const it=tsCur(),st=TS.st,w=it.w,i=$('#tspy');st.py=i?i.value:st.py||'';const strokes=st.strokes||[];
+    if(TSW.on&&(strokes.length||st.py)){const chars=[...w.hz].filter(isHan);let r={res:chars.map(()=>({state:'empty'})),free:''};if(strokes.length)r=await wpCheck('tsw',w.hz);r.pyRes=st.py?pyCheck(st.py,w.py):null;st.wres=r;st.suggest=(strokes.length||st.py)&&(!strokes.length||wpOk(r))&&(!st.py||r.pyRes==='ok')?1:0;if(strokes.length&&wpOk(r))S.stats.write++}
+    st.flip=true;render();if(TS.dir!=='ru')say(w.hz)},
+  tshint:()=>{const it=tsCur(),st=TS.st;if(st.done)return;st.hints=(st.hints||0)+1;
+    if(it.t==='bd'){const b=bdSt(it,st),need=it.toks;let k=0;const ch=[];while(k<b.chosen.length&&b.pool[b.chosen[k]].t===need[k]){ch.push(b.chosen[k]);k++}const idx=b.pool.findIndex((x,i)=>x.t===need[k]&&!ch.includes(i));b.chosen=idx>=0?[...ch,idx]:ch}
+    if(it.t==='wr'||it.t==='hand'||it.t==='card'){const i=$('#tspy');if(i)st.py=i.value}
+    render()},
+  tsdk:()=>{const it=TS.queue[TS.i],st=TS.st;if(st.done)return;const i=$('#tspy');if(i)st.py=i.value;
+    if(it.t==='card'){st.flip=true;st.dk=true;tsPush(false,{dk:true})}
+    else if(it.t==='wr'){st.pick=-1;st.pyRes='bad';st.dk=true;tsPush(false,{dk:true})}
+    else if(it.t==='bd'){const b=bdSt(it,st);b.chosen=bdCorrect(it,b);st.state='no';st.dk=true;tsPush(false,{dk:true})}
+    else if(it.t==='hand'){st.v={state:'bad',top:'?'};st.pyRes=pyCheck(st.py||'',it.py||it.w.py);st.dk=true;tsPush(false,{dk:true,shown:true})}
+    else if(it.t==='quiz'){st.pick=-1;st.dk=true;tsPush(false,{dk:true})}
+    render()},
+  wfocus:d=>{WF.id=d.id;WF.strokes=[];WF.res=null;WF.own='';WF.ghost=true;WF.hints=0;WF.scroll=d.s||'';go('wf')},
+  wfmode:d=>{WF.ghost=d.g==='1';render()},
+  wfcheck:async()=>{const w=WB[WF.id];if(!w)return;const i=$('#wfpy');WF.py=i?i.value:WF.py;const r=WF.strokes.length?await wpCheck('wfpad',w.hz):{res:[...w.hz].filter(isHan).map(()=>({state:'empty'})),free:''};r.pyRes=WF.py?pyCheck(WF.py,w.py):null;WF.res=r;if(WF.strokes.length&&wpOk(r)){S.stats.write++;addXP(2);save()}const e=$('#wfres');if(e)e.innerHTML=wresHTML(r,w)},
+  wfhint:()=>{const w=WB[WF.id];if(!w)return;WF.hints=(WF.hints||0)+1;const ch=[...w.hz].filter(isHan),k=Math.min(WF.hints,3),sy=syls(w);
+    const txt=[`Знаков: ${ch.length}. Чтение начинается на «${ini(w.py)}».`,`Первый знак: ${ch[0]}. Порядок черт ниже.`,`Чтение: ${pyText(w.py)}.`][k-1];const e=$('#wfres');if(e){e.innerHTML=`<div class="hintbox">Подсказка ${k}: ${esc(txt)}</div><div id="wpanim"></div>`;if(k>=2)showAnim('#wpanim',ch[0])}},
+  wfdk:()=>{const w=WB[WF.id];if(!w)return;const ch=[...w.hz].filter(isHan),e=$('#wfres');if(e){e.innerHTML=`<div class="card"><b>Ответ:</b> <span class="hz" style="font-size:28px">${esc(w.hz)}</span> <b class="py">${esc(pyText(w.py))}</b> — ${esc(w.ru)}</div><div id="wpanim"></div>`;showAnim('#wpanim',ch[0])}},
+  wfbuild:d=>{const s=WF.sents[+d.i],w=WB[WF.id];if(!s)return;tsStart('bd',{queue:[{t:'bd',toks:s.toks,ru:s.ru,py:s.py,p:s.p,wid:WF.id}],title:'Предложение со словом '+w.hz,ids:[],n:0,back:WF.id})},
+  wfdict:d=>{const s=WF.sents[+d.i];if(!s)return;startDictation({zh:s.hz+s.p,chars:[...s.hz].filter(isHan),ru:s.ru,py:s.py})},
+  wfowncheck:()=>{const w=WB[WF.id],i=$('#wfown');if(!w||!i)return;const text=i.value.trim();WF.own=text;const e=$('#wfownres');if(!text){toast('Сначала напиши предложение');return}
+    const han=[...text].filter(isHan).join(''),has=text.includes(w.hz),words=recRead(han);
+    if(e)e.innerHTML=`<div class="card ${has?'ok':'bad'}"><b>${has?'Слово «'+esc(w.hz)+'» есть в предложении.':'Слова «'+esc(w.hz)+'» в предложении нет.'}</b></div><p class="rread py"><b>${esc(words.map(x=>x.py.join(' ')).join(' · '))}</b></p><ul class="rmean">${words.filter(x=>x.ru).map(x=>`<li><span class="hz">${esc(x.hz)}</span> <span class="py muted">${esc(x.py.join(' '))}</span> — ${esc(x.ru)}</li>`).join('')}</ul><div class="row">${playBtn(han)}</div><p class="muted" style="font-size:13px">Правильность грамматики проверит репетитор.</p>`},
+  wfownboard:()=>{const w=WB[WF.id];BD.focus=w;BD.task=null;BD.chk=null;BD.strokes.length=0;BD.res=[];BD.cell=BD.cell||160;go('board')},
+  wfownask:()=>{const w=WB[WF.id],i=$('#wfown'),text=(i?i.value:WF.own||'').trim();if(!text){toast('Сначала напиши предложение');return}go('tutor');tuSend(`Посмотри моё предложение со словом «${w.hz}»: ${text}. Есть ли ошибки? Как сказать правильнее?`)},
+  bdfocusoff:()=>{BD.focus=null;bdRefresh()}
+});
+
+/* ---------- библиотека: практика слова ---------- */
+const WF={id:null,ghost:true,strokes:[],res:null,py:'',own:'',hints:0,sents:[],scroll:''};
+function sentencesFor(w,limit=8){const out=[],seen=new Set(),pun=/[，。？！、：；,.?!:;]/g;
+  const add=(toks,ru,py,p)=>{const hz=toks.join('');if(toks.length<1||seen.has(hz))return;seen.add(hz);out.push({toks,hz,ru,py:(py||'').replace(pun,'').replace(/\s+/g,' ').trim(),p:p||'。'})};
+  BOOK.forEach(l=>l.ex.forEach(e=>{if(e.hz.includes(w.hz)){const toks=bookToks(e.hz);if(toks.length>=2)add(toks,e.ru,e.py,(e.hz.match(/[。？！]$/)||['。'])[0])}}));
+  SPR.forEach(d=>d.S.forEach(s=>{const toks=s.toks.filter(t=>!SPR_P.has(t));if(toks.length>=2&&toks.length<=10&&toks.join('').includes(w.hz)){const py=toks.map(t=>{const x=sprWord(t);return x?pyText(x.py):pyOf(t)}).join(' ');add(toks,s.ru,py,s.toks.filter(t=>SPR_P.has(t)).pop())}}));
+  return out.slice(0,limit)}
+views.wf=()=>{const w=WB[WF.id];if(!w){go('dict');return''}
+  const chars=[...w.hz].filter(isHan),sents=WF.sents=sentencesFor(w,8),t=sylTone(w.py);
+  return{html:`<header class="ph"><div class="row" style="justify-content:space-between"><p class="eyebrow">Практика слова</p><button class="btn ghost sm" data-a="go" data-v="dict">В библиотеку</button></div>
+    <div class="row"><span class="hz t${t}" style="font-size:56px;line-height:1">${esc(w.hz)}</span><div style="min-width:0"><div class="pybig t${t}">${esc(pyText(w.py))}</div><div class="muted">${esc(w.ru)}</div></div>${playBtn(w.hz)}</div>
+    <div class="row">${chars.map(c=>`<button class="btn ghost sm" data-a="wpanim" data-c="${esc(c)}"><span class="hz">${esc(c)}</span> порядок черт</button>`).join('')}</div></header>
+    <section class="card wfcard"><div class="seg" role="group" aria-label="Режим"><button data-a="wfmode" data-g="1" aria-pressed="${WF.ghost}">С образцом</button><button data-a="wfmode" data-g="0" aria-pressed="${!WF.ghost}">По памяти</button></div>
+      ${wpadHTML('wfpad')}
+      <label class="tsfield"><span class="muted">Пиньинь (можно набрать)</span><input id="wfpy" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(WF.py)}" placeholder="${esc(pyText(w.py))}"></label>
+      <div class="row"><button class="btn" data-a="wfcheck">Проверить</button><button class="btn ghost" data-a="wfhint">Подсказка</button><button class="btn ghost" data-a="wfdk">Не знаю</button></div>
+      <div id="wfres">${WF.res?wresHTML(WF.res,w):'<div id="wpanim"></div>'}</div></section>
+    <section id="wfsent" class="card"><h2>Предложения с этим словом</h2>${sents.length?`<div class="sentlist">${sents.map((s,i)=>`<div class="sentrow"><div style="min-width:0"><div class="hz" style="font-size:20px">${esc(s.hz+s.p)}</div><div class="py muted" style="font-size:13px">${esc(s.py)}</div><div style="font-size:14px">${esc(s.ru)}</div></div><div class="row"><button class="btn ghost sm" data-a="wfbuild" data-i="${i}">Собрать</button><button class="btn ghost sm" data-a="wfdict" data-i="${i}">Писать</button>${playBtn(s.hz)}</div></div>`).join('')}</div>`:'<p class="muted">Готовых предложений с этим словом нет. Составь своё ниже.</p>'}</section>
+    <section class="card"><h2>Своё предложение</h2><p class="muted">Составь предложение с «${esc(w.hz)}»: набери его или напиши от руки на доске.</p>
+      <input id="wfown" type="text" lang="zh" autocomplete="off" placeholder="Например: ${esc(sents[0]?sents[0].hz:w.hz)}" value="${esc(WF.own)}">
+      <div class="row"><button class="btn" data-a="wfowncheck">Проверить</button><button class="btn ghost" data-a="wfownboard">Написать на доске</button><button class="btn ghost" data-a="wfownask">Спросить репетитора</button></div><div id="wfownres"></div></section>`,
+    mount:()=>{WF.pad=wpadMount('wfpad',{cols:WPC(),rows:2,cell:100,strokes:WF.strokes,ghost:WF.ghost?w.hz:'',ghostA:.3});recReady(chars);if(WF.scroll==='sent'){WF.scroll='';const e=$('#wfsent');if(e&&e.scrollIntoView)e.scrollIntoView()}}}};
+function bdFocusBanner(){if(!BD.focus||BD.task)return'';const w=BD.focus,found=bdText().includes(w.hz);return`<div class="card ${found?'ok':''} row" style="justify-content:space-between"><span>Слово <span class="hz" style="font-size:22px">${esc(w.hz)}</span> ${esc(pyText(w.py))}: <b>${found?'найдено в твоей записи':'пока не найдено, напиши предложение с ним'}</b></span><button class="btn ghost sm" data-a="bdfocusoff">Закрыть</button></div>`}
+function bdResHTML(){return bdFocusBanner()+bdResBase()}
 
 let rz;window.addEventListener('resize',()=>{if(view!=='write'&&!(view==='lesson'&&$('#pad')))return;clearTimeout(rz);rz=setTimeout(render,200)});
 

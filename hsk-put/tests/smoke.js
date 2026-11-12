@@ -76,6 +76,23 @@ ok(tuLocal('объясни разницу между 的 и 得')===null&&tuLoca
 let l5=tuLocal('тест');ok(l5&&l5.kind==='cards'&&l5.src==='sel','просьба «тест» берёт мои слова: '+JSON.stringify(l5));
 S.sel=[];let l6=tuLocal('сделай тест');ok(l6.src==='book','без выбора берётся учебник 1');
 S.sel=BOOK[0].words.slice(0,4).map(w=>w.id);TU.msgs=[];tuRunLocal('тест из моих слов',tuLocal('тест из моих слов'));ok(TS&&TS.queue.length===4&&TU.msgs.length===2&&TU.msgs[1].local,'репетитор собрал и открыл тест');
+// Письмо на карточках, подсказки, «не знаю», практика слова
+S.sel=BOOK[0].words.slice(0,6).map(w=>w.id);
+['cards','wr','bd','hand','quiz'].forEach(k=>{tsStart(k,{n:0});const kinds=TS.queue.map(x=>x.t);
+  TS.queue.forEach((it,i)=>{TS.i=i;TS.st={hints:2};const h=tsItemHTML(it);if(/undefined|NaN|\\[object/.test(h)){fails++;console.log('BAD hint html',k,it.t)}
+    if(!/data-a="tshint"/.test(tsItemHTML(it)=== h?h:h)&&!/Подсказка/.test(h)){fails++;console.log('нет подсказки',it.t)}});
+  TS.i=0;TS.st={};const it0=tsCur(),before=TS.res.length;act.tsdk();ok(TS.res.length===before+1&&TS.res[before].dk&&!TS.res[before].ok&&TS.st.done,'«Не знаю» в тесте «'+k+'»');
+  TS.st={};TS.i=0;act.tshint();ok(TS.st.hints===1&&!!hintFor(tsCur(),1),'подсказка в тесте «'+k+'»: '+hintFor(tsCur(),1))});
+tsStart('bd',{n:0});TS.i=0;TS.st={};const bd0=tsCur();act.tshint();ok(TS.st.b.chosen.length===1&&TS.st.b.pool[TS.st.b.chosen[0]].t===bd0.toks[0],'подсказка в предложении ставит первое слово');
+// проверка письма на карточке без браузера
+const wd=BOOKW.find(w=>w.hz==='学生'),cw=100;WPADS.tsw={strokes:[],cols:6,rows:2,cell:cw};
+[...'学生'].forEach((c,i)=>medOf(c).forEach(m=>WPADS.tsw.strokes.push(m.map(p=>[i*cw+10+p[0]*80,10+p[1]*80]))));
+recBuild([...'学生']);REC.act=recActive(['学','生']);const wc=wpCheckNow('tsw','学生');ok(wc.res.length===2&&wc.res.every(x=>x.state==='ok'||x.state==='close'),'письмо на карточке: 学生 засчитано '+JSON.stringify(wc.res.map(x=>x.state)));
+WPADS.tsw.strokes.length=0;[...'生学'].forEach((c,i)=>medOf(c).forEach(m=>WPADS.tsw.strokes.push(m.map(p=>[i*cw+10+p[0]*80,10+p[1]*80]))));const wc2=wpCheckNow('tsw','学生');ok(wc2.res.some(x=>x.state==='bad'),'письмо на карточке: перепутанный порядок знаков не засчитан');
+WPADS.tsw.strokes.length=0;[...'学生人'].forEach((c,i)=>medOf(c).forEach(m=>WPADS.tsw.strokes.push(m.map(p=>[(i%6)*cw+10+p[0]*80,10+p[1]*80]))));const wc3=wpCheckNow('tsw','学生');ok(wpOk(wc3)&&wc3.free==='人','лишние знаки (словосочетание) распознаются отдельно: «'+wc3.free+'»');
+const sf=sentencesFor(BOOKW.find(w=>w.hz==='孩子'));ok(sf.length>=1&&sf[0].toks.length>=2&&sf[0].ru,'предложения со словом 孩子: '+sf.length);
+WF.id=BOOKW.find(w=>w.hz==='孩子').id;go('wf');ok(last.length>800&&!/undefined|NaN/.test(last)&&/Практика слова/.test(last)&&/Своё предложение/.test(last),'экран практики слова');
+D.set=true;D.lvl=-1;D.mode='direct';ok(/data-a="wfocus"/.test(libResults()),'в библиотеке есть кнопки практики');D.mode='explain';ok(/data-a="wfocus"/.test(libResults()),'кнопки практики в режиме с объяснениями');D.mode='direct';
 // Диктант
 S.sel=[];ok(sentPool().length>20,'предложений для диктанта: '+sentPool().length);startDictation();ok(BD.task&&BD.task.chars.length>=2&&BD.task.ru&&BD.task.py,'диктант: '+(BD.task&&BD.task.zh));
 BD.chk=BD.task.chars.map(()=>({state:'ok'}));ok(!/undefined|NaN/.test(bdTaskHTML()),'итог диктанта без undefined');
