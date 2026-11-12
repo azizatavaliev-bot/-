@@ -19,87 +19,24 @@
 </div>
 
 <main>
-  <!-- Экран 1: хук -->
-  <section class="section hero">
-    <p class="eyebrow">NEW G</p>
-    <h1 class="display">ИИ заменит всех специалистов,</h1>
-    <p class="hero__sub">которые не умеют им пользоваться</p>
-    <p class="lead">
-      Первая программа, которая готовит <mark>таргетологов нового поколения</mark>.
-      Ты осваиваешь профессию таргетолога и учишься работать с искусственным
-      интеллектом как со своим личным ассистентом.
-    </p>
-    <a class="btn btn--ghost" href="#form">Занять место на консультации</a>
-  </section>
-
   <!-- Экран 1.5: бесплатный видеоурок -->
   <section class="section lesson" id="lesson">
-    <span class="badge">Бесплатный видеоурок</span>
-    <h2 class="display display--sm">Как заработать первые $1000 на таргете</h2>
-
     <div class="lesson__box" id="lessonBox">
       <!-- Урок раздаёт YouTube: он подбирает качество под скорость сети и даёт
            родной полный экран на телефоне. Чтобы поменять ролик, достаточно
            заменить идентификатор в конце адреса. -->
       <iframe
         class="lesson__frame"
-        src="https://www.youtube.com/embed/xOxoMc_-TAg?rel=0&amp;modestbranding=1&amp;playsinline=1"
-        title="Бесплатный видеоурок: как заработать первые $1000 на таргете"
+        src="https://www.youtube.com/embed/Pu6MlGW90aM?rel=0&amp;modestbranding=1&amp;playsinline=1"
+        title="Видеоурок"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
         allowfullscreen
         loading="lazy"></iframe>
     </div>
   </section>
 
-  <!-- Экран 2: программа -->
-  <section class="section">
-    <span class="badge">12 уроков</span>
-    <h2 class="display display--sm">Полный путь <span class="accent">с нуля до результата</span></h2>
-
-    <div class="module">
-      <p class="module__title"><span class="module__num">8</span> уроков — база</p>
-      <p class="module__text">Таргет, креативы по AIDA, запуск, аналитика, работа с клиентами и продажи.</p>
-    </div>
-
-    <div class="module module--accent">
-      <p class="module__title"><span class="module__num">4</span> урока — интеграция ИИ</p>
-      <p class="module__text">
-        ИИ собирает аудиторию, разбирает конкурентов, готовит креативы и отчёты
-        клиентам за минуты вместо часов.
-      </p>
-    </div>
-  </section>
-
-  <!-- Экран 3: результаты учеников -->
-  <section class="section">
-    <h2 class="h2">За 5 лет я обучил</h2>
-    <p class="bignum">500+</p>
-    <p class="lead lead--tight">
-      учеников таргету, которые вышли на доход <b>30 000 – 585 000 сом</b>.
-      Во время обучения <b>70 из 100</b> вышли на результат.
-    </p>
-
-    <!-- Карточки кейсов из карусели. Суммы «Точка А / Точка Б» впечатаны
-         в сами изображения, поэтому поверх ничего не рисуем — иначе цифры
-         задвоятся. Файл, который не загрузился, просто исчезает из сетки. -->
-    <div class="cases">
-      <img class="case" src="/cases/1.jpg" alt="Кейс ученика: с 0 до 185 000 сом" loading="lazy" onerror="this.remove()">
-      <img class="case" src="/cases/2.jpg" alt="Кейс ученика: с 0 до 424 000 сом" loading="lazy" onerror="this.remove()">
-      <img class="case" src="/cases/3.jpg" alt="Кейс ученика: с 0 до 145 000 сом" loading="lazy" onerror="this.remove()">
-      <img class="case" src="/cases/4.jpg" alt="Кейс ученика: с 30 000 до 550 000 сом" loading="lazy" onerror="this.remove()">
-      <img class="case" src="/cases/5.jpg" alt="Кейс ученика: с 50 000 до 585 000 сом" loading="lazy" onerror="this.remove()">
-      <img class="case" src="/cases/6.jpg" alt="Кейс ученика: с 0 до 158 000 сом" loading="lazy" onerror="this.remove()">
-    </div>
-  </section>
-
   <!-- Экран 4: оффер и анкета -->
   <section class="section" id="form">
-    <h2 class="display display--sm">Не уверен, подходит ли тебе эта профессия?</h2>
-    <p class="lead">
-      Бесплатная консультация — <b>15 минут</b>, чтобы понять твой потенциал
-      в таргете и ИИ. Заполни анкету, и я свяжусь с тобой лично.
-    </p>
-
     <div class="card" id="formCard" hidden>
       <form id="anketa" novalidate>
         <div id="fields"></div>
@@ -117,7 +54,6 @@
     <div class="card card--state" id="loadingCard"><p>Загружаем анкету…</p></div>
   </section>
 
-  <footer class="footer">© <span id="year"></span> NEW G</footer>
 </main>
 
 <script src="/app.js"></script>

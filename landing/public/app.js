@@ -251,8 +251,6 @@
       });
   });
 
-  document.getElementById('year').textContent = new Date().getFullYear();
-
   setInterval(tick, 1000);
   // Пересверка с сервером: раз в минуту и при возврате на вкладку, чтобы вкладка,
   // провисевшая ночь в фоне, показывала корректное время.
