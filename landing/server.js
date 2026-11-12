@@ -1,25 +1,16 @@
 // HTTP-сервер лендинга. Без внешних зависимостей.
 //
-// Механика таймера:
-//   1. Первый заход  -> сервер кладёт в cookie подписанный дедлайн (сейчас + windowHours).
-//   2. Любой следующий заход с тем же устройством -> возвращается ТОТ ЖЕ дедлайн.
-//      Время не перезапускается и продолжает идти, пока сайт закрыт.
-//   3. Приём анкеты проверяется на сервере по подписи: подменить дедлайн
-//      в браузере нельзя — без секретного ключа подпись не сойдётся.
+// Приём анкет: заявка проверяется по полям из config.fields и уходит в Telegram.
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
 const config = require('./config');
-const token = require('./lib/token');
 const leads = require('./lib/leads');
 const settings = require('./lib/settings');
 
 const PUBLIC_DIR = path.join(__dirname, 'public');
-const COOKIE_NAME = 'ng';
-// Запасной канал для того же подписанного токена, когда cookie не переживает перезаход.
-const HEADER_NAME = 'x-ng-token';
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -30,18 +21,6 @@ const MIME = {
   '.webp': 'image/webp',
   '.ico': 'image/x-icon',
 };
-
-function parseCookies(req) {
-  const header = req.headers.cookie;
-  if (!header) return {};
-  return Object.fromEntries(
-    header.split(';').map((part) => {
-      const index = part.indexOf('=');
-      if (index === -1) return [part.trim(), ''];
-      return [part.slice(0, index).trim(), decodeURIComponent(part.slice(index + 1).trim())];
-    })
-  );
-}
 
 function sendJson(res, status, body, headers = {}) {
   res.writeHead(status, {
@@ -74,66 +53,6 @@ function clientIp(req) {
   const forwarded = req.headers['x-forwarded-for'];
   if (typeof forwarded === 'string' && forwarded) return forwarded.split(',')[0].trim();
   return req.socket.remoteAddress || '';
-}
-
-function isHttps(req) {
-  return req.headers['x-forwarded-proto'] === 'https';
-}
-
-function setSessionCookie(res, req, payload) {
-  const parts = [
-    `${COOKIE_NAME}=${token.sign(payload, config.secret)}`,
-    'Path=/',
-    `Max-Age=${config.cookieDays * 24 * 3600}`,
-    'SameSite=Lax',
-    'HttpOnly',
-  ];
-  // Secure выставляем только под https, иначе cookie не сохранится при локальной проверке.
-  if (isHttps(req)) parts.push('Secure');
-  res.setHeader('set-cookie', parts.join('; '));
-}
-
-// Устройство присылает свой дедлайн двумя независимыми путями: cookie и заголовок
-// (браузер держит копию токена в localStorage). Мобильные браузеры и встроенные
-// webview соцсетей регулярно теряют cookie между сессиями, поэтому одного канала мало.
-function collectSessions(req) {
-  const candidates = [parseCookies(req)[COOKIE_NAME], req.headers[HEADER_NAME]];
-  return candidates.map((value) => token.verify(value, config.secret)).filter(Boolean);
-}
-
-// Возвращает дедлайн устройства: из любого сохранившегося токена либо новый.
-function resolveSession(req, res) {
-  const found = collectSessions(req);
-
-  if (found.length === 0) {
-    const fresh = { d: Date.now() + config.windowHours * 3600 * 1000, s: 0, v: 1 };
-    setSessionCookie(res, req, fresh);
-    return fresh;
-  }
-
-  // Берём самый ранний дедлайн и «липкий» признак отправки: очистка одного
-  // хранилища не должна давать новые 24 часа или второй заход анкеты.
-  const earliest = found.reduce((a, b) => (b.d < a.d ? b : a));
-  const session = { ...earliest, s: found.some((item) => item.s === 1) ? 1 : 0 };
-
-  // Восстанавливаем cookie, если её потеряли, — иначе устройство останется
-  // только на одном канале и следующая потеря обнулит таймер.
-  setSessionCookie(res, req, session);
-  return session;
-}
-
-function sessionState(payload) {
-  const now = Date.now();
-  return {
-    now,
-    // Подписанная копия для localStorage. Секретов внутри нет, а подделать
-    // её без ключа нельзя — поэтому отдавать в браузер безопасно.
-    token: token.sign(payload, config.secret),
-    deadline: payload.d,
-    msLeft: Math.max(0, payload.d - now),
-    expired: now >= payload.d,
-    submitted: payload.s === 1,
-  };
 }
 
 // Проверка анкеты по описанию полей из config.fields.
@@ -225,29 +144,7 @@ function isAdmin(url) {
 async function handle(req, res) {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
 
-  // Состояние таймера для текущего устройства + описание полей анкеты.
-  if (url.pathname === '/api/session' && req.method === 'GET') {
-    const session = resolveSession(req, res);
-    return sendJson(res, 200, {
-      ...sessionState(session),
-      windowHours: config.windowHours,
-      submitLabel: config.submitLabel,
-      successTitle: config.successTitle,
-      successText: config.successText,
-      expiredTitle: config.expiredTitle,
-      expiredText: config.expiredText,
-      fields: config.fields,
-    });
-  }
-
   if (url.pathname === '/api/submit' && req.method === 'POST') {
-    const session = resolveSession(req, res);
-    const state = sessionState(session);
-
-    // Главная проверка: дедлайн валидируется по подписи на сервере.
-    if (state.expired) return sendJson(res, 403, { error: 'expired', ...state });
-    if (state.submitted) return sendJson(res, 409, { error: 'already_submitted', ...state });
-
     let payload;
     try {
       payload = JSON.parse(await readBody(req));
@@ -269,39 +166,17 @@ async function handle(req, res) {
       config.fields
     );
 
-    // Если ни один приёмник не принял заявку — не закрываем форму и просим
-    // отправить заново. Молча «принять» и потерять лид хуже, чем показать ошибку.
-    if (!delivery.delivered) return sendJson(res, 503, { error: 'not_delivered', ...state });
+    // Если ни один приёмник не принял заявку — просим отправить заново.
+    // Молча «принять» и потерять лид хуже, чем показать ошибку.
+    if (!delivery.delivered) return sendJson(res, 503, { error: 'not_delivered' });
 
-    // Помечаем устройство как отправившее анкету — повторно форма не откроется.
-    const submitted = { ...session, s: 1 };
-    setSessionCookie(res, req, submitted);
-    return sendJson(res, 200, { ok: true, ...sessionState(submitted) });
+    return sendJson(res, 200, { ok: true });
   }
 
-  // Диагностика. Показывает, что именно сервер получил от устройства и каким
-  // ключом подписывает токены. Секрет не раскрывается — только его отпечаток:
-  // если отпечаток меняется между деплоями, значит SESSION_SECRET непостоянен,
-  // и тогда таймеры обнуляются у всех при каждом обновлении сайта.
+  // Диагностика доставки: только факт, что значения дошли до процесса, и их длина.
   if (url.pathname === '/api/debug' && req.method === 'GET') {
-    const cookieToken = parseCookies(req)[COOKIE_NAME];
-    const headerToken = req.headers[HEADER_NAME];
-    const session = resolveSession(req, res);
-    const state = sessionState(session);
-
     return sendJson(res, 200, {
-      отпечатокКлюча: crypto.createHash('sha256').update(config.secret).digest('hex').slice(0, 12),
-      ключЗадан: config.hasCustomSecret,
-      пришлаCookie: Boolean(cookieToken),
-      cookieВалидна: Boolean(token.verify(cookieToken, config.secret)),
-      пришёлТокенИзБраузера: Boolean(headerToken),
-      токенВалиден: Boolean(token.verify(headerToken, config.secret)),
-      осталосьЧасов: Math.round((state.msLeft / 3600000) * 100) / 100,
-      анкетаОтправлена: state.submitted,
-      защищённоеСоединение: isHttps(req),
       хранилищеЗаявок: leads.fileSink,
-      // Значения не раскрываются: только факт, что они дошли до процесса,
-      // и длина — по ней видно, подставилось ли значение целиком.
       телеграмТокенЗадан: Boolean(process.env.TELEGRAM_BOT_TOKEN),
       длинаТокена: (process.env.TELEGRAM_BOT_TOKEN || '').length,
       телеграмЧатЗадан: Boolean(process.env.TELEGRAM_CHAT_ID),
@@ -370,7 +245,6 @@ if (require.main === module) {
   server.listen(config.port, () => {
     console.log(`Лендинг запущен: http://localhost:${config.port}`);
     console.log(`Заявки: http://localhost:${config.port}/admin.html?key=${config.adminKey}`);
-    if (!config.hasCustomSecret) console.warn('Внимание: задайте SESSION_SECRET в .env, иначе таймеры сбросятся при смене ключа');
     if (config.adminKey === 'change-me') console.warn('Внимание: смените ADMIN_KEY в .env');
   });
 }

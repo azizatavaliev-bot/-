@@ -5,7 +5,6 @@
     { "src": "public/**/*", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/api/session", "dest": "/api/session.js" },
     { "src": "/api/submit", "dest": "/api/submit.js" },
     { "src": "/api/leads", "dest": "/api/leads.js" },
     { "src": "/", "dest": "/public/index.html" },

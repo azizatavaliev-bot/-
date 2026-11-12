@@ -13,11 +13,6 @@
 </head>
 <body>
 
-<div class="timer" id="timer" hidden>
-  <span class="timer__label">Доступ к уроку</span>
-  <span class="timer__value" id="timerValue">--:--:--</span>
-</div>
-
 <main>
   <!-- Экран 1.5: бесплатный видеоурок -->
   <section class="section lesson" id="lesson">
@@ -37,21 +32,23 @@
 
   <!-- Экран 4: оффер и анкета -->
   <section class="section" id="form">
-    <div class="card" id="formCard" hidden>
+    <div class="card" id="formCard">
       <form id="anketa" novalidate>
-        <div id="fields"></div>
+        <div id="fields">
+          <div class="field" data-name="name"><label for="f_name">Как тебя зовут<span class="req"> *</span></label><input id="f_name" name="name" type="text" maxlength="80"></div>
+          <div class="field" data-name="phone"><label for="f_phone">WhatsApp для связи<span class="req"> *</span></label><input id="f_phone" name="phone" type="tel" inputmode="tel" maxlength="30" placeholder="+996 700 000 000"></div>
+          <div class="field" data-name="age"><label for="f_age">Сколько тебе лет<span class="req"> *</span></label><input id="f_age" name="age" type="number" inputmode="numeric"></div>
+          <div class="field" data-name="city"><label for="f_city">Город</label><input id="f_city" name="city" type="text" maxlength="80"></div>
+        </div>
         <p class="form-error" id="formError" hidden></p>
-        <button type="submit" class="btn" id="submitBtn">Отправить</button>
-        <p class="note">Анкету можно отправить один раз и только пока идёт таймер.</p>
+        <button type="submit" class="btn" id="submitBtn">Записаться на консультацию</button>
       </form>
     </div>
 
     <div class="card card--state" id="stateCard" hidden>
-      <h3 id="stateTitle"></h3>
-      <p id="stateText"></p>
+      <h3>Анкета принята</h3>
+      <p>Свяжемся с тобой по указанному WhatsApp и согласуем время консультации.</p>
     </div>
-
-    <div class="card card--state" id="loadingCard"><p>Загружаем анкету…</p></div>
   </section>
 
 </main>
